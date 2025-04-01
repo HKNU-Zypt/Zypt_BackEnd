@@ -13,7 +13,7 @@ public class KakaoService {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     // 유저 정보 가져오기
-    public KakaoUserInfo getKakaoUserInfo(String accessToken) {
+    public static KakaoUserInfo getKakaoUserInfo(String accessToken) {
         String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);

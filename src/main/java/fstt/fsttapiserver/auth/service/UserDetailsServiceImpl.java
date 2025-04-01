@@ -29,6 +29,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return null;
     }
 
+    public void saveMember(Member member) {
+        repository.save(member);
+    }
+
 
 
 }

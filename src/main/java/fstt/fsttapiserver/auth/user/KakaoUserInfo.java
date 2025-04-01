@@ -1,6 +1,9 @@
 package fstt.fsttapiserver.auth.user;
 
 
+import lombok.Getter;
+
+@Getter
 public class KakaoUserInfo {
     private final String id;
     private final String nickname;
