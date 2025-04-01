@@ -33,11 +33,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final MemberRepository memberRepository;
     private final RedisRepository tokenRepository;
 
+    private static final String SOCIAL_TYPE_HEADER = "SocialType";
+    private static final String SOCIAL_TYPE_KAKAO = "kakao";
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
+
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = resolveToken(request);
 
         if (accessToken == null) {
+            log.error("Missing access token");
             throw new MissingTokenException("AccessToken is required");
         }
 
@@ -70,7 +77,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 응답에 토큰 삽입
             response.addCookie(new Cookie("refreshToken", newRefreshToken));
-            response.addHeader("Authorization", newAccessToken);
+            response.addHeader(AUTHORIZATION_HEADER, newAccessToken);
 
             // 자체 JWT 토큰일 경우
         } else {
@@ -93,10 +100,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // 리프레시 토큰 검증, 실패시
                 if (jwtUtils.validationToken(refreshToken)) {
                     String newAccessToken = jwtUtils.generateAccessToken(memberId);
-                    response.addHeader("Authorization", newAccessToken); // 새로운 액세스 토큰 발급
+                    response.addHeader(AUTHORIZATION_HEADER, newAccessToken); // 새로운 액세스 토큰 발급
 
                     // 액세스, 리프레시 둘다 만료되었다면 에러를 던지고, 프론트에서 로그인 페이지로 이동
                 } else {
+                    log.error("Both access and refresh tokens are expired");
                     throw new MissingTokenException("Access/RefreshToken is expired");
                 }
 
@@ -109,14 +117,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // 소셜 토큰 여부 체크
     private boolean isSocialAccessToken(HttpServletRequest request) {
-        return request.getHeader("SocialType").equals("kakao");
+        return request.getHeader(SOCIAL_TYPE_HEADER).equals(SOCIAL_TYPE_KAKAO);
     }
 
     // jwt 토큰 추출
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
+            return bearerToken.substring(BEARER_PREFIX.length());
         }
 
         return null;
