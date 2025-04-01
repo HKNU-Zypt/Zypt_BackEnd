@@ -25,4 +25,13 @@ public class MemberRepository {
         return Optional.ofNullable(em.find(Member.class, id));
     }
 
+    // socialId로 멤버 조회
+    public Optional<Member> findBySocialId(String socialId) {
+        String sql = "select m from Member m where socialId = :socialId";
+        Member member = em.createQuery(sql, Member.class)
+                .setParameter("socialId", socialId)
+                .getSingleResult();
+        return Optional.ofNullable(member);
+    }
+
 }

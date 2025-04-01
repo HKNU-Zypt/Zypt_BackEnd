@@ -1,9 +1,11 @@
 package fstt.fsttapiserver.util;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -66,9 +68,31 @@ public class JwtUtils {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (JwtException e) {
-            log.error("token valid fail = {}", e.getMessage());
+            // 만료 일 시에만 false 반환
+        } catch (ExpiredJwtException e) {
+            log.warn("token expired = {}", e.getMessage());
             return false;
+
+            // 그외에는 예외 던지기
+        } catch (SignatureException e) {
+            throw new SignatureException("token signature invalid ", e.getCause());
+
+        } catch (JwtException e) {
+            throw new JwtException("token is invalid", e.getCause());
+        }
+    }
+
+    public String getSubjectEvenIfExpired(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getSubject();
+
+        } catch (ExpiredJwtException e) {
+            return e.getClaims().getSubject();
         }
     }
 
