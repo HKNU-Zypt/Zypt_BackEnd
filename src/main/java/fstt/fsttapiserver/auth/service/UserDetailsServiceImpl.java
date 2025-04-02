@@ -1,38 +1,31 @@
 package fstt.fsttapiserver.auth.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import fstt.fsttapiserver.auth.user.KakaoUserInfo;
+import fstt.fsttapiserver.auth.user.CustomUserDetails;
 import fstt.fsttapiserver.domain.Member;
 import fstt.fsttapiserver.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.*;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private MemberRepository repository;
+    private final MemberRepository repository;
 
 
     @Override
-    public UserDetails loadUserByUsername(String userPk) throws UsernameNotFoundException {
-        Member member = repository.findById(userPk).orElseThrow(
-                () -> new UsernameNotFoundException("not found loginId : " + userPk));
-        return null;
+    @Transactional
+    public UserDetails loadUserByUsername(String memberId) throws UsernameNotFoundException {
+        Member member = repository.findById(memberId).orElseThrow(
+                () -> new UsernameNotFoundException("not found loginId : " + memberId));
+
+        return new CustomUserDetails(member.getId(), "ROLE_USER");
     }
-
-    public void saveMember(Member member) {
-        repository.save(member);
-    }
-
-
 
 }
