@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fstt.fsttapiserver.auth.user.KakaoUserInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 public class KakaoService {
 
     private static final RestTemplate restTemplate = new RestTemplate();
@@ -30,12 +32,13 @@ public class KakaoService {
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 JsonNode json = objectMapper.readTree(response.getBody());
+                log.info(json.toPrettyString());
 
-                JsonNode profile = json.get("profile");
+                JsonNode profile = json.get("properties");
 
                 return new KakaoUserInfo(json.get("id").asText()
                         ,profile.get("nickname").asText()
-                        ,profile.get("profile_image_url").asText());
+                        ,null);
 
             }
         } catch (JsonProcessingException e) {
