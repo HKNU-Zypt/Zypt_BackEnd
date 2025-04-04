@@ -1,7 +1,7 @@
 package fstt.fsttapiserver.config;
 
 import fstt.fsttapiserver.auth.filter.JwtAuthenticationFilter;
-import fstt.fsttapiserver.auth.service.UserDetailsServiceImpl;
+import fstt.fsttapiserver.auth.service.AuthService;
 import fstt.fsttapiserver.repository.MemberRepository;
 import fstt.fsttapiserver.repository.RedisRepository;
 import fstt.fsttapiserver.util.CookieUtils;
@@ -23,12 +23,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-
     private final JwtUtils jwtUtils;
-    private final UserDetailsService userDetailsService;
-    private final MemberRepository repository;
-    private final RedisRepository tokenRepository;
-
+    private final AuthService authService;
 
     // 스프링 애플리케이션 부팅시 호출됨
     @Bean
@@ -38,14 +34,14 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable) // 기본 로그아웃 비활성화
                 .headers(c ->
                         c.frameOptions(
-                                        HeadersConfigurer.FrameOptionsConfig::disable).disable()) // x Frame-Option 비활성화
+                                HeadersConfigurer.FrameOptionsConfig::disable).disable()) // x Frame-Option 비활성화
                 .sessionManagement(c ->
                         c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))   // 세션 사용 X
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/", "/login/**").permitAll()
                                 .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtUtils, userDetailsService, repository, tokenRepository)
+                .addFilterBefore(new JwtAuthenticationFilter(jwtUtils, authService)
                         , UsernamePasswordAuthenticationFilter.class);
 
 

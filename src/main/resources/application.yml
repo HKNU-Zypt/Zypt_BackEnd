@@ -35,5 +35,5 @@ livekit:
 
 jwt :
   SECRET_KEY : 32rmfwkfmf**ak#wcn!jdigkrld$psksmsak@wcnjqhs#ek$rhgksek(fnfnfnf
-  ACCESS_TOKEN_EXPIRATION : 10000    # 1hour milliseconds
+  ACCESS_TOKEN_EXPIRATION : 43200000    # 12hour milliseconds
   REFRESH_TOKEN_EXPIRATION : 1209600000 # 14days
