@@ -72,13 +72,14 @@ public class AuthService {
         response.addHeader(AUTHORIZATION_HEADER, BEARER_PREFIX + newAccessToken); // 헤더에 액세스 토큰 삽입
     }
 
+    //
     public void authenticateUserFromToken(HttpServletResponse response, String accessToken) {
-        String memberId = jwtUtils.getSubjectEvenIfExpired(accessToken);
-        String refreshToken = tokenRepository.findRefreshToken(memberId);
+        String memberId = jwtUtils.getSubjectEvenIfExpired(accessToken); // 만료된 accessToken의 userId값을 추출
+        String refreshToken = tokenRepository.findRefreshToken(memberId); ;// redis에 저장된 리프레시 토큰을 찾음
 
         log.info("액세스 토큰 만료 리프레시 발급 = {}", refreshToken);
 
-        // 리프레시 토큰 검증
+        // 리프레시 토큰 검증 (검증 성공시)
         if (jwtUtils.validationToken(refreshToken)) {
             String newAccessToken = jwtUtils.generateAccessToken(memberId);
             response.addHeader(AUTHORIZATION_HEADER, BEARER_PREFIX + newAccessToken); // 새로운 액세스 토큰 발급

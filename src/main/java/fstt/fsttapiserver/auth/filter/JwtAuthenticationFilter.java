@@ -23,7 +23,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final AuthService authService;
 
     private static final String SOCIAL_TYPE_HEADER = "SocialType";
-    private static final String SOCIAL_TYPE_KAKAO = "kakao";
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
@@ -33,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String accessToken = resolveToken(request);
 
         if (accessToken == null) {
-            log.error("Missing access token");
+            log.warn("Missing access token");
             throw new MissingTokenException("AccessToken is required");
         }
 
