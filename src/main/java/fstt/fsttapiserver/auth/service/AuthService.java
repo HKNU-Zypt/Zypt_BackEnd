@@ -72,7 +72,7 @@ public class AuthService {
         response.addHeader(AUTHORIZATION_HEADER, BEARER_PREFIX + newAccessToken); // 헤더에 액세스 토큰 삽입
     }
 
-    //
+
     public void authenticateUserFromToken(HttpServletResponse response, String accessToken) {
         String memberId = jwtUtils.getSubjectEvenIfExpired(accessToken); // 만료된 accessToken의 userId값을 추출
         String refreshToken = tokenRepository.findRefreshToken(memberId); ;// redis에 저장된 리프레시 토큰을 찾음

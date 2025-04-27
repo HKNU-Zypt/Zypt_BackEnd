@@ -30,7 +30,7 @@ spring:
 livekit:
   api-key: APIW8s72Jf9nQ5S
   secret-key: Z6svQ2YQTlXS8q2Zk5LEUfhpVeP13FSxboE9GwsNVIE
-  URL: "wss://studytracking-4o27wuve.livekit.cloud"
+  URL: "https://studytracking-4o27wuve.livekit.cloud"
 
 
 jwt :

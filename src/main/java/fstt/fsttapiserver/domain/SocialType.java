@@ -1,7 +1,10 @@
 package fstt.fsttapiserver.domain;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 
+@Getter
 public enum SocialType {
     KAKAO("kakao"),
     GOOGLE("google"),
@@ -30,7 +33,4 @@ public enum SocialType {
                 .orElseThrow(() -> new IllegalArgumentException("Unknown social requestSocialType : " + requestSocialType));
     }
 
-    public String getType() {
-        return type;
-    }
 }
