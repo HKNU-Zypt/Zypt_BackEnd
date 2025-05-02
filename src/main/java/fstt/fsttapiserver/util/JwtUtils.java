@@ -36,7 +36,7 @@ public class JwtUtils {
     public String generateAccessToken(String userId) {
         return Jwts.builder()
                 .setSubject(userId)
-                .setIssuer("FSTT")
+                .setIssuer("Zypt")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
                 .signWith(key)
