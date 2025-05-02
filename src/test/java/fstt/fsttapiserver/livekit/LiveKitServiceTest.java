@@ -1,5 +1,6 @@
 package fstt.fsttapiserver.livekit;
 
+import fstt.fsttapiserver.livekit.dto.LiveKitAccessTokenDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ class LiveKitServiceTest {
 
     @Test
     void run() throws IOException {
-        String myRoom = liveKitService.createRoom("1v", "1234", "myRoom");
+        LiveKitAccessTokenDTO myRoom = liveKitService.createRoom("1v", "1234", "myRoom");
         String myRoom2 = liveKitService.getLiveKitAccessToken("2v", "4321", "myRoom");
 
         log.info("room = {}", myRoom);
