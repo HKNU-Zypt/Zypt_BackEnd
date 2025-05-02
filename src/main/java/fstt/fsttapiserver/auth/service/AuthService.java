@@ -53,8 +53,8 @@ public class AuthService {
         Member member = memberRepository.findBySocialId(userInfo.getId())
                 .orElseGet(() -> {
                     Member newMember = Member.builder()
-                            .id(String.valueOf(UUID.randomUUID()))
-                            .name(userInfo.getNickName())
+                            .id(UUID.randomUUID().toString()) // pk를 UUID로
+                            .name(userInfo.getName()) // 이름 값
                             .socialId(userInfo.getId())
                             .build();
 
