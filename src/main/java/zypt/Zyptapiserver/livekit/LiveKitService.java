@@ -68,6 +68,7 @@ public class LiveKitService {
 
     public String listRoom() throws IOException {
         List<LivekitModels.Room> body = client.listRooms().execute().body();
+
         if (body == null || body.isEmpty()) {
             return "[]"; // 빈 JSON 배열 반환
         }
