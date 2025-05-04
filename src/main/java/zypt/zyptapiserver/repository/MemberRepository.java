@@ -24,7 +24,6 @@ public class MemberRepository {
         em.persist(member);
     }
 
-
     @Transactional(readOnly = true)
     public Optional<Member> findById(String id) {
         return Optional.ofNullable(em.find(Member.class, id));

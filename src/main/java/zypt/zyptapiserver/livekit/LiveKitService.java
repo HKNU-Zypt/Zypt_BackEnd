@@ -1,19 +1,23 @@
 package zypt.zyptapiserver.livekit;
 
-import com.google.protobuf.MessageOrBuilder;
-import com.google.protobuf.util.JsonFormat;
+import lombok.extern.slf4j.Slf4j;
 import zypt.zyptapiserver.livekit.dto.LiveKitAccessTokenDTO;
 import io.livekit.server.*;
 import livekit.LivekitModels;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Response;
+import zypt.zyptapiserver.livekit.dto.LiveKitParticipantDTO;
+import zypt.zyptapiserver.livekit.dto.LiveKitRoomDTO;
+import zypt.zyptapiserver.livekit.exception.DeleteFailException;
+import zypt.zyptapiserver.livekit.exception.RetrofitExecuteException;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
 @Service
-
+@Slf4j
 public class LiveKitService {
 
     private final LiveKitSource liveKitSource;
@@ -54,37 +58,82 @@ public class LiveKitService {
 
         // 방이름, 빈 방 타임아웃, 최대 참여자 수 제한 (이정도만 사용하면 된다.)
         Call<LivekitModels.Room> call = client.createRoom(roomName, 1000, 10);
-//        Call<LivekitModels.Room> call = client.createRoom(roomName, 1000, 10, "nodeId", "metadata", 0, 10, true, 1000);
         Response<LivekitModels.Room> response = call.execute();
         LivekitModels.Room room = response.body();
+
+        log.info("createRoomInfo = {}", room);
+
         return getLiveKitAccessToken(nickName, userId, roomName);
 
     }
 
     public boolean deleteRoom(String roomName) {
-        client.deleteRoom(roomName);
-        return true;
+        try {
+            // 삭제후 방 조회시 비어있다면 삭제된 것이므로 true 반환
+            if (client.deleteRoom(roomName).execute().isSuccessful()) {
+                return true;
+                // 방 삭제 실패시 에러를 던짐
+            } else {
+                throw new DeleteFailException("방 삭제 실패 : " + roomName);
+            }
+        } catch (IOException e) {
+            throw new RetrofitExecuteException("방 삭제 실패 "+ e.getMessage(), e.getCause());
+        }
+
     }
 
-    public String listRoom() throws IOException {
-        List<LivekitModels.Room> body = client.listRooms().execute().body();
+    public List<LiveKitRoomDTO> findAllRooms() {
+        try {
+            List<LivekitModels.Room> roomList = client.listRooms().execute().body();
+            if (roomList == null || roomList.isEmpty()) {
+                return null; // 빈 JSON 배열 반환
+            }
 
-        if (body == null || body.isEmpty()) {
-            return "[]"; // 빈 JSON 배열 반환
+            return roomList.stream()
+                    .map(room -> LiveKitRoomDTO.builder()
+                            .roomId(room.getSid())
+                            .roomName(room.getName())
+                            .emptyTimeOut(room.getEmptyTimeout())
+                            .maxParticipants(room.getMaxParticipants())
+                            .numParticipants(room.getNumParticipants())
+                            .build())
+                    .toList();
+
+
+        } catch (IOException e) {
+            throw new RetrofitExecuteException("모든 방 조회 오류 " + e.getMessage(), e.getCause());
         }
 
-        StringBuilder jsonBuilder = new StringBuilder("[");
-        for (LivekitModels.Room room : body) {
-            String roomJson = JsonFormat.printer().print((MessageOrBuilder) room);
-            jsonBuilder.append(roomJson).append(",");
-        }
-        if (jsonBuilder.length() > 1) {
-            jsonBuilder.setLength(jsonBuilder.length() - 1); // 마지막 쉼표 제거
-        }
-        jsonBuilder.append("]");
-        return jsonBuilder.toString();
     }
 
 
+    public List<LiveKitParticipantDTO> getRoomParticipantsByRoomName(String roomName) {
+        try {
+
+            // 해당 룸의 참가자 정보를 가져오기
+            List<LivekitModels.ParticipantInfo> participants = client.listParticipants(roomName).execute().body();
+
+            // 방의 참자가 정보를 가져오지 못하거나 비었다면 에러 던짐
+            if (participants == null || participants.isEmpty()) {
+                throw new RetrofitExecuteException("존재 하지 않는 방입니다. ");
+            }
+
+            // participantDTO 객체로 변환하여 list로 반환
+            return participants.stream()
+                    .map(participantInfo -> LiveKitParticipantDTO
+                            .builder()
+                            .id(participantInfo.getIdentity())
+                            .userName(participantInfo.getName())
+                            .joinedAt(participantInfo.getJoinedAt())
+                            .build())
+                    .toList();
+
+
+            // 방이 존재하지 않을 시 런타임으로 변환하여 던짐
+        } catch (IOException e) {
+            log.info("room name = {} 참가자 조회 오류", roomName);
+            throw new RetrofitExecuteException("방 참자가 조회 오류 " + e.getMessage(), e.getCause());
+        }
+    }
 
 }
