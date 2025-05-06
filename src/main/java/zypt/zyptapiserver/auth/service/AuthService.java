@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.auth.service;
 
+import io.jsonwebtoken.Claims;
 import zypt.zyptapiserver.auth.exception.InvalidTokenException;
 import zypt.zyptapiserver.auth.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
@@ -48,6 +49,7 @@ public class AuthService {
         if (userInfo == null) {
             throw new InvalidTokenException("social AccessToken is invalid or malformed");
         }
+        log.info("name = {}", userInfo.getName());
 
         // 회원가입 하지 않았다면 가입
         Member member = memberRepository.findBySocialId(userInfo.getId())
@@ -63,9 +65,9 @@ public class AuthService {
                     return newMember;
                 });
 
-        String newAccessToken = jwtUtils.generateAccessToken(member.getId());
+        String newAccessToken = jwtUtils.generateAccessToken(member.getId(), member.getName());
         String newRefreshToken = findMemoryRefreshToken(member);
-        registryAuthenticatedUser(member.getId());
+        registryAuthenticatedUser(member.getId(), member.getName());
 
         // 응답에 토큰 삽입
         CookieUtils.addCookie(response, newRefreshToken);
@@ -74,18 +76,22 @@ public class AuthService {
 
 
     public void authenticateUserFromToken(HttpServletResponse response, String accessToken) {
-        String memberId = jwtUtils.getSubjectEvenIfExpired(accessToken); // 만료된 accessToken의 userId값을 추출
-        String refreshToken = tokenRepository.findRefreshToken(memberId); ;// redis에 저장된 리프레시 토큰을 찾음
+        Claims claims = jwtUtils.getSubjectEvenIfExpired(accessToken);// 만료된 accessToken의 userId값을 추출
+
+        String id = claims.getSubject();
+        String refreshToken = tokenRepository.findRefreshToken(id); ;// redis에 저장된 리프레시 토큰을 찾음
 
         log.info("액세스 토큰 만료 리프레시 발급 = {}", refreshToken);
 
         // 리프레시 토큰 검증 (검증 성공시)
         if (jwtUtils.validationToken(refreshToken)) {
-            String newAccessToken = jwtUtils.generateAccessToken(memberId);
+            String nickName = claims.get("nickName", String.class);
+
+            String newAccessToken = jwtUtils.generateAccessToken(id, nickName);
             response.addHeader(AUTHORIZATION_HEADER, BEARER_PREFIX + newAccessToken); // 새로운 액세스 토큰 발급
 
             // Authentication 등록
-            registryAuthenticatedUser(memberId);
+            registryAuthenticatedUser(id, nickName);
 
             // 액세스, 리프레시 둘다 만료되었다면 에러를 던지고, 프론트에서 로그인 페이지로 이동
         } else {
@@ -99,7 +105,7 @@ public class AuthService {
 
         // 메모리에 리프레시 토큰이 없다면 생성하고 저장
         if (refreshToken == null) {
-            String newRefreshToken = jwtUtils.generateRefreshToken(member.getId());
+            String newRefreshToken = jwtUtils.generateRefreshToken(member.getId(), member.getName());
             tokenRepository.saveRefreshToken(member.getId(), newRefreshToken); // redis에 리프레시 토큰 저장
         }
 
@@ -108,8 +114,8 @@ public class AuthService {
 
 
     // Authentication 등록
-    public void registryAuthenticatedUser(String memberId) {
-        UserDetails userDetails = new CustomUserDetails(memberId, "ROLE_USER");
+    public void registryAuthenticatedUser(String memberId, String nickName) {
+        CustomUserDetails userDetails = new CustomUserDetails(memberId, nickName, "ROLE_USER");
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 

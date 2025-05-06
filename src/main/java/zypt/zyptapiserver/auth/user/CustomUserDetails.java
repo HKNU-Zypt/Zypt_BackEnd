@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.auth.user;
 
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,11 +24,13 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private static final long serialVersionUID = 7385011047362978493L;
 
     private final String id;
+    private final String nickName;
     private final Collection<GrantedAuthority> authorities;
 
 
-    public CustomUserDetails(String id, String roles) {
+    public CustomUserDetails(String id, String nickName, String roles) {
         this.id = id;
+        this.nickName = nickName;
         this.authorities = createAuthorities(roles);
     }
 
@@ -41,6 +44,9 @@ public class CustomUserDetails implements UserDetails, Serializable {
     }
 
 
+    public String getNickName() {
+        return nickName;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -14,13 +14,14 @@ public class Member extends BaseTimeEntity {
     @Id
     private String id;
     private String name;
+    private String nickName;
     private String socialId;
 
     @Builder
-
-    public Member(String id, String name, String socialId) {
+    public Member(String id, String name, String nickName, String socialId) {
         this.id = id;
         this.name = name;
+        this.nickName = nickName;
         this.socialId = socialId;
     }
 }

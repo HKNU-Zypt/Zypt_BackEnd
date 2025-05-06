@@ -22,24 +22,19 @@ class LiveKitServiceTest {
 
     @Test
     void run() throws IOException {
-        LiveKitAccessTokenDTO myRoom = liveKitService.createRoom("1v", "1234", "myRoom");
+        LiveKitAccessTokenDTO myRoom = liveKitService.createRoom("1v", "1234", "myRoom", 4);
         LiveKitAccessTokenDTO myRoom1 = liveKitService.getLiveKitAccessToken("2v", "4321", "myRoom");
 
         log.info("room = {}", myRoom);
         log.info("room2 = {}", myRoom1.getLivekitAccessToken());
         log.info("list = {}", liveKitService.findAllRooms());
-
-
-
-
-
     }
 
     @Test
     @DisplayName("중복 생성 테스트")
     void dupleCreateRoom() throws IOException {
-        LiveKitAccessTokenDTO myRoom1 = liveKitService.createRoom("1v", "1234", "myRoom");
-        LiveKitAccessTokenDTO myRoom2 = liveKitService.createRoom("2v", "124", "myRoom");
+        LiveKitAccessTokenDTO myRoom1 = liveKitService.createRoom("1v", "1234", "myRoom", 2);
+        LiveKitAccessTokenDTO myRoom2 = liveKitService.createRoom("2v", "124", "myRoom", 4);
 
         log.info("room1 = {}", myRoom1);
         log.info("room2 = {}", myRoom2);
@@ -77,8 +72,8 @@ class LiveKitServiceTest {
     }
 
     @Test
-    void deleteRoomNow() throws IOException {
-        LiveKitAccessTokenDTO myRoom = liveKitService.createRoom("1v", "1234", "myRoom");
+    void deleteRoomNow()  {
+//        LiveKitAccessTokenDTO myRoom = liveKitService.createRoom("1v", "1234", "myRoom");
 
         if (liveKitService.deleteRoom("myRoom")) {
             log.info("룸 삭제 성공");

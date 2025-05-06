@@ -31,9 +31,10 @@ public class JwtUtils {
 
 
     // 액세스 토큰 생성
-    public String generateAccessToken(String userId) {
+    public String generateAccessToken(String userId, String nickName) {
         return Jwts.builder()
                 .setSubject(userId)
+                .claim("nickName", nickName)
                 .setIssuer("Zypt")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
@@ -42,13 +43,22 @@ public class JwtUtils {
     }
 
     // 리프레시 토큰 생성
-    public String generateRefreshToken(String userId) {
+    public String generateRefreshToken(String userId, String nickName) {
         return Jwts.builder()
                 .setSubject(userId)
+                .claim("nickName", nickName)
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
                 .signWith(key)
                 .compact();
 
+    }
+
+    public Claims extractInfo(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     // token에서 userPk 추출
@@ -59,6 +69,15 @@ public class JwtUtils {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public String extractNickName(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("nickName", String.class);
     }
 
     // 토큰 검증
@@ -86,17 +105,16 @@ public class JwtUtils {
 
     }
 
-    public String getSubjectEvenIfExpired(String token) {
+    public Claims getSubjectEvenIfExpired(String token) {
         try {
-            Claims claims = Jwts.parserBuilder()
+            return Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-            return claims.getSubject();
 
         } catch (ExpiredJwtException e) {
-            return e.getClaims().getSubject();
+            return e.getClaims();
         }
     }
 
