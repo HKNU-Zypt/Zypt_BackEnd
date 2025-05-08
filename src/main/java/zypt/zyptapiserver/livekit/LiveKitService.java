@@ -54,12 +54,11 @@ public class LiveKitService {
     // 방 설정 정도 생성
     // 나중에 글로벌로 exception 잡아서 처리
     public LiveKitAccessTokenDTO createRoom(String nickName, String userId, String roomName, int maxParticipant) throws IOException {
-        Call<LivekitModels.Room> call =
-                LiveKitTemplate.execute(() -> client.createRoom(roomName, 1000, maxParticipant));
 
-        // 방이름, 빈 방 타임아웃, 최대 참여자 수 제한 (이정도만 사용하면 된다.)
-//        Call<LivekitModels.Room> call = client.createRoom(roomName, 1000, 10);
-        Response<LivekitModels.Room> response = call.execute();
+        // 방이름, 빈 방 타임아웃, 최대 참여자 수 제한
+        Response<LivekitModels.Room> response
+                = LiveKitTemplate.execute(() -> client.createRoom(roomName, 1000, maxParticipant).execute());
+
         LivekitModels.Room room = response.body();
 
         log.info("createRoomInfo = {}", room);
