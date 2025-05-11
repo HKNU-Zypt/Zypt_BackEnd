@@ -41,6 +41,7 @@ public class LiveKitService {
         livekitAccessToken.setIdentity(userId);
         livekitAccessToken.setMetadata("사용자 추가 정보");
         livekitAccessToken.setTtl(1000L); // 토큰 유효시간 초단위 (상대적) exp랑 같이 사용 불가
+
 //        livekitAccessToken.setExpiration(new Date(Duration.ofHours(10).getSeconds())); // 토큰 종료 시간을 정함 (고정)
 //        livekitAccessToken.setNotBefore(); // 특정 시간 이후에 토큰 효능 발휘
 //        livekitAccessToken.setRoomPreset(); // 방 설정 서버에서 정의된 프리셋 사용
@@ -58,11 +59,9 @@ public class LiveKitService {
         // 방이름, 빈 방 타임아웃, 최대 참여자 수 제한
         Response<LivekitModels.Room> response
                 = LiveKitTemplate.execute(() -> client.createRoom(roomName, 1000, maxParticipant).execute());
-
         LivekitModels.Room room = response.body();
 
         log.info("createRoomInfo = {}", room);
-
         return getLiveKitAccessToken(nickName, userId, roomName);
 
     }

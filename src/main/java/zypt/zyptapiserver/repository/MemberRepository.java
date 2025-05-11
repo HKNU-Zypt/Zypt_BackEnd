@@ -13,19 +13,19 @@ import java.util.Optional;
 
 @Slf4j
 @Repository
-@Transactional
 public class MemberRepository {
 
     @PersistenceContext
     private EntityManager em;
 
     @Transactional
-    public void save(Member member) {
+    public Member save(Member member) {
         em.persist(member);
+        return member;
     }
 
-    @Transactional(readOnly = true)
-    public Optional<Member> findById(String id) {
+    @Transactional
+    public Optional<Member> findMemberById(String id) {
         return Optional.ofNullable(em.find(Member.class, id));
     }
 

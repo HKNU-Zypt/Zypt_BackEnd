@@ -28,7 +28,4 @@ public class RedisRepository {
         return template.opsForValue();
     }
 
-
-
-
 }

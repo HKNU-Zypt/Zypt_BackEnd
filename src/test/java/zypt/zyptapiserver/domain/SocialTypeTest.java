@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.domain;
 
+import org.junit.jupiter.api.DisplayName;
 import zypt.zyptapiserver.auth.service.KakaoService;
 import zypt.zyptapiserver.auth.service.SocialService;
 import zypt.zyptapiserver.auth.service.SocialServiceFactory;
@@ -35,6 +36,7 @@ class SocialTypeTest {
         mockMvc = MockMvcBuilders.standaloneSetup(socialServiceFactory).build();
     }
     @Test
+    @DisplayName("소셜 로그인 헤더로 요청시 소셜로그인 provider에 해당하는 소셜 서비스 호출 확인 테스트")
     void socialTypeCheck() throws Exception {
         ResultActions perform = mockMvc.perform(get("/a")
                 .header("SocialType", "google"));

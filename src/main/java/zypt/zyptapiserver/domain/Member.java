@@ -1,25 +1,28 @@
 package zypt.zyptapiserver.domain;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 public class Member extends BaseTimeEntity {
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String name;
     private String nickName;
     private String socialId;
 
     @Builder
-    public Member(String id, String name, String nickName, String socialId) {
-        this.id = id;
+    public Member(String name, String nickName, String socialId) {
         this.name = name;
         this.nickName = nickName;
         this.socialId = socialId;

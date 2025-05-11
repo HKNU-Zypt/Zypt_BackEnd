@@ -43,6 +43,7 @@ class LiveKitServiceTest {
 
     }
     @Test
+    @DisplayName("방 조인 요청이 방이 생성되는지 테스트")
     void notCreateRoomAndJoin() throws IOException {
 //        String myRoom = liveKitService.createRoom("1v", "1234", "myRoom");
 
@@ -53,12 +54,14 @@ class LiveKitServiceTest {
         log.info("room2 = {}", myRoom2);
         log.info("room3 = {}", myRoom3);
 
+        // 참여자 리스트
         List<LiveKitParticipantDTO> myRoom = liveKitService.getRoomParticipantsByRoomName("myRoom");
         log.info("roomParticipants = {}", myRoom);
 
     }
 
     @Test
+    @DisplayName("모든 방 조회 후 특정 방의 참여자를 출력하고 방삭제 테스트")
     void getListParticipant() {
         List<LiveKitRoomDTO> allRooms = liveKitService.findAllRooms();
         log.info("rooms = {}", allRooms);
@@ -72,6 +75,7 @@ class LiveKitServiceTest {
     }
 
     @Test
+    @DisplayName("방삭제 테스트")
     void deleteRoomNow()  {
 //        LiveKitAccessTokenDTO myRoom = liveKitService.createRoom("1v", "1234", "myRoom");
 
