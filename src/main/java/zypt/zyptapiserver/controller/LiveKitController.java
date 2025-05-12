@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.controller;
 
+import io.livekit.server.AccessToken;
 import livekit.LivekitModels;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.web.bind.annotation.*;
@@ -16,24 +17,23 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/room")
+@RequestMapping("/rooms")
 @RequiredArgsConstructor
 public class LiveKitController {
 
     private final LiveKitService service;
 
-    @GetMapping("/create")
+    @PostMapping("/create")
     public ResponseEntity<LiveKitAccessTokenDTO> createRoom(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                             @RequestParam("roomName") String roomName,
                                                             @RequestParam(name = "maxParticipant", defaultValue = "10") int maxParticipant) throws IOException {
         return ResponseEntity.ok(service.createRoom(userDetails.getNickName(), userDetails.getUsername(), roomName, maxParticipant));
     }
 
-    @GetMapping("/join")
-    public ResponseEntity<LiveKitAccessTokenDTO> joinRoom(@RequestParam("nickName") String nickName,
-                                           @AuthenticationPrincipal CustomUserDetails userDetails,
-                                           @RequestParam("roomName") String roomName) {
-        return ResponseEntity.ok(service.getLiveKitAccessToken(nickName, userDetails.getUsername(), roomName));
+    @PostMapping("/{roomName}")
+    public ResponseEntity<LiveKitAccessTokenDTO> joinRoom(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                          @PathVariable("roomName") String roomName) {
+        return ResponseEntity.ok(service.getLiveKitAccessToken(userDetails.getNickName(), userDetails.getUsername(), roomName));
     }
 
     @GetMapping("/{roomName}/participant")
@@ -46,8 +46,9 @@ public class LiveKitController {
         return ResponseEntity.ok(service.findAllRooms());
     }
 
-    @GetMapping("/delete")
-    public ResponseEntity<Boolean> deleteRoomByRoomName(@RequestParam("roomName") String roomName) {
+    @DeleteMapping("/{roomName}")
+    public ResponseEntity<Boolean> deleteRoomByRoomName(@PathVariable("roomName") String roomName) {
         return ResponseEntity.ok(service.deleteRoom(roomName));
     }
+
 }

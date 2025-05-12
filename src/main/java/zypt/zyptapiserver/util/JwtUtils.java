@@ -31,10 +31,9 @@ public class JwtUtils {
 
 
     // 액세스 토큰 생성
-    public String generateAccessToken(String userId, String nickName) {
+    public String generateAccessToken(String userId) {
         return Jwts.builder()
                 .setSubject(userId)
-                .claim("nickName", nickName)
                 .setIssuer("Zypt")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
@@ -43,16 +42,16 @@ public class JwtUtils {
     }
 
     // 리프레시 토큰 생성
-    public String generateRefreshToken(String userId, String nickName) {
+    public String generateRefreshToken(String userId) {
         return Jwts.builder()
                 .setSubject(userId)
-                .claim("nickName", nickName)
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
                 .signWith(key)
                 .compact();
 
     }
 
+    @Deprecated
     public Claims extractInfo(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -62,7 +61,7 @@ public class JwtUtils {
     }
 
     // token에서 userPk 추출
-    public String extractUserId(String token) {
+    public String extractId(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()

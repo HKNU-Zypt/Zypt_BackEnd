@@ -35,7 +35,6 @@ public class LiveKitService {
     // userid는 AccessToken에서 꺼내서 사용
     public LiveKitAccessTokenDTO getLiveKitAccessToken(String nickName, String userId,  String roomName) {
         AccessToken livekitAccessToken = new AccessToken(liveKitSource.getAPI_KEY(), liveKitSource.getSECRET_KEY());
-
         // 유저 이름
         livekitAccessToken.setName(nickName);
         livekitAccessToken.setIdentity(userId);
@@ -67,14 +66,15 @@ public class LiveKitService {
     }
 
     public boolean deleteRoom(String roomName) {
-        boolean result = LiveKitTemplate.execute(() -> client.deleteRoom(roomName).execute().isSuccessful());
+        boolean isDeletedRoom = LiveKitTemplate.execute(() -> client.deleteRoom(roomName).execute().isSuccessful());
+
+        // 방 삭제 실패시 에러를 던짐
+        if (!isDeletedRoom) {
+            throw new DeleteFailException("방 삭제 실패 : " + roomName);
+        }
+
         // 삭제후 방 조회시 비어있다면 삭제된 것이므로 true 반환
-            if (result) {
-                return true;
-                // 방 삭제 실패시 에러를 던짐
-            } else {
-                throw new DeleteFailException("방 삭제 실패 : " + roomName);
-            }
+        return true;
     }
 
     public List<LiveKitRoomDTO> findAllRooms() {

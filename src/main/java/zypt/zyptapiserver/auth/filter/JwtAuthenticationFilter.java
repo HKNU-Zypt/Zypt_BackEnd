@@ -1,6 +1,5 @@
 package zypt.zyptapiserver.auth.filter;
 
-import io.jsonwebtoken.Claims;
 import zypt.zyptapiserver.auth.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.service.AuthService;
 import zypt.zyptapiserver.domain.SocialType;
@@ -45,12 +44,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } else {
             // 검증 성공 시 Authentication 생성 및 인가
             if (jwtUtils.validationToken(accessToken)) {
-                Claims claims = jwtUtils.extractInfo(accessToken);
+                String id = jwtUtils.extractId(accessToken);
 
-                String id = claims.getSubject();
-                String nickName = claims.get("nickName", String.class);
-
-                authService.registryAuthenticatedUser(id, nickName);
+                authService.registryAuthenticatedUser(id);
 
                 // 액세스 토큰 만료시
             } else {
