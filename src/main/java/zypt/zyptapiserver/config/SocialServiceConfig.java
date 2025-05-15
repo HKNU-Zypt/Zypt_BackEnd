@@ -17,7 +17,6 @@ public class SocialServiceConfig {
 
     private final KakaoService kakaoService;
 
-
     // 소셜 타입 , 소셜 서비스를 맵에 등록
     @Bean
     public Map<SocialType, SocialService> socialTypeSocialServiceMap(KakaoService kakaoService) {
