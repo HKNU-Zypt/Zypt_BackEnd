@@ -51,14 +51,32 @@ public class JwtUtils {
 
     }
 
+    @Deprecated
+    public Claims extractInfo(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
     // token에서 userPk 추출
-    public String extractUserId(String token) {
+    public String extractId(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public String extractNickName(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("nickName", String.class);
     }
 
     // 토큰 검증
@@ -86,17 +104,16 @@ public class JwtUtils {
 
     }
 
-    public String getSubjectEvenIfExpired(String token) {
+    public Claims getSubjectEvenIfExpired(String token) {
         try {
-            Claims claims = Jwts.parserBuilder()
+            return Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-            return claims.getSubject();
 
         } catch (ExpiredJwtException e) {
-            return e.getClaims().getSubject();
+            return e.getClaims();
         }
     }
 

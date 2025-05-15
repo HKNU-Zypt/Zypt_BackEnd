@@ -44,7 +44,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } else {
             // 검증 성공 시 Authentication 생성 및 인가
             if (jwtUtils.validationToken(accessToken)) {
-                authService.registryAuthenticatedUser(jwtUtils.extractUserId(accessToken));
+                String id = jwtUtils.extractId(accessToken);
+
+                authService.registryAuthenticatedUser(id);
 
                 // 액세스 토큰 만료시
             } else {

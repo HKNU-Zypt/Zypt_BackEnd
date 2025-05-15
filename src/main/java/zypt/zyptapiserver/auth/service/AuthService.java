@@ -1,10 +1,13 @@
 package zypt.zyptapiserver.auth.service;
 
+import io.jsonwebtoken.Claims;
+import org.springframework.security.core.userdetails.UserDetails;
 import zypt.zyptapiserver.auth.exception.InvalidTokenException;
 import zypt.zyptapiserver.auth.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
 import zypt.zyptapiserver.auth.user.UserInfo;
 import zypt.zyptapiserver.domain.Member;
+import zypt.zyptapiserver.exception.MemberNotFoundException;
 import zypt.zyptapiserver.repository.MemberRepository;
 import zypt.zyptapiserver.repository.RedisRepository;
 import zypt.zyptapiserver.util.CookieUtils;
@@ -14,10 +17,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -53,7 +55,6 @@ public class AuthService {
         Member member = memberRepository.findBySocialId(userInfo.getId())
                 .orElseGet(() -> {
                     Member newMember = Member.builder()
-                            .id(UUID.randomUUID().toString()) // pk를 UUID로
                             .name(userInfo.getName()) // 이름 값
                             .socialId(userInfo.getId())
                             .build();
@@ -64,8 +65,8 @@ public class AuthService {
                 });
 
         String newAccessToken = jwtUtils.generateAccessToken(member.getId());
-        String newRefreshToken = findMemoryRefreshToken(member);
-        registryAuthenticatedUser(member.getId());
+        String newRefreshToken = findRefreshTokenInRedis(member);
+        registryAuthenticatedUser(member.getId(), member.getName());
 
         // 응답에 토큰 삽입
         CookieUtils.addCookie(response, newRefreshToken);
@@ -74,18 +75,22 @@ public class AuthService {
 
 
     public void authenticateUserFromToken(HttpServletResponse response, String accessToken) {
-        String memberId = jwtUtils.getSubjectEvenIfExpired(accessToken); // 만료된 accessToken의 userId값을 추출
-        String refreshToken = tokenRepository.findRefreshToken(memberId); ;// redis에 저장된 리프레시 토큰을 찾음
+        Claims claims = jwtUtils.getSubjectEvenIfExpired(accessToken);// 만료된 accessToken의 userId값을 추출
+
+        String id = claims.getSubject();
+        String refreshToken = tokenRepository.findRefreshToken(id); ;// redis에 저장된 리프레시 토큰을 찾음
 
         log.info("액세스 토큰 만료 리프레시 발급 = {}", refreshToken);
 
         // 리프레시 토큰 검증 (검증 성공시)
         if (jwtUtils.validationToken(refreshToken)) {
-            String newAccessToken = jwtUtils.generateAccessToken(memberId);
+            String nickName = claims.get("nickName", String.class);
+
+            String newAccessToken = jwtUtils.generateAccessToken(id);
             response.addHeader(AUTHORIZATION_HEADER, BEARER_PREFIX + newAccessToken); // 새로운 액세스 토큰 발급
 
             // Authentication 등록
-            registryAuthenticatedUser(memberId);
+            registryAuthenticatedUser(id);
 
             // 액세스, 리프레시 둘다 만료되었다면 에러를 던지고, 프론트에서 로그인 페이지로 이동
         } else {
@@ -94,7 +99,7 @@ public class AuthService {
     }
 
     // redis 메모리에서 리프레시토큰 찾고 없다면 생성해서 반환
-    private String findMemoryRefreshToken(Member member) {
+    private String findRefreshTokenInRedis(Member member) {
         String refreshToken = tokenRepository.findRefreshToken(member.getId());
 
         // 메모리에 리프레시 토큰이 없다면 생성하고 저장
@@ -108,8 +113,23 @@ public class AuthService {
 
 
     // Authentication 등록
+    public void registryAuthenticatedUser(String memberId, String nickName) {
+
+        UserDetails userDetails = new CustomUserDetails(memberId, nickName, "ROLE_USER");
+        UsernamePasswordAuthenticationToken authenticationToken
+                = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        //Authentication 저장
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+    }
+
+    // Authentication 등록 db 조회
     public void registryAuthenticatedUser(String memberId) {
-        UserDetails userDetails = new CustomUserDetails(memberId, "ROLE_USER");
+
+        Member member = memberRepository.findMemberById(memberId)
+                .orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
+
+        UserDetails userDetails = new CustomUserDetails(memberId, member.getNickName(), "ROLE_USER");
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
