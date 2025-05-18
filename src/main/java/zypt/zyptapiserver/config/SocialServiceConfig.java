@@ -3,7 +3,7 @@ package zypt.zyptapiserver.config;
 import zypt.zyptapiserver.auth.service.KakaoService;
 import zypt.zyptapiserver.auth.service.SocialService;
 import zypt.zyptapiserver.auth.service.SocialServiceFactory;
-import zypt.zyptapiserver.domain.SocialType;
+import zypt.zyptapiserver.domain.enums.SocialType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -18,7 +18,7 @@ CREATE INDEX idx_member_social_id_social_type ON member (social_type, social_id)
 
 
 CREATE TABLE focus_time (
-    id BIGINT primary key,
+    id BIGINT primary key AUTO_INCREMENT,
     member_id VARCHAR(32) NOT NULL,
     start_at DATETIME(3) NOT NULL,
     end_at DATETIME(3) NOT NULL,

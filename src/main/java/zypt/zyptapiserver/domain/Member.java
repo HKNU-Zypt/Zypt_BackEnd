@@ -10,6 +10,7 @@ import lombok.*;
 @Getter
 @EqualsAndHashCode(callSuper = false) // Member 필드만 고려
 @NoArgsConstructor
+@AllArgsConstructor
 public class Member extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.UUID)

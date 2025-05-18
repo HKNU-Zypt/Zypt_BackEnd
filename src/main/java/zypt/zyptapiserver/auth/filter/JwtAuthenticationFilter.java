@@ -2,7 +2,7 @@ package zypt.zyptapiserver.auth.filter;
 
 import zypt.zyptapiserver.auth.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.service.AuthService;
-import zypt.zyptapiserver.domain.SocialType;
+import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.util.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
