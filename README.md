@@ -23,7 +23,8 @@ spring:
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: none
-
+      # OSIV OFF
+    open-in-view: false
 
   # redis config
   data:
