@@ -115,7 +115,7 @@ public class AuthService {
     // Authentication 등록
     public void registryAuthenticatedUser(String memberId, String nickName) {
 
-        UserDetails userDetails = new CustomUserDetails(memberId, nickName, "ROLE_USER");
+        CustomUserDetails userDetails = new CustomUserDetails(memberId, nickName, "ROLE_USER");
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
@@ -129,7 +129,7 @@ public class AuthService {
         Member member = memberRepository.findMemberById(memberId)
                 .orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
 
-        UserDetails userDetails = new CustomUserDetails(memberId, member.getNickName(), "ROLE_USER");
+        CustomUserDetails userDetails = new CustomUserDetails(memberId, member.getNickName(), "ROLE_USER");
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 

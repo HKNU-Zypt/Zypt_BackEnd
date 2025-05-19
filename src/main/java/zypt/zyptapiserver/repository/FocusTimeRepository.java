@@ -35,6 +35,7 @@ public class FocusTimeRepository {
                 = new FocusTime(member, focusTimeInsertDto.startAt(), focusTimeInsertDto.endAt());
 
         em.persist(newFocusTime);
+
         return Optional.of(newFocusTime);
     }
 
@@ -64,4 +65,7 @@ public class FocusTimeRepository {
 
         return unfocusedTimes.stream().mapToLong(FragmentedUnFocusedTimeInsertDto::calculateUnfocusedDuration).sum();
     }
+
+
+
 }

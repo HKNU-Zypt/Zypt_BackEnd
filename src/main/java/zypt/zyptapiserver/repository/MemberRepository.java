@@ -18,8 +18,6 @@ public class MemberRepository {
     @PersistenceContext
     private EntityManager em;
 
-
-
     @Transactional
     public Member save(Member member) {
         em.persist(member);
@@ -41,6 +39,7 @@ public class MemberRepository {
 
         return member.stream().findFirst();
     }
+
 
 
 

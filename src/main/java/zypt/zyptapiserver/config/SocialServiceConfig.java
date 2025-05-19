@@ -22,7 +22,8 @@ public class SocialServiceConfig {
     public Map<SocialType, SocialService> socialTypeSocialServiceMap(KakaoService kakaoService) {
         Map<SocialType, SocialService> map = new EnumMap<>(SocialType.class);
         map.put(SocialType.KAKAO, kakaoService);
-
+        map.put(SocialType.GOOGLE, null);
+        map.put(SocialType.NAVER, null);
         return map;
     }
 
