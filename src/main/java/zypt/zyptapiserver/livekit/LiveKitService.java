@@ -5,7 +5,6 @@ import zypt.zyptapiserver.livekit.dto.LiveKitAccessTokenDTO;
 import io.livekit.server.*;
 import livekit.LivekitModels;
 import org.springframework.stereotype.Service;
-import retrofit2.Call;
 import retrofit2.Response;
 import zypt.zyptapiserver.livekit.dto.LiveKitParticipantDTO;
 import zypt.zyptapiserver.livekit.dto.LiveKitRoomDTO;
@@ -53,7 +52,7 @@ public class LiveKitService {
 
     // 방 설정 정도 생성
     // 나중에 글로벌로 exception 잡아서 처리
-    public LiveKitAccessTokenDTO createRoom(String nickName, String userId, String roomName, int maxParticipant) throws IOException {
+    public LiveKitAccessTokenDTO createRoom(String nickName, String userId, String roomName, int maxParticipant) {
 
         // 방이름, 빈 방 타임아웃, 최대 참여자 수 제한
         Response<LivekitModels.Room> response
@@ -86,13 +85,13 @@ public class LiveKitService {
         }
 
         return roomList.stream()
-                .map(room -> LiveKitRoomDTO.builder()
-                        .roomId(room.getSid())
-                        .roomName(room.getName())
-                        .emptyTimeOut(room.getEmptyTimeout())
-                        .maxParticipants(room.getMaxParticipants())
-                        .numParticipants(room.getNumParticipants())
-                        .build())
+                .map(room -> new LiveKitRoomDTO(
+                        room.getName(),
+                        room.getSid(),
+                        room.getEmptyTimeout(),
+                        room.getMaxParticipants(),
+                        room.getNumParticipants()
+                ))
                 .toList();
     }
 
@@ -110,12 +109,12 @@ public class LiveKitService {
 
         // participantDTO 객체로 변환하여 list로 반환
         return participants.stream()
-                .map(participantInfo -> LiveKitParticipantDTO
-                        .builder()
-                        .id(participantInfo.getIdentity())
-                        .userName(participantInfo.getName())
-                        .joinedAt(participantInfo.getJoinedAt())
-                        .build())
+                .map(participantInfo -> new LiveKitParticipantDTO(
+                        participantInfo.getIdentity(),
+                        participantInfo.getName(),
+                        participantInfo.getJoinedAt()
+                        )
+                )
                 .toList();
     }
 }

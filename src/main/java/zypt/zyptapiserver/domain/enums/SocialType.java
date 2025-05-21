@@ -1,4 +1,4 @@
-package zypt.zyptapiserver.domain;
+package zypt.zyptapiserver.domain.enums;
 
 import lombok.Getter;
 

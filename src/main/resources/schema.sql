@@ -3,7 +3,6 @@ DROP TABLE IF EXISTS member;
 CREATE TABLE member (
     id VARCHAR(32)  PRIMARY KEY ,
     nickname VARCHAR(50) NOT NULL,
-    name VARCHAR(50) NOT NULL,
     email VARCHAR(50) NOT NULL,
     social_type ENUM('kakao', 'google', 'naver') NOT NULL,
     social_id VARCHAR(50) NOT NULL,
@@ -18,7 +17,7 @@ CREATE INDEX idx_member_social_id_social_type ON member (social_type, social_id)
 
 
 CREATE TABLE focus_time (
-    id BIGINT primary key,
+    id BIGINT primary key AUTO_INCREMENT,
     member_id VARCHAR(32) NOT NULL,
     start_at DATETIME(3) NOT NULL,
     end_at DATETIME(3) NOT NULL,

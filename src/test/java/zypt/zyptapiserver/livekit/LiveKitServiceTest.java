@@ -26,7 +26,7 @@ class LiveKitServiceTest {
         LiveKitAccessTokenDTO myRoom1 = liveKitService.getLiveKitAccessToken("2v", "4321", "myRoom");
 
         log.info("room = {}", myRoom);
-        log.info("room2 = {}", myRoom1.getLivekitAccessToken());
+        log.info("room2 = {}", myRoom1.livekitAccessToken());
         log.info("list = {}", liveKitService.findAllRooms());
     }
 
@@ -73,6 +73,7 @@ class LiveKitServiceTest {
         Assertions.assertThat(myRoom1).isTrue();
 
     }
+
 
     @Test
     @DisplayName("방삭제 테스트")

@@ -1,7 +1,7 @@
 package zypt.zyptapiserver.auth.service;
 
 
-import zypt.zyptapiserver.domain.SocialType;
+import zypt.zyptapiserver.domain.enums.SocialType;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Map;

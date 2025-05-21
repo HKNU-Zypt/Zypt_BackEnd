@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import zypt.zyptapiserver.domain.Member;
+import zypt.zyptapiserver.domain.MemberV1;
 
 import java.util.Optional;
 
@@ -25,7 +26,7 @@ class MemberRepositoryTest {
     @Test
     @DisplayName("")
     void saveMemberAndFindMemberTest() {
-        Member saveMember = repository.save(Member.builder().name("ㅎㅎ").socialId("123423").build());
+        Member saveMember = repository.save(Member.builder().nickName("ㅎㅎ").socialId("123423").build());
         Optional<Member> memberById = repository.findMemberById(saveMember.getId());
 
         Assertions.assertEquals(saveMember, memberById.get());

@@ -43,8 +43,8 @@ public class KakaoService implements SocialService {
                 JsonNode profile = json.get("properties");
 
                 return new KakaoUserInfo(json.get("id").asText()
-                        ,profile.get("nickname").asText()
-                        ,null);
+                        ,profile.get("email").asText()
+                );
 
             }
         } catch (JsonProcessingException e) {

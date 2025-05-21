@@ -3,13 +3,11 @@ package zypt.zyptapiserver.auth.user;
 
 public class KakaoUserInfo implements UserInfo {
     private final String id;
-    private final String nickname;
-    private final String profileImageUrl;
+    private final String email;
 
-    public KakaoUserInfo(String id, String nickname, String profileImageUrl) {
+    public KakaoUserInfo(String id, String email) {
         this.id = id;
-        this.nickname = nickname;
-        this.profileImageUrl = profileImageUrl;
+        this.email = email;
     }
 
     @Override
@@ -24,6 +22,13 @@ public class KakaoUserInfo implements UserInfo {
 
     @Override
     public String getNickName() {
-        return nickname;
+        return "";
     }
+
+    @Override
+    public String getEmail() {
+        return email;
+    }
+
+
 }
