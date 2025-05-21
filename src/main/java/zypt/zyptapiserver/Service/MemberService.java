@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import zypt.zyptapiserver.domain.Member;
+import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.exception.MemberNotFoundException;
 import zypt.zyptapiserver.repository.MemberRepository;
 
@@ -30,8 +31,8 @@ public class MemberService {
 
     // social id로 멤버 조회
     @Transactional(readOnly = true)
-    public Member findMemberBySocialId(String socialId) {
-        return repository.findBySocialId(socialId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
+    public Member findMemberBySocialId(SocialType type, String socialId) {
+        return repository.findBySocialId(type, socialId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
     }
 
     // 닉네임 업데이트

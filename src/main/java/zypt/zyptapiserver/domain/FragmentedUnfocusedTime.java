@@ -36,4 +36,8 @@ public class FragmentedUnfocusedTime {
     private long calculateTotalUnFocusedTime() {
         return ChronoUnit.SECONDS.between(startAt, endAt);
     }
+
+    public void setFocusTime(FocusTime focusTime) {
+        this.focusTime = focusTime;
+    }
 }

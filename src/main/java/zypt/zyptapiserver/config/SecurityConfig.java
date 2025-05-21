@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.config;
 
+import org.springframework.security.web.context.NullSecurityContextRepository;
 import zypt.zyptapiserver.auth.filter.JwtAuthenticationFilter;
 import zypt.zyptapiserver.auth.service.AuthService;
 import zypt.zyptapiserver.util.JwtUtils;
@@ -28,6 +29,7 @@ public class SecurityConfig {
         httpSecurity.httpBasic(AbstractHttpConfigurer::disable) // 기본 인증 로그인 비활성화
                 .formLogin(AbstractHttpConfigurer::disable) // 기본 로그인 폼 비활성화
                 .logout(AbstractHttpConfigurer::disable) // 기본 로그아웃 비활성화
+                .csrf(AbstractHttpConfigurer::disable) // 쿠키를 사용하지 않을 것이므로 CSRF 비활성화
                 .headers(c ->
                         c.frameOptions(
                                 HeadersConfigurer.FrameOptionsConfig::disable).disable()) // x Frame-Option 비활성화

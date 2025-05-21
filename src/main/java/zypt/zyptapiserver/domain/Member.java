@@ -41,4 +41,10 @@ public class Member extends BaseTimeEntity {
     public void updateNickName(String nickName) {
         this.nickName = nickName;
     }
+
+    // 연관관계 편의 메서드
+    public void addFocusTimes(FocusTime focusTime) {
+        focusTimes.add(focusTime);
+        focusTime.setMember(this);
+    }
 }

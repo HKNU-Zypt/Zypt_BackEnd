@@ -2,12 +2,12 @@ package zypt.zyptapiserver.repository;
 
 
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.MemberV1;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import zypt.zyptapiserver.domain.enums.SocialType;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,9 +32,10 @@ public class MemberRepository {
 
     // socialId로 멤버 조회
     @Transactional(readOnly = true)
-    public Optional<Member> findBySocialId(String socialId) {
-        String sql = "select m from Member m where socialId = :socialId";
+    public Optional<Member> findBySocialId(SocialType socialType, String socialId) {
+        String sql = "select m from Member m where socialType = :socialType and socialId = :socialId";
         List<Member> member = em.createQuery(sql, Member.class)
+                .setParameter("socialType", socialType)
                 .setParameter("socialId", socialId)
                 .getResultList();
 

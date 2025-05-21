@@ -6,6 +6,7 @@ import zypt.zyptapiserver.auth.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
 import zypt.zyptapiserver.auth.user.UserInfo;
 import zypt.zyptapiserver.domain.Member;
+import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.exception.MemberNotFoundException;
 import zypt.zyptapiserver.repository.MemberRepository;
 import zypt.zyptapiserver.repository.RedisRepository;
@@ -18,6 +19,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Slf4j
 @Service
 public class AuthService {
@@ -27,6 +30,7 @@ public class AuthService {
     private final SocialServiceFactory socialServiceFactory;
     private final JwtUtils jwtUtils;
 
+    private static final String SOCIAL_TYPE_HEADER = "SocialType";
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
@@ -48,12 +52,17 @@ public class AuthService {
             throw new InvalidTokenException("social AccessToken is invalid or malformed");
         }
 
+        SocialType type = SocialType.from(request.getHeader(SOCIAL_TYPE_HEADER));
+
         // 회원가입 하지 않았다면 가입
-        Member member = memberRepository.findBySocialId(userInfo.getId())
+        Member member = memberRepository.findBySocialId(type, userInfo.getId())
                 .orElseGet(() -> {
+
                     Member newMember = Member.builder()
                             .socialId(userInfo.getId())
                             .email(userInfo.getEmail())
+                            .nickName(UUID.randomUUID().toString())
+                            .socialType(type)
                             .build();
 
                     // 회원 db에 저장 및 토큰 생성

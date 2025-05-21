@@ -41,9 +41,10 @@ public class KakaoService implements SocialService {
                 log.info(json.toPrettyString());
 
                 JsonNode profile = json.get("properties");
+                JsonNode kakaoAccount = json.get("kakao_account");
 
                 return new KakaoUserInfo(json.get("id").asText()
-                        ,profile.get("email").asText()
+                        ,kakaoAccount.get("email").asText()
                 );
 
             }
