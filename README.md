@@ -48,4 +48,31 @@ jwt :
 ```
 ### 2. docker 설치
 ### 3. docker에 redis 설치
+  리눅스 실행
+  
+  ```
+  docker pull redis
+  ```
+
+redis 컨테이너 생성  (-p : 포트포워딩 지정, --name : 컨테이너 이름 지정)
+```
+sudo docker run -p 6379:6379 --name [원하는 이름] redis
+```
+
+docker 컨테이너 상태 확인
+```
+sudo docker ps -a 
+```
+
+docker 컨테이너 실행
+```
+sudo docker start [컨테이너 이름]
+
+```
+
+\* docker reids cli 실행
+```
+docker exec -i -t [컨테이너 이름] redis-cli
+```
+  
 ### 4. 스프링 부트 실행
