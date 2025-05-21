@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
+import zypt.zyptapiserver.domain.MemberV1;
 import zypt.zyptapiserver.domain.dto.FocusTimeDto;
 import zypt.zyptapiserver.exception.MemberNotFoundException;
 import zypt.zyptapiserver.repository.FocusTimeRepository;

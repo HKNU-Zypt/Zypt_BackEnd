@@ -20,7 +20,7 @@ public class FocusTime {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    private MemberV2 member;
+    private Member member;
 
     private LocalDateTime startAt;
     private LocalDateTime endAt;
@@ -31,14 +31,14 @@ public class FocusTime {
     private List<FragmentedUnfocusedTime> unfocusedTimes = new ArrayList<>();
 
     @Builder
-    public FocusTime(MemberV2 member, LocalDateTime startAt, LocalDateTime endAt) {
+    public FocusTime(Member member, LocalDateTime startAt, LocalDateTime endAt) {
         this.member = member;
         this.startAt = startAt;
         this.endAt = endAt;
         this.totalTime = getTotalTime();
     }
 
-    public FocusTime(Long id, MemberV2 member, LocalDateTime startAt, LocalDateTime endAt, Long focusTime, Long totalTime) {
+    public FocusTime(Long id, Member member, LocalDateTime startAt, LocalDateTime endAt, Long focusTime, Long totalTime) {
         this.id = id;
         this.member = member;
         this.startAt = startAt;
@@ -48,7 +48,7 @@ public class FocusTime {
     }
 
     // 시작 시간과 끝시간의 차를 구해 총 서비스 이용시간을 구한다.
-    private long calcTotalTime() {
+    private long calculateTotalTime() {
         return ChronoUnit.SECONDS.between(startAt, endAt);
     }
 

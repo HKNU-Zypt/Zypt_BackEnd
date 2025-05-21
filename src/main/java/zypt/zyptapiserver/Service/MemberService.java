@@ -8,7 +8,6 @@ import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.exception.MemberNotFoundException;
 import zypt.zyptapiserver.repository.MemberRepository;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service

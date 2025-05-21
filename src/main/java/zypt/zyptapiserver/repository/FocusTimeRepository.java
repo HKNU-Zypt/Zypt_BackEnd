@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.MemberV2;
 import zypt.zyptapiserver.domain.dto.FocusTimeInsertDto;
 import zypt.zyptapiserver.domain.dto.FragmentedUnFocusedTimeInsertDto;
 
@@ -30,7 +29,7 @@ public class FocusTimeRepository {
 
     // focus time 영속성화
     @Transactional
-    public Optional<FocusTime> saveFocusTime(MemberV2 member, FocusTimeInsertDto focusTimeInsertDto) {
+    public Optional<FocusTime> saveFocusTime(Member member, FocusTimeInsertDto focusTimeInsertDto) {
         FocusTime newFocusTime
                 = new FocusTime(member, focusTimeInsertDto.startAt(), focusTimeInsertDto.endAt());
 

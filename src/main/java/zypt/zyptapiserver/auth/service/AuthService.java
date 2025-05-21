@@ -1,7 +1,6 @@
 package zypt.zyptapiserver.auth.service;
 
 import io.jsonwebtoken.Claims;
-import org.springframework.security.core.userdetails.UserDetails;
 import zypt.zyptapiserver.auth.exception.InvalidTokenException;
 import zypt.zyptapiserver.auth.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
@@ -18,8 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -55,8 +52,8 @@ public class AuthService {
         Member member = memberRepository.findBySocialId(userInfo.getId())
                 .orElseGet(() -> {
                     Member newMember = Member.builder()
-                            .name(userInfo.getName()) // 이름 값
                             .socialId(userInfo.getId())
+                            .email(userInfo.getEmail())
                             .build();
 
                     // 회원 db에 저장 및 토큰 생성
@@ -66,7 +63,7 @@ public class AuthService {
 
         String newAccessToken = jwtUtils.generateAccessToken(member.getId());
         String newRefreshToken = findRefreshTokenInRedis(member);
-        registryAuthenticatedUser(member.getId(), member.getName());
+        registryAuthenticatedUser(member.getId(), member.getNickName());
 
         // 응답에 토큰 삽입
         CookieUtils.addCookie(response, newRefreshToken);

@@ -2,6 +2,7 @@ package zypt.zyptapiserver.repository;
 
 
 import zypt.zyptapiserver.domain.Member;
+import zypt.zyptapiserver.domain.MemberV1;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
