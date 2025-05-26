@@ -41,19 +41,18 @@ public class FocusTimeRepository {
     // 벌크연산으로 집중하지않은 시간들을 저장
     // 집중하지 않은 시간 총합을 반환
     @Transactional
-    public Long bulkInsertUnfocusedTimes(List<FragmentedUnFocusedTimeInsertDto> unfocusedTimes) {
-        String sql = "INSERT INTO fragmented_unfocused_time(id, focused_id, start_at, end_at, type, unfocused_time) VALUES(?,?,?,?,?,?)";
+    public Long bulkInsertUnfocusedTimes(Long focusId, List<FragmentedUnFocusedTimeInsertDto> unfocusedTimes) {
+        String sql = "INSERT INTO fragmented_unfocused_time(focused_id, start_at, end_at, type, unfocused_time) VALUES(?,?,?,?,?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 FragmentedUnFocusedTimeInsertDto unfocusedTime = unfocusedTimes.get(i);
-                ps.setLong(1, unfocusedTime.id());
-                ps.setLong(2, unfocusedTime.focusId());
-                ps.setTime(3, Time.valueOf(unfocusedTime.startAt()));
-                ps.setTime(4, Time.valueOf(unfocusedTime.endAt()));
-                ps.setString(5, unfocusedTime.type().name()); // enum 타입은 ps에선 식별 불가, String으로 넘김
-                ps.setLong(6, unfocusedTime.calculateUnfocusedDuration());
+                ps.setLong(1, focusId);
+                ps.setTime(2, Time.valueOf(unfocusedTime.startAt()));
+                ps.setTime(3, Time.valueOf(unfocusedTime.endAt()));
+                ps.setString(4, unfocusedTime.type().name()); // enum 타입은 ps에선 식별 불가, String으로 넘김
+                ps.setLong(5, unfocusedTime.calculateUnfocusedDuration());
             }
 
             @Override

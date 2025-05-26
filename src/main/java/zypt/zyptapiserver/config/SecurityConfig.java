@@ -1,5 +1,8 @@
 package zypt.zyptapiserver.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.security.web.context.NullSecurityContextRepository;
+import zypt.zyptapiserver.auth.filter.CustomAuthenticationEntryPoint;
 import zypt.zyptapiserver.auth.filter.JwtAuthenticationFilter;
 import zypt.zyptapiserver.auth.service.AuthService;
 import zypt.zyptapiserver.util.JwtUtils;
@@ -13,6 +16,8 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -28,6 +33,7 @@ public class SecurityConfig {
         httpSecurity.httpBasic(AbstractHttpConfigurer::disable) // 기본 인증 로그인 비활성화
                 .formLogin(AbstractHttpConfigurer::disable) // 기본 로그인 폼 비활성화
                 .logout(AbstractHttpConfigurer::disable) // 기본 로그아웃 비활성화
+                .csrf(AbstractHttpConfigurer::disable) // 쿠키를 사용하지 않을 것이므로 CSRF 비활성화
                 .headers(c ->
                         c.frameOptions(
                                 HeadersConfigurer.FrameOptionsConfig::disable).disable()) // x Frame-Option 비활성화
@@ -37,6 +43,8 @@ public class SecurityConfig {
                         auth.requestMatchers("/", "/login/**").permitAll()
                                 .anyRequest().authenticated()
                 )
+                .exceptionHandling(e ->
+                        e.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtils, authService)
                         , UsernamePasswordAuthenticationFilter.class);
 

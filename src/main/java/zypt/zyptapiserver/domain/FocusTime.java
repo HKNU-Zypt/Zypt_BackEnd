@@ -52,7 +52,6 @@ public class FocusTime {
         return ChronoUnit.SECONDS.between(startAt, endAt);
     }
 
-
     // 집중하지 않은 시간을 계산해 반환
     public long calculateUnfocusedDuration() {
         if (focusTime == null) {
@@ -61,13 +60,21 @@ public class FocusTime {
         return totalTime - focusTime;
     }
 
-
-
     // 집중시간을 초기화
     public void initFocusedTime(long unFocusedTime) {
         if (this.focusTime != null) {
             throw new IllegalStateException("focusTime has already been initialized");
         }
         this.focusTime = this.totalTime - unFocusedTime;
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
+    // 연관관계 편의 메서드
+    public void addFragmentedUnfocusedTime(FragmentedUnfocusedTime unfocusedTime) {
+        unfocusedTimes.add(unfocusedTime);
+        unfocusedTime.setFocusTime(this);
     }
 }
