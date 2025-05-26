@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS member;
 
 CREATE TABLE member (
     id VARCHAR(36)  PRIMARY KEY ,
-    nickname VARCHAR(50) UNIQUE NOT NULL,
+    nick_name VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(50) NOT NULL,
     social_type ENUM('KAKAO', 'GOOGLE', 'NAVER') NOT NULL,
     social_id VARCHAR(50) NOT NULL,
