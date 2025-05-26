@@ -1,6 +1,8 @@
 package zypt.zyptapiserver.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.web.context.NullSecurityContextRepository;
+import zypt.zyptapiserver.auth.filter.CustomAuthenticationEntryPoint;
 import zypt.zyptapiserver.auth.filter.JwtAuthenticationFilter;
 import zypt.zyptapiserver.auth.service.AuthService;
 import zypt.zyptapiserver.util.JwtUtils;
@@ -14,6 +16,8 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -39,6 +43,8 @@ public class SecurityConfig {
                         auth.requestMatchers("/", "/login/**").permitAll()
                                 .anyRequest().authenticated()
                 )
+                .exceptionHandling(e ->
+                        e.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtils, authService)
                         , UsernamePasswordAuthenticationFilter.class);
 

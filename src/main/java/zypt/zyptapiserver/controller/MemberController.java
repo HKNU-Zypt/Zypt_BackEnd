@@ -20,8 +20,6 @@ public class MemberController {
     public ResponseEntity<Void> updateMemberNickName(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam("nickName") String nickName) {
         log.info("닉네임 업데이트");
         memberService.updateNickName(userDetails.getUsername(), nickName);
-
-
         return ResponseEntity.noContent().build();
     }
 }

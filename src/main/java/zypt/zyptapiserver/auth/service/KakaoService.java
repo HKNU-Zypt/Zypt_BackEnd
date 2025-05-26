@@ -40,7 +40,7 @@ public class KakaoService implements SocialService {
                 JsonNode json = objectMapper.readTree(response.getBody());
                 log.info(json.toPrettyString());
 
-                JsonNode profile = json.get("properties");
+//                JsonNode profile = json.get("properties");
                 JsonNode kakaoAccount = json.get("kakao_account");
 
                 return new KakaoUserInfo(json.get("id").asText()
