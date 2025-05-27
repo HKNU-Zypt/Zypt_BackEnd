@@ -102,8 +102,8 @@ public class AuthService {
     private String findRefreshTokenInRedis(Member member) {
         String refreshToken = tokenRepository.findRefreshToken(member.getId());
 
-        // 메모리에 리프레시 토큰이 없다면 생성하고 저장
-        if (refreshToken == null) {
+        // 메모리에 리프레시 토큰이 없거나, 만료되었다면 리프레시 토큰을 재생성하고 저장
+        if (refreshToken == null || jwtUtils.validationToken(refreshToken)) {
             String newRefreshToken = jwtUtils.generateRefreshToken(member.getId());
             tokenRepository.saveRefreshToken(member.getId(), newRefreshToken); // redis에 리프레시 토큰 저장
         }

@@ -36,11 +36,9 @@ public class KakaoService implements SocialService {
                     String.class
             );
 
+            // 응답 성공시 카카오의 정보를 가져와 kakaoUserInfo 객체 생성해서 반환
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 JsonNode json = objectMapper.readTree(response.getBody());
-                log.info(json.toPrettyString());
-
-//                JsonNode profile = json.get("properties");
                 JsonNode kakaoAccount = json.get("kakao_account");
 
                 return new KakaoUserInfo(json.get("id").asText()
