@@ -30,5 +30,15 @@ public class SocialServiceFactory {
 
         return service;
     }
+    public SocialService getService(SocialType type) {
+        SocialService service = serviceMap.get(type);
+
+        // 소셜 타입에 맞는 서비스가 없다면 null을 반환
+        if (service == null) {
+            throw new IllegalArgumentException("지원하지 않는 소셜 타입 " + type);
+        }
+
+        return service;
+    }
 
 }
