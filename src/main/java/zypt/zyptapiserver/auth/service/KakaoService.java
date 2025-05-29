@@ -8,11 +8,9 @@ import zypt.zyptapiserver.auth.user.UserInfo;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
-@Service
 @EqualsAndHashCode
 public class KakaoService implements SocialService {
 
@@ -21,10 +19,10 @@ public class KakaoService implements SocialService {
 
     // 유저 정보 가져오기
     @Override
-    public UserInfo getUserInfo(String accessToken) {
+    public UserInfo getUserInfo(String token) {
         String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
+        headers.setBearerAuth(token);
 
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
@@ -36,11 +34,9 @@ public class KakaoService implements SocialService {
                     String.class
             );
 
+            // 응답 성공시 카카오의 정보를 가져와 kakaoUserInfo 객체 생성해서 반환
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 JsonNode json = objectMapper.readTree(response.getBody());
-                log.info(json.toPrettyString());
-
-//                JsonNode profile = json.get("properties");
                 JsonNode kakaoAccount = json.get("kakao_account");
 
                 return new KakaoUserInfo(json.get("id").asText()

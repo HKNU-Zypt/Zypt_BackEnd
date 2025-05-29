@@ -1,5 +1,7 @@
 package zypt.zyptapiserver.config;
 
+import org.springframework.beans.factory.annotation.Value;
+import zypt.zyptapiserver.auth.service.GoogleService;
 import zypt.zyptapiserver.auth.service.KakaoService;
 import zypt.zyptapiserver.auth.service.SocialService;
 import zypt.zyptapiserver.auth.service.SocialServiceFactory;
@@ -15,21 +17,21 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SocialServiceConfig {
 
-    private final KakaoService kakaoService;
+    @Value("${google.CLIENT_ID}")
+    private String clientId;
 
     // 소셜 타입 , 소셜 서비스를 맵에 등록
-    @Bean
-    public Map<SocialType, SocialService> socialTypeSocialServiceMap(KakaoService kakaoService) {
+    public Map<SocialType, SocialService> socialTypeSocialServiceMap() {
         Map<SocialType, SocialService> map = new EnumMap<>(SocialType.class);
-        map.put(SocialType.KAKAO, kakaoService);
-        map.put(SocialType.GOOGLE, null);
+        map.put(SocialType.KAKAO, new KakaoService());
+        map.put(SocialType.GOOGLE, new GoogleService(clientId));
         map.put(SocialType.NAVER, null);
         return map;
     }
 
     @Bean
     public SocialServiceFactory socialServiceFactory() {
-        return new SocialServiceFactory(socialTypeSocialServiceMap(kakaoService));
+        return new SocialServiceFactory(socialTypeSocialServiceMap());
     }
 
 }

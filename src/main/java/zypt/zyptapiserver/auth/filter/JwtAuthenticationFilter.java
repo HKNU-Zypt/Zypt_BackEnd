@@ -22,13 +22,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
     private final AuthService authService;
 
-    private static final String SOCIAL_TYPE_HEADER = "SocialType";
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+        // 로그인 요청이면 다음 필터로 이동
+        if (request.getRequestURI().equals("/api/login")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String accessToken = resolveToken(request);
 
         if (accessToken == null) {

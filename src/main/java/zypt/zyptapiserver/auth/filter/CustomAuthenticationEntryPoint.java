@@ -18,7 +18,7 @@ import java.io.IOException;
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         String responseBody = "해당 요청에 충분한 인증이 되지 않았습니다.";
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

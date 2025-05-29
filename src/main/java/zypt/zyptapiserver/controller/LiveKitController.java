@@ -1,8 +1,5 @@
 package zypt.zyptapiserver.controller;
 
-import io.livekit.server.AccessToken;
-import livekit.LivekitModels;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.web.bind.annotation.*;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
 import zypt.zyptapiserver.livekit.LiveKitService;
@@ -17,7 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rooms")
+@RequestMapping("/api/rooms")
 @RequiredArgsConstructor
 public class LiveKitController {
 
