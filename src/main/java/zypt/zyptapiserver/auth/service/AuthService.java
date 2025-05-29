@@ -56,6 +56,7 @@ public class AuthService {
                     Member newMember = Member.builder()
                             .socialId(userInfo.getId())
                             .email(userInfo.getEmail())
+                            .nickName(UUID.randomUUID().toString())
                             .socialType(socialType)
                             .build();
 
