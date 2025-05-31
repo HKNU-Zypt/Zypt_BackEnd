@@ -1,3 +1,6 @@
+# 필수 설치
+Java, Mysql, Redis, Docker, intelliJ
+
 # 사용법
 ### 0. git clone 
 ### 1. application.yml 파일 생성
@@ -77,4 +80,7 @@ sudo docker start [컨테이너 이름]
 docker exec -i -t [컨테이너 이름] redis-cli
 ```
   
-### 4. 스프링 부트 실행
+### 4. schema.sql의 DDL sql을 mysql에서 실행
+- 자동 적용할 수 있지만 실수 방지 및 예외상황 발생 방지를 위해 수동 생성
+
+### 6. 스프링 main 실행
