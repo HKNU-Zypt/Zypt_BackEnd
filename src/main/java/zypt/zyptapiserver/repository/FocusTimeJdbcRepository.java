@@ -9,34 +9,22 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.FocusTimeInsertDto;
 import zypt.zyptapiserver.domain.dto.FragmentedUnFocusedTimeInsertDto;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class FocusTimeRepository {
+public class FocusTimeJdbcRepository {
 
     private final JdbcTemplate jdbcTemplate;
-    @PersistenceContext
-    private final EntityManager em;
 
-
-    // focus time 영속성화
-    @Transactional
-    public Optional<FocusTime> saveFocusTime(Member member, FocusTimeInsertDto focusTimeInsertDto) {
-        FocusTime newFocusTime
-                = new FocusTime(member, focusTimeInsertDto.startAt(), focusTimeInsertDto.endAt());
-
-        em.persist(newFocusTime);
-
-        return Optional.of(newFocusTime);
-    }
 
     // 벌크연산으로 집중하지않은 시간들을 저장
     // 집중하지 않은 시간 총합을 반환

@@ -5,7 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +23,9 @@ public class FocusTime {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private LocalDateTime startAt;
-    private LocalDateTime endAt;
+    private LocalTime startAt;
+    private LocalTime endAt;
+    private LocalDate createAt;
     private Long focusTime;
     private Long totalTime;
 
@@ -31,21 +33,15 @@ public class FocusTime {
     private List<FragmentedUnfocusedTime> unfocusedTimes = new ArrayList<>();
 
     @Builder
-    public FocusTime(Member member, LocalDateTime startAt, LocalDateTime endAt) {
+    public FocusTime(Member member, LocalTime startAt, LocalTime endAt, LocalDate date) {
         this.member = member;
         this.startAt = startAt;
         this.endAt = endAt;
+        this.createAt = date;
         this.totalTime = getTotalTime();
     }
 
-    public FocusTime(Long id, Member member, LocalDateTime startAt, LocalDateTime endAt, Long focusTime, Long totalTime) {
-        this.id = id;
-        this.member = member;
-        this.startAt = startAt;
-        this.endAt = endAt;
-        this.focusTime = focusTime;
-        this.totalTime = totalTime;
-    }
+
 
     // 시작 시간과 끝시간의 차를 구해 총 서비스 이용시간을 구한다.
     private long calculateTotalTime() {
