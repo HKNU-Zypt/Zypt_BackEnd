@@ -44,6 +44,8 @@ jwt :
   ACCESS_TOKEN_EXPIRATION : 43200000    # 12hour milliseconds
   REFRESH_TOKEN_EXPIRATION : 1209600000 # 14days
 
+google:
+  CLIENT_ID : 클라이언트 id 값 
 
 ```
 ### 2. docker 설치
