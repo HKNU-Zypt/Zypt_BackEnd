@@ -64,6 +64,11 @@ public class LiveKitService {
 
     }
 
+    /**
+     * 특정 방을 삭제
+     * @param roomName
+     * @return true
+     */
     public boolean deleteRoom(String roomName) {
         boolean isDeletedRoom = LiveKitTemplate.execute(() -> client.deleteRoom(roomName).execute().isSuccessful());
 
@@ -76,6 +81,10 @@ public class LiveKitService {
         return true;
     }
 
+    /**
+     * 모든 방을 조회
+     * @return 방 리스트
+     */
     public List<LiveKitRoomDTO> findAllRooms() {
         List<LivekitModels.Room> roomList
                 = LiveKitTemplate.execute(() -> client.listRooms().execute().body());
@@ -96,6 +105,11 @@ public class LiveKitService {
     }
 
 
+    /**
+     * 특정 방의 참가자들의 정보를 조회
+     * @param roomName
+     * @return 참가자 정보 DTO 리스트
+     */
     public List<LiveKitParticipantDTO> getRoomParticipantsByRoomName(String roomName) {
 
         // 해당 룸의 참가자 정보를 가져오기

@@ -13,19 +13,20 @@ CREATE TABLE member (
 
 CREATE INDEX idx_member_social_id_social_type ON member (social_type, social_id);
 
-
-
-
 CREATE TABLE focus_time (
     id BIGINT primary key AUTO_INCREMENT,
     member_id VARCHAR(36) NOT NULL,
-    start_at DATETIME(3) NOT NULL,
-    end_at DATETIME(3) NOT NULL,
+    start_at TIME NOT NULL,
+    end_at TIME NOT NULL,
+    create_date DATE NOT NULL,
     focus_time BIGINT,
     total_time BIGINT,
 
     FOREIGN KEY (member_id) REFERENCES member(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+CREATE INDEX idx_member_id_create_date ON focus_time (member_id, create_date);
+
 
 DROP TABLE IF EXISTS fragmented_unfocused_time;
 
@@ -39,3 +40,4 @@ CREATE TABLE fragmented_unfocused_time (
 
     FOREIGN KEY (focus_id) REFERENCES focus_time(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
