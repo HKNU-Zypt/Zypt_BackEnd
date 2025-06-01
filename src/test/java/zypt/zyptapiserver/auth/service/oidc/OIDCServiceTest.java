@@ -1,4 +1,4 @@
-package zypt.zyptapiserver.auth.service.ocid;
+package zypt.zyptapiserver.auth.service.oidc;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -8,9 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @Slf4j
 @SpringBootTest
-class OCIDServiceTest {
+class OIDCServiceTest {
 
-    OCIDService service = new OCIDService();
+    OIDCService service = new OIDCService();
 
     @Test
     void getOpenKey() {

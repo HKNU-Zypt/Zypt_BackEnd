@@ -1,4 +1,4 @@
-package zypt.zyptapiserver.auth.service.ocid;
+package zypt.zyptapiserver.auth.service.oidc;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -10,19 +10,23 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Arrays;
 
 @Slf4j
-public class OCIDService {
+public class OIDCService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-
+    /**
+     * 캐시전략 사용
+     * 공개키를 획득
+     * @return
+     */
     @Cacheable(value = "OCIDPublicKeys", key = "'kakao'")
-    public OCIDPublicKeysDto getOpenIdPublicKeys() {
+    public OIDCPublicKeysDto getOpenIdPublicKeys() {
 
-        ResponseEntity<OCIDPublicKeysDto> response = restTemplate.exchange(
+        ResponseEntity<OIDCPublicKeysDto> response = restTemplate.exchange(
                 "https://kauth.kakao.com/.well-known/jwks.json",
                 HttpMethod.GET,
                 null,
-                OCIDPublicKeysDto.class
+                OIDCPublicKeysDto.class
         );
 
         if (response.getStatusCode() != HttpStatus.OK) {
@@ -38,8 +42,8 @@ public class OCIDService {
      * @param kid
      * @return
      */
-    public OCIDPublicKeyDto getPublicKeyByKid(String kid) {
-        OCIDPublicKeyDto[] keys = getOpenIdPublicKeys().keys();
+    public OIDCPublicKeyDto getPublicKeyByKid(String kid) {
+        OIDCPublicKeyDto[] keys = getOpenIdPublicKeys().keys();
 
         return Arrays.stream(keys)
                 .filter(k -> k.kid().equals(kid))
