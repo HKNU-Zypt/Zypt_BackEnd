@@ -3,6 +3,8 @@ package zypt.zyptapiserver.auth.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.springframework.stereotype.Service;
 import zypt.zyptapiserver.auth.user.KakaoUserInfo;
 import zypt.zyptapiserver.auth.user.UserInfo;
 import lombok.EqualsAndHashCode;
@@ -11,8 +13,10 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
+@Service
 @EqualsAndHashCode
 public class KakaoService implements SocialService {
+
 
     private static final RestTemplate restTemplate = new RestTemplate();
     private static final ObjectMapper objectMapper = new ObjectMapper();
