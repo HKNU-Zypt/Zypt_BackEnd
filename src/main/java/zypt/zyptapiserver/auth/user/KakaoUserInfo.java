@@ -1,6 +1,9 @@
 package zypt.zyptapiserver.auth.user;
 
 
+import lombok.ToString;
+
+@ToString
 public class KakaoUserInfo implements UserInfo {
     private final String id;
     private final String email;

@@ -1,16 +1,18 @@
 package zypt.zyptapiserver.util;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import zypt.zyptapiserver.auth.exception.InvalidTokenException;
+import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
+import zypt.zyptapiserver.auth.service.oidc.OIDCService;
+import zypt.zyptapiserver.domain.enums.SocialType;
 
 import java.security.Key;
+import java.security.PublicKey;
 import java.util.Date;
 
 @Slf4j
@@ -117,19 +119,42 @@ public class JwtUtils {
         }
     }
 
-
-//    public Authentication getAuthentication(String token) {
-//        Claims claims = parseClaims(token);
-//        String userId = claims.getSubject();
-//
-//
-//    }
-
     private Claims parseClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+
+    /**
+     * id token 검증
+     * 만료 여부까지 확인
+     * @param idToken
+     * @param iss
+     * @param dto
+     */
+    public Claims validationIdToken(String idToken, String aud, String iss, OIDCPublicKeyDto dto) {
+        PublicKey key = OIDCService.createRsaPublicKey(dto);
+
+        try {
+            Jws<Claims> jws = Jwts.parserBuilder()
+                    .requireIssuer(iss)
+                    .requireAudience(aud)
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(idToken);
+
+            Claims claims = jws.getBody();
+            log.info("claims = {}", claims);
+
+            return claims;
+
+        } catch (ExpiredJwtException e) {
+            throw new InvalidTokenException("만료된 토큰 : " + e);
+        } catch (JwtException e) {
+            throw new RuntimeException("검증 실패 :", e);
+        }
     }
 }

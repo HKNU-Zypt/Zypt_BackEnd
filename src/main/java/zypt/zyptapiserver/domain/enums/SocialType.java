@@ -6,14 +6,16 @@ import java.util.Arrays;
 
 @Getter
 public enum SocialType {
-    KAKAO("kakao"),
-    GOOGLE("google"),
-    NAVER("naver");
+    KAKAO("kakao", "https://kauth.kakao.com"),
+    GOOGLE("google", "https://accounts.google.com"),
+    NAVER("naver", null);
 
     private final String type;
+    private final String iss;
 
-    SocialType(String type) {
+    SocialType(String type, String iss) {
         this.type = type;
+        this.iss = iss;
     }
 
     public static boolean checkSocialType(String type) {

@@ -1,6 +1,7 @@
 package zypt.zyptapiserver.auth.service;
 
 
+import org.springframework.beans.factory.annotation.Value;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -8,6 +9,8 @@ import java.util.Map;
 
 
 public class SocialServiceFactory {
+
+
 
     private static final String SOCIAL_TYPE_HEADER = "SocialType";
     private final Map<SocialType, SocialService> serviceMap;
@@ -40,5 +43,6 @@ public class SocialServiceFactory {
 
         return service;
     }
+
 
 }

@@ -1,6 +1,7 @@
 package zypt.zyptapiserver.auth.service;
 
 import io.jsonwebtoken.Claims;
+import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.auth.exception.InvalidTokenException;
 import zypt.zyptapiserver.auth.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
@@ -40,7 +41,10 @@ public class AuthService {
         this.jwtUtils = jwtUtils;
     }
 
-
+    /**
+     * redis 예외시에도 DB에 멤버가 저장됨, 따라서 트랜잭션을 적용해 회원가입 로직 도중 예외 발생시 저장을 방지
+     */
+    @Transactional
     public void handleAuthenticationFromSocialToken(HttpServletResponse response, SocialType socialType, String accessToken) {
         SocialService socialService = socialServiceFactory.getService(socialType);
         UserInfo userInfo = socialService.getUserInfo(accessToken);
