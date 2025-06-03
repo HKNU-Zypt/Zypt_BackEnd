@@ -48,7 +48,10 @@ jwt :
   REFRESH_TOKEN_EXPIRATION : 1209600000 # 14days
 
 google:
-  CLIENT_ID : 클라이언트 id 값 
+  CLIENT_ID : 클라이언트 id 값
+
+kakao:
+  APP_KEY : 카카오 네이티브 앱 키 
 
 ```
 ### 2. docker 설치
