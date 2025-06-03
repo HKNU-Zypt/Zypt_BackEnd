@@ -26,8 +26,6 @@ public class OIDCService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper mapper = new ObjectMapper();
 
-//    @Cacheable(value = "jwks_uri", key = "kakao")
-
     // OIDC 문서 정보 가져오기
     // SpringEL언어 사용
     @Cacheable(value = "OIDC_JWKS", key = "#socialType")
@@ -43,13 +41,7 @@ public class OIDCService {
 
         try {
             JsonNode jsonNode = mapper.readTree(response.getBody());
-
-            // 카카오의 경우 uri 이므로 따로 처리
-            if (socialType == SocialType.KAKAO) {
-                return jsonNode.get("jwks_uri").asText();
-            }
-
-            return jsonNode.get("jwks_url").asText();
+            return jsonNode.get("jwks_uri").asText();
 
         } catch (JsonProcessingException e) {
             //TODO 예외 따로?
@@ -66,9 +58,10 @@ public class OIDCService {
      */
     @Cacheable(value = "OCIDPublicKeys", key = "'ocidPublicKeys'")
     public OIDCPublicKeysDto getOpenIdPublicKeys(SocialType socialType){
+        String jwksUrl = getJwksUrl(socialType);
 
         ResponseEntity<OIDCPublicKeysDto> response = restTemplate.getForEntity(
-                getJwksUrl(socialType),
+                jwksUrl,
                 OIDCPublicKeysDto.class
         );
 
@@ -111,9 +104,7 @@ public class OIDCService {
             return KeyFactory.getInstance("RSA").generatePublic(spec);
 
             // TODO 예외 처리?
-        } catch (InvalidKeySpecException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }

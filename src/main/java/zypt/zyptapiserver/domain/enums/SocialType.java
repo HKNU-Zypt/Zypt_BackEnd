@@ -7,7 +7,7 @@ import java.util.Arrays;
 @Getter
 public enum SocialType {
     KAKAO("kakao", "https://kauth.kakao.com"),
-    GOOGLE("google", null),
+    GOOGLE("google", "https://accounts.google.com"),
     NAVER("naver", null);
 
     private final String type;

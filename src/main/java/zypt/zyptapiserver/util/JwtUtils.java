@@ -6,6 +6,7 @@ import io.jsonwebtoken.security.SignatureException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import zypt.zyptapiserver.auth.exception.InvalidTokenException;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
 import zypt.zyptapiserver.auth.service.oidc.OIDCService;
 import zypt.zyptapiserver.domain.enums.SocialType;
@@ -131,16 +132,16 @@ public class JwtUtils {
      * id token 검증
      * 만료 여부까지 확인
      * @param idToken
-     * @param type
+     * @param iss
      * @param dto
      */
-    public Claims validationIdToken(String idToken, String iss, OIDCPublicKeyDto dto) {
+    public Claims validationIdToken(String idToken, String aud, String iss, OIDCPublicKeyDto dto) {
         PublicKey key = OIDCService.createRsaPublicKey(dto);
 
         try {
             Jws<Claims> jws = Jwts.parserBuilder()
                     .requireIssuer(iss)
-                    .requireAudience(null)
+                    .requireAudience(aud)
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(idToken);
@@ -151,11 +152,9 @@ public class JwtUtils {
             return claims;
 
         } catch (ExpiredJwtException e) {
-
+            throw new InvalidTokenException("만료된 토큰 : " + e);
         } catch (JwtException e) {
-
+            throw new RuntimeException("검증 실패 :", e);
         }
-
-        return null;
     }
 }

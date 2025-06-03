@@ -14,7 +14,6 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Service
-@EqualsAndHashCode
 public class KakaoService implements SocialService {
 
 
