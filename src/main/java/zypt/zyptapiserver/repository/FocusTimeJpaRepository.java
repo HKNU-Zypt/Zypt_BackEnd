@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.FragmentedUnFocusedTimeInsertDto;
+import zypt.zyptapiserver.domain.dto.*;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class FocusTimeJpaRepository {
+public class FocusTimeJpaRepository implements FocusTimeRepository{
 
     @PersistenceContext
     private final EntityManager em;
@@ -38,4 +38,35 @@ public class FocusTimeJpaRepository {
         return Optional.of(newFocusTime);
     }
 
+
+    @Override
+    public Long bulkInsertUnfocusedTimes(Long focusId, List<FragmentedUnFocusedTimeInsertDto> unfocusedTimes) {
+
+        return null;
+    }
+
+    @Override
+    public List<FocusTimeResponseDto> findAllFocusTimes(String memberId) {
+        return List.of();
+    }
+
+    @Override
+    public List<FragmentedUnFocusedTimeDto> findAllFragmentedUnFocusTimes(List<Long> focusIdList) {
+        return List.of();
+    }
+
+    @Override
+    public Optional<FocusTimeDto> findFocusTime(long focusId) {
+        return Optional.empty();
+    }
+
+    @Override
+    public List<FocusTimeDto> findFocusTimesByLocalDate(LocalDate date) {
+        return List.of();
+    }
+
+    @Override
+    public List<FocusDayMarkDto> findFocusTimesByMonth(int year, int month) {
+        return List.of();
+    }
 }

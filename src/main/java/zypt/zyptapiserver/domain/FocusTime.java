@@ -38,7 +38,15 @@ public class FocusTime {
         this.startAt = startAt;
         this.endAt = endAt;
         this.createAt = date;
-        this.totalTime = getTotalTime();
+        this.totalTime = calculateTotalTime();
+    }
+    public FocusTime(Long id, Member member, LocalTime startAt, LocalTime endAt, LocalDate date) {
+        this.id = id;
+        this.member = member;
+        this.startAt = startAt;
+        this.endAt = endAt;
+        this.createAt = date;
+        this.totalTime = calculateTotalTime();
     }
 
 
