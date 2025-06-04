@@ -5,9 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.FocusDayMarkDto;
-import zypt.zyptapiserver.domain.dto.FocusTimeDto;
-import zypt.zyptapiserver.domain.dto.FocusTimeInsertDto;
+import zypt.zyptapiserver.domain.dto.*;
 import zypt.zyptapiserver.exception.MemberNotFoundException;
 import zypt.zyptapiserver.repository.FocusTimeJdbcRepository;
 import zypt.zyptapiserver.repository.FocusTimeJpaRepository;
@@ -37,16 +35,9 @@ public class FocusTimeServiceImpl implements FocusTimeService {
 
         // focusTime 저장
         FocusTimeInsertDto insertDto = focusTimeDto.getFocusTimeInsertDto();
-        LocalDateTime startLocalDateTime = insertDto.startAt();
-
-        // 타입에 맞게 날짜 및 시간 타입 변환
-        LocalDate createAt = startLocalDateTime.toLocalDate();
-        LocalTime startAt = startLocalDateTime.toLocalTime();
-        LocalTime endAt = insertDto.endAt().toLocalTime();
-
 
         FocusTime focusTime = focusTimeJpaRepository
-                .saveFocusTime(member, createAt, startAt, endAt)
+                .saveFocusTime(member, focusTimeDto.createDate(), insertDto.startAt(), insertDto.endAt())
                 .orElseThrow(() ->
                         new IllegalArgumentException("집중 시간을 저장할 수 없음"));
 
@@ -61,7 +52,13 @@ public class FocusTimeServiceImpl implements FocusTimeService {
     }
 
     @Override
-    public List<FocusTimeDto> findAllFocusTimes(String memberId) {
+    public List<FocusTimeResponseDto> findAllFocusTimes(String memberId) {
+        List<FocusTimeResponseDto> focusTimes = focusTimeJdbcRepository.findAllFocusTimes(memberId);
+        List<Long> list = focusTimes.stream().mapToLong(FocusTimeResponseDto::id).boxed().toList();
+        List<FragmentedUnFocusedTimeDto> unFocusTimes = focusTimeJdbcRepository.findAllFragmentedUnFocusTimes(list);
+
+        // TODO 이제 두개를 합쳐야함
+
         return List.of();
     }
 

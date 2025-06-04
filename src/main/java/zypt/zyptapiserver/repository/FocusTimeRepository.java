@@ -1,35 +1,37 @@
-package zypt.zyptapiserver.Service;
+package zypt.zyptapiserver.repository;
 
-import zypt.zyptapiserver.domain.dto.FocusDayMarkDto;
-import zypt.zyptapiserver.domain.dto.FocusTimeDto;
-import zypt.zyptapiserver.domain.dto.FocusTimeResponseDto;
+import zypt.zyptapiserver.domain.FocusTime;
+import zypt.zyptapiserver.domain.Member;
+import zypt.zyptapiserver.domain.dto.*;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
-public interface FocusTimeService {
+public interface FocusTimeRepository {
+
+    // FocusTime 저장
+    Optional<FocusTime> saveFocusTime(Member member, LocalDate date, LocalTime start_at, LocalTime end_at);
+
+    // UnfocusedTimes 벌크 삽입
+    Long bulkInsertUnfocusedTimes(Long focusId, List<FragmentedUnFocusedTimeInsertDto> unfocusedTimes);
 
     /**
-     * 집중 시간 데이터를 저장
-     * @param memberId 유저 id
-     * @param focusTimeDto
-     */
-    void saveFocusTime(String memberId, FocusTimeDto focusTimeDto);
-
-
-    /**
-     *  멤버가 가진 모든 집중 데이터 조회
+     * 특정 회원의 모든 집중 시간 데이터를 조회
      * @param memberId
-     * @return FocusTimeDto 리스트
+     * @return
      */
     List<FocusTimeResponseDto> findAllFocusTimes(String memberId);
 
+    List<FragmentedUnFocusedTimeDto> findAllFragmentedUnFocusTimes(List<Long> focusIdList);
+
     /**
      * 집중 id로 단건 집중 데이터 조회
-     * @param focus_id
+     * @param focusId
      * @return FocusTimeDTO
      */
-    FocusTimeDto findFocusTime(long focus_id);
+    Optional<FocusTimeDto> findFocusTime(long focusId);
 
     /**
      * 해당 날짜의 집중 데이터를 조회
