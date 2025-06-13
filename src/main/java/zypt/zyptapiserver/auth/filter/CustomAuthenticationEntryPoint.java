@@ -17,6 +17,13 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
+    /**
+     * 서블릿 필터 단에서 인증 실패시 예외 반환
+     * @param request
+     * @param response
+     * @param authException
+     * @throws IOException
+     */
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         String responseBody = "해당 요청에 충분한 인증이 되지 않았습니다.";

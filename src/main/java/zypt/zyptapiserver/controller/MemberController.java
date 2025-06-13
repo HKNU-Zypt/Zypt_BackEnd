@@ -23,12 +23,40 @@ public class MemberController {
         return ResponseEntity.ok(infoDto);
     }
 
-
+    /**
+     * 회원가입시 닉네임 변경
+     * @param userDetails  현재 로그인한 사용자 id, nickname 정보
+     * @param nickName     회원가입시 적용할 닉네임
+     * @return             200 OK
+     */
     @PostMapping("/signup")
-    public ResponseEntity<Void> updateMemberNickName(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam("nickName") String nickName) {
+    public ResponseEntity<Void> updateMemberNickNameForSignUp(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam("nickName") String nickName) {
         log.info("닉네임 업데이트");
 
         memberService.updateNickName(userDetails.getUsername(), nickName);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 상시 닉네임 변경
+     * @param userDetails 현재 로그인한 사용자 id, nickname 정보
+     * @param nickName    변경할 닉네임
+     * @return             200 OK
+     */
+    @PatchMapping("/")
+    public ResponseEntity<String> updateMemberNickName(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam("nickName") String nickName) {
+        memberService.updateNickName(userDetails.getUsername(), nickName);
+        return ResponseEntity.ok("닉네임 변경 완료");
+    }
+
+    /**
+     * 회원 탈퇴
+     * @return
+     */
+    @DeleteMapping("/")
+    public ResponseEntity<String> deleteMember() {
+        //TODO 회원 탈퇴 로직
+
+        return ResponseEntity.ok("회원 탈퇴 완료");
     }
 }

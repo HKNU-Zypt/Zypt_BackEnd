@@ -56,7 +56,7 @@ public class OIDCService {
      * 공개키를 획득
      * @return
      */
-    @Cacheable(value = "OCIDPublicKeys", key = "'ocidPublicKeys'")
+    @Cacheable(value = "OCIDPublicKeys", key = "#socialType + '_keys'")
     public OIDCPublicKeysDto getOpenIdPublicKeys(SocialType socialType){
         String jwksUrl = getJwksUrl(socialType);
 

@@ -55,4 +55,9 @@ public class MemberServiceImpl implements MemberService {
         member.updateNickName(nickName);
 
     }
+
+    @Override
+    public void deleteMember(String id) {
+
+    }
 }
