@@ -50,7 +50,7 @@ public class AuthService {
         UserInfo userInfo = socialService.getUserInfo(accessToken);
 
         if (userInfo == null) {
-            throw new InvalidTokenException("social AccessToken is invalid or malformed");
+            throw new InvalidTokenException("소셜 AccessToken이 유효하지 않거나 형식이 잘못되었습니다");
         }
 
         // 회원가입 하지 않았다면 가입
@@ -79,16 +79,20 @@ public class AuthService {
     }
 
 
-    public void authenticateUserFromToken(HttpServletResponse response, String accessToken) {
-        Claims claims = jwtUtils.getSubjectEvenIfExpired(accessToken);// 만료된 accessToken의 userId값을 추출
+    public void authenticateUserFromToken(HttpServletResponse response, String refreshToken) {
+        Claims claims = jwtUtils.getSubjectEvenIfExpired(refreshToken);// 만료된 accessToken의 userId값을 추출
 
         String id = claims.getSubject();
-        String refreshToken = tokenRepository.findRefreshToken(id); ;// redis에 저장된 리프레시 토큰을 찾음
+        String savedRefreshToken = tokenRepository.findRefreshToken(id); ;// redis에 저장된 리프레시 토큰을 찾음, 잘못된 id값일시 redis에서 예외를 던짐
 
-        log.info("액세스 토큰 만료 리프레시 발급 = {}", refreshToken);
+        if (!refreshToken.equals(savedRefreshToken)) {
+            throw new InvalidTokenException("비정상적인 리프레시 토큰");
+        }
+
+        log.info("액세스 토큰 만료 리프레시 발급 = {}", savedRefreshToken);
 
         // 리프레시 토큰 검증 (검증 성공시)
-        if (jwtUtils.validationToken(refreshToken)) {
+        if (jwtUtils.validationToken(savedRefreshToken)) {
             String nickName = claims.get("nickName", String.class);
 
             String newAccessToken = jwtUtils.generateAccessToken(id);
@@ -99,7 +103,7 @@ public class AuthService {
 
             // 액세스, 리프레시 둘다 만료되었다면 에러를 던지고, 프론트에서 로그인 페이지로 이동
         } else {
-            throw new MissingTokenException("Access/RefreshToken is expired");
+            throw new MissingTokenException("Access,refresh 토큰이 만료되었습니다.");
         }
     }
 
