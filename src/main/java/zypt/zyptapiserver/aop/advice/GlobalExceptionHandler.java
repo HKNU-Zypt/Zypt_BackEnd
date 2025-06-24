@@ -1,4 +1,4 @@
-package zypt.zyptapiserver.advice;
+package zypt.zyptapiserver.aop.advice;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.RedisConnectionFailureException;

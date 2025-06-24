@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @SpringBootTest
-class KakaoServiceV1Test {
+class KakaoServiceTest {
 
     @Autowired
     private SocialServiceFactory factory;

@@ -1,56 +1,79 @@
 package zypt.zyptapiserver.auth.service;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.json.gson.GsonFactory;
-import lombok.EqualsAndHashCode;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import zypt.zyptapiserver.auth.exception.MissingTokenException;
+import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import zypt.zyptapiserver.annotation.SocialIdentifier;
+import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
+import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeysDto;
+import zypt.zyptapiserver.auth.service.oidc.OIDCService;
 import zypt.zyptapiserver.auth.user.GoogleUserInfo;
 import zypt.zyptapiserver.auth.user.UserInfo;
+import zypt.zyptapiserver.domain.enums.SocialType;
+import zypt.zyptapiserver.util.JwtUtils;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.List;
+import java.security.PublicKey;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.Map;
 
 @Slf4j
-@EqualsAndHashCode
+@SocialIdentifier(SocialType.GOOGLE)
+@RequiredArgsConstructor
 public class GoogleService implements SocialService {
 
-    private final GoogleIdTokenVerifier verifier;
-
-    /**
-     * Google API 라이브러리를 이용해서 id_token 검증
-     * @param client_id
-     */
-    public GoogleService(String client_id) {
-        try {
-            this.verifier = new GoogleIdTokenVerifier
-                    .Builder(GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance())
-                    .setAudience(List.of(client_id))
-                    .build();
-
-        } catch (GeneralSecurityException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private final String client_id;
+    private final ObjectMapper objectMapper;
+    private final OIDCService service;
+    private final JwtUtils jwtUtils;
+    private final RestTemplate restTemplate;
 
     // 유저 정보 가져오기
     @Override
     public UserInfo getUserInfo(String token) {
-        try {
-            GoogleIdToken idToken = verifier.verify(token);
-            if (idToken == null) {
-                throw new MissingTokenException("유효하지 않은 id_token");
-            }
-            GoogleIdToken.Payload payload = idToken.getPayload();
-            log.info("payload = {}", payload.toPrettyString());
+        String[] header = token.split("\\.");
+        byte[] decode = Base64.getUrlDecoder().decode(header[0]);
 
-            return new GoogleUserInfo(payload.getSubject(), payload.getEmail());
-        } catch (GeneralSecurityException | IOException e) {
-            throw new RuntimeException("id token 검증 중 오류 발생", e);
+        try {
+            JsonNode node = objectMapper.readTree(decode);
+            log.info("node = {}", node.toPrettyString());
+            String kid = node.get("kid").asText();
+
+            String jwksUrl = service.getJwksUrl(SocialType.GOOGLE);
+            OIDCPublicKeysDto publicKeysDto = service.getOpenIdPublicKeys(SocialType.GOOGLE, jwksUrl);
+            OIDCPublicKeyDto keyDto = service.getPublicKeyByKid(kid, publicKeysDto.keys()); // kid에 맞는 공개키 탐색
+            PublicKey key = OIDCService.createRsaPublicKey(keyDto);
+
+            Claims claims = jwtUtils.validationIdToken(token, client_id, SocialType.GOOGLE.getIss(), key);
+
+            return new GoogleUserInfo(claims.getSubject(), claims.get("email", String.class));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean disconnectSocialAccount(String refreshToken) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>();
+        multiValueMap.add("token", refreshToken);
+
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(multiValueMap,httpHeaders);
+        ResponseEntity<String> res = restTemplate.postForEntity("https://oauth2.googleapis.com/revoke", entity, String.class);
+
+        if (res.getStatusCode() == HttpStatus.OK) {
+            log.info("구글 연동 해제 완료");
+            return true;
         }
 
+        return false;
     }
 }

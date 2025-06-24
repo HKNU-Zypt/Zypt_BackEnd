@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,8 @@ public class OIDCService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper mapper = new ObjectMapper();
 
+
+    // TODO advisor로 예외 터졌을 시 캐시 갱신하도록 짜야함  CacheManager 이용
     // OIDC 문서 정보 가져오기
     // SpringEL언어 사용
     @Cacheable(value = "OIDC_JWKS", key = "#socialType")
@@ -57,9 +61,7 @@ public class OIDCService {
      * @return
      */
     @Cacheable(value = "OCIDPublicKeys", key = "#socialType + '_keys'")
-    public OIDCPublicKeysDto getOpenIdPublicKeys(SocialType socialType){
-        String jwksUrl = getJwksUrl(socialType);
-
+    public OIDCPublicKeysDto getOpenIdPublicKeys(SocialType socialType, String jwksUrl){
         ResponseEntity<OIDCPublicKeysDto> response = restTemplate.getForEntity(
                 jwksUrl,
                 OIDCPublicKeysDto.class
@@ -79,9 +81,7 @@ public class OIDCService {
      * @param kid
      * @return
      */
-    public OIDCPublicKeyDto getPublicKeyByKid(String kid, SocialType socialType) {
-        OIDCPublicKeyDto[] keys = getOpenIdPublicKeys(socialType).keys();
-
+    public OIDCPublicKeyDto getPublicKeyByKid(String kid, OIDCPublicKeyDto[] keys) {
         return Arrays.stream(keys)
                 .filter(k -> k.kid().equals(kid))
                 .findFirst()

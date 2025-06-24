@@ -9,9 +9,6 @@ import java.util.Map;
 
 
 public class SocialServiceFactory {
-
-
-
     private static final String SOCIAL_TYPE_HEADER = "SocialType";
     private final Map<SocialType, SocialService> serviceMap;
 

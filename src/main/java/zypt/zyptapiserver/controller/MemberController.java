@@ -49,14 +49,5 @@ public class MemberController {
         return ResponseEntity.ok("닉네임 변경 완료");
     }
 
-    /**
-     * 회원 탈퇴
-     * @return
-     */
-    @DeleteMapping("/")
-    public ResponseEntity<String> deleteMember() {
-        //TODO 회원 탈퇴 로직
 
-        return ResponseEntity.ok("회원 탈퇴 완료");
-    }
 }

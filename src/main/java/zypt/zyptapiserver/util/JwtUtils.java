@@ -133,10 +133,10 @@ public class JwtUtils {
      * 만료 여부까지 확인
      * @param idToken
      * @param iss
-     * @param dto
+     * @param key
      */
-    public Claims validationIdToken(String idToken, String aud, String iss, OIDCPublicKeyDto dto) {
-        PublicKey key = OIDCService.createRsaPublicKey(dto);
+    public Claims validationIdToken(String idToken, String aud, String iss, PublicKey key) {
+
 
         try {
             Jws<Claims> jws = Jwts.parserBuilder()

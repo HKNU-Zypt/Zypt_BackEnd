@@ -5,8 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+import zypt.zyptapiserver.annotation.SocialIdentifier;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
+import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeysDto;
 import zypt.zyptapiserver.auth.service.oidc.OIDCService;
 import zypt.zyptapiserver.auth.user.KakaoUserInfo;
 import zypt.zyptapiserver.auth.user.UserInfo;
@@ -14,18 +15,17 @@ import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.util.JwtUtils;
 
 import java.io.IOException;
+import java.security.PublicKey;
 import java.util.Base64;
 
 @Slf4j
+@SocialIdentifier(SocialType.NAVER)
 @RequiredArgsConstructor
-public class KakaoServiceV1 implements SocialService {
-
-    private final String kakaoAppKey;
+public class NaverService implements SocialService {
+    private final String naverClientId;
     private final ObjectMapper objectMapper;
     private final OIDCService service;
     private final JwtUtils jwtUtils;
-
-
 
     // 유저 정보 가져오기
     @Override
@@ -39,12 +39,15 @@ public class KakaoServiceV1 implements SocialService {
             JsonNode jsonNode = objectMapper.readTree(decode);
             String kid = jsonNode.get("kid").asText(); // kid 추출
 
-            OIDCPublicKeyDto keyDto = service.getPublicKeyByKid(kid, SocialType.KAKAO); // kid에 맞는 공개키 탐색
-            // 검증
-            Claims claims = jwtUtils.validationIdToken(token, kakaoAppKey,SocialType.KAKAO.getIss(), keyDto);
+            String jwksUrl = service.getJwksUrl(SocialType.NAVER);
+            OIDCPublicKeysDto publicKeysDto = service.getOpenIdPublicKeys(SocialType.NAVER, jwksUrl);
+            OIDCPublicKeyDto keyDto = service.getPublicKeyByKid(kid, publicKeysDto.keys()); // kid에 맞는 공개키 탐색
+            PublicKey key = OIDCService.createRsaPublicKey(keyDto);
 
-            return new KakaoUserInfo(claims.getSubject(),
-                    claims.get("email", String.class));
+            // 검증
+            Claims claims = jwtUtils.validationIdToken(token, naverClientId, SocialType.NAVER.getIss(), key);
+
+            return new KakaoUserInfo(claims.getSubject(), "tmp");
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -52,5 +55,9 @@ public class KakaoServiceV1 implements SocialService {
 
     }
 
+    @Override
+    public boolean disconnectSocialAccount(String accessToken) {
+        return false;
+    }
 
 }
