@@ -2,11 +2,11 @@ package zypt.zyptapiserver.auth.user;
 
 
 
-public class KakaoUserInfo implements UserInfo {
+public class NaverUserInfo implements UserInfo {
     private final String id;
     private final String email;
 
-    public KakaoUserInfo(String id, String email) {
+    public NaverUserInfo(String id, String email) {
         this.id = id;
         this.email = email;
     }

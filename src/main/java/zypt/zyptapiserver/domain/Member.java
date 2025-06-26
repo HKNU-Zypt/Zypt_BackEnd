@@ -58,6 +58,9 @@ public class Member extends BaseTimeEntity {
     public void addSocialRefreshToken(SocialRefreshToken token) {
         this.socialRefreshToken = token;
         token.addMember(this);
+    }
 
+    public void removeSocialRefreshToken() {
+        this.socialRefreshToken = null;
     }
 }

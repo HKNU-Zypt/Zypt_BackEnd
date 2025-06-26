@@ -23,7 +23,7 @@ public class SocialServiceFactory {
 
         SocialService service = serviceMap.get(socialType);
 
-        // 소셜 타입에 맞는 서비스가 없다면 null을 반환
+        // 소셜 타입에 맞는 서비스가 없다면 예외 반환
         if (service == null) {
             throw new IllegalArgumentException("지원하지 않는 소셜 타입 " + type);
         }

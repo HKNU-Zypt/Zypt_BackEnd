@@ -6,5 +6,5 @@ public interface SocialService {
 
     public UserInfo getUserInfo(String token);
 
-    public boolean disconnectSocialAccount(String refreshToken);
+    public void disconnectSocialAccount(String refreshToken);
 }

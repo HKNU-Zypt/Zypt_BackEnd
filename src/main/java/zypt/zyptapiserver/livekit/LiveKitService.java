@@ -15,8 +15,9 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-@Service
+
 @Slf4j
+@Service
 public class LiveKitService {
 
     private final LiveKitSource liveKitSource;
@@ -28,15 +29,16 @@ public class LiveKitService {
                 liveKitSource.getURL(), liveKitSource.getAPI_KEY(), liveKitSource.getSECRET_KEY());
     }
 
-    // 프로세스
-    // createRoom으로 방생성 (여기서 반환된 값으로 방 설정 제어 가능)
-    // getLiveKitAccessToken으로 유저 방 연결 토큰 전달
-    // userid는 AccessToken에서 꺼내서 사용
-    public LiveKitAccessTokenDTO getLiveKitAccessToken(String nickName, String userId,  String roomName) {
+    /** 프로세스
+     * createRoom으로 방생성 (여기서 반환된 값으로 방 설정 제어 가능)
+     * getLiveKitAccessToken으로 유저 방 연결 토큰 전달
+     * userid는 AccessToken에서 꺼내서 사용
+     */
+    public LiveKitAccessTokenDTO getLiveKitAccessToken(String nickName, String memberId,  String roomName) {
         AccessToken livekitAccessToken = new AccessToken(liveKitSource.getAPI_KEY(), liveKitSource.getSECRET_KEY());
         // 유저 이름
         livekitAccessToken.setName(nickName);
-        livekitAccessToken.setIdentity(userId);
+        livekitAccessToken.setIdentity(memberId);
         livekitAccessToken.setMetadata("사용자 추가 정보");
         livekitAccessToken.setTtl(1000L); // 토큰 유효시간 초단위 (상대적) exp랑 같이 사용 불가
 
@@ -50,9 +52,16 @@ public class LiveKitService {
         return new LiveKitAccessTokenDTO(livekitAccessToken.toJwt(), new Date());
     }
 
-    // 방 설정 정도 생성
-    // 나중에 글로벌로 exception 잡아서 처리
-    public LiveKitAccessTokenDTO createRoom(String nickName, String userId, String roomName, int maxParticipant) {
+
+    /**
+     * 방생성 옵션 설정 및 livekit 액세스토큰 발급
+     * @param nickName 닉네임
+     * @param memberId 식별 유저 id
+     * @param roomName 방 이름
+     * @param maxParticipant  최대 참가자 수
+     * @return
+     */
+    public LiveKitAccessTokenDTO createRoom(String nickName, String memberId, String roomName, int maxParticipant) {
 
         // 방이름, 빈 방 타임아웃, 최대 참여자 수 제한
         Response<LivekitModels.Room> response
@@ -60,7 +69,7 @@ public class LiveKitService {
         LivekitModels.Room room = response.body();
 
         log.info("createRoomInfo = {}", room);
-        return getLiveKitAccessToken(nickName, userId, roomName);
+        return getLiveKitAccessToken(nickName, memberId, roomName);
 
     }
 
@@ -124,11 +133,12 @@ public class LiveKitService {
         // participantDTO 객체로 변환하여 list로 반환
         return participants.stream()
                 .map(participantInfo -> new LiveKitParticipantDTO(
-                        participantInfo.getIdentity(),
-                        participantInfo.getName(),
-                        participantInfo.getJoinedAt()
+                                participantInfo.getIdentity(),
+                                participantInfo.getName(),
+                                participantInfo.getJoinedAt()
                         )
                 )
                 .toList();
     }
 }
+

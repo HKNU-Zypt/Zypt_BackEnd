@@ -1,7 +1,5 @@
 package zypt.zyptapiserver.Service;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -76,9 +74,9 @@ public class MemberServiceImpl implements MemberService {
             Member member = repository.findMemberById(memberId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
 
             SocialRefreshToken refreshTokenEntity = new SocialRefreshToken(refreshToken, type);
-            repository.saveSocialRefreshToken(refreshTokenEntity);
-
             member.addSocialRefreshToken(refreshTokenEntity);
+
+            repository.saveSocialRefreshToken(refreshTokenEntity);
 
             log.info("리프레시 토큰 저장 성공");
             return;
@@ -104,7 +102,9 @@ public class MemberServiceImpl implements MemberService {
      */
     @Override
     public void deleteSocialRefreshToken(String memberId) {
-        repository.deleteRefreshTokenById(memberId);
+        Member member = repository.findMemberById(memberId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
+        member.removeSocialRefreshToken();
+
     }
 
     @Override

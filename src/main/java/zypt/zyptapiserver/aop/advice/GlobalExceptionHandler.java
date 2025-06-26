@@ -27,6 +27,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({MissingTokenException.class, InvalidTokenException.class})
     public ResponseEntity<String> reLogin(Exception ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("토큰이 만료되었거나 비정상 토큰입니다. 다시 로그인해주세요 " + ex.getMessage());
     }
 }

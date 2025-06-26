@@ -29,10 +29,14 @@ public class SocialServiceConfig {
     @Value("${naver.CLIENT_ID}")
     private String naverClientId;
 
+    @Value("${naver.CLIENT_SECRET}")
+    private String naverClientSecret;
+
     private final JwtUtils jwtUtils;
     private final ObjectMapper mapper;
-    private final OIDCService service = new OIDCService();
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final OIDCService service;
+
+    private final RestTemplate restTemplate;
 
     // 소셜 타입 , 소셜 서비스를 맵에 등록
     public Map<SocialType, SocialService> socialTypeSocialServiceMap() {
@@ -54,7 +58,7 @@ public class SocialServiceConfig {
     }
     @Bean
     public NaverService getNaverService() {
-        return new NaverService(naverClientId, mapper, service, jwtUtils);
+        return new NaverService(naverClientId, naverClientSecret, mapper, service, jwtUtils, restTemplate);
     }
 
     @Bean

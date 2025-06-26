@@ -60,7 +60,7 @@ public class GoogleService implements SocialService {
     }
 
     @Override
-    public boolean disconnectSocialAccount(String refreshToken) {
+    public void disconnectSocialAccount(String refreshToken) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>();
@@ -71,9 +71,7 @@ public class GoogleService implements SocialService {
 
         if (res.getStatusCode() == HttpStatus.OK) {
             log.info("구글 연동 해제 완료");
-            return true;
         }
 
-        return false;
     }
 }

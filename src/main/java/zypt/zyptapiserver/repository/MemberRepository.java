@@ -60,8 +60,17 @@ public class MemberRepository {
 
     @Transactional
     public void deleteRefreshTokenById(String memberId) {
-        em.createQuery("DELETE FROM SocialRefreshToken s WHERE s.member.id = :id")
-                .setParameter("id", memberId)
-                .executeUpdate();
+        SocialRefreshToken refreshToken = findSocialRefreshTokenById(memberId).get();
+        em.remove(refreshToken);
+
+//        em.createQuery("DELETE FROM SocialRefreshToken s WHERE s.member.id = :id")
+//                .setParameter("id", memberId)
+//                .executeUpdate();
+    }
+
+
+    @Transactional
+    public void deleteMember(Member member) {
+        em.remove(member);
     }
 }

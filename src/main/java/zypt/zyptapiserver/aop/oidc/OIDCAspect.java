@@ -6,6 +6,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
 import zypt.zyptapiserver.annotation.SocialIdentifier;
@@ -56,11 +57,22 @@ public class OIDCAspect {
 
             // OIDC 문서 및 JWKS로 얻은 공개키 캐시를 초기화
             // requireNonNull : null -> NPE 던짐
-            Objects.requireNonNull(cacheManager.getCache(type.name())).clear();
-            Objects.requireNonNull(cacheManager.getCache(type.name() + "_keys")).clear();
+            Cache jwkCache = cacheManager.getCache(type.name());
+            if (jwkCache != null) {
+                jwkCache.clear();
+                log.info("oidc jwk 캐시 삭제 : type = {}", type);
+            }
+
+            Cache publicKeyCache = cacheManager.getCache(type.name() + "_keys");
+            if (publicKeyCache != null) {
+                publicKeyCache.clear();
+                log.info("oidc publicKey목록 캐시 삭제 : type = {}", type);
+            }
 
             // 재실행
             return (UserInfo) joinPoint.proceed();
         }
     }
+
+
 }

@@ -4,12 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import zypt.zyptapiserver.domain.enums.SocialType;
 
@@ -23,11 +27,12 @@ import java.util.Arrays;
 import java.util.Base64;
 
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class OIDCService {
 
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final ObjectMapper mapper = new ObjectMapper();
-
+    private final RestTemplate restTemplate;
+    private final ObjectMapper mapper;
 
     // TODO advisor로 예외 터졌을 시 캐시 갱신하도록 짜야함  CacheManager 이용
     // OIDC 문서 정보 가져오기
@@ -49,7 +54,7 @@ public class OIDCService {
 
         } catch (JsonProcessingException e) {
             //TODO 예외 따로?
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException("OIDC Jwks 획득 실패 ", e);
         }
 
     }
@@ -62,17 +67,24 @@ public class OIDCService {
      */
     @Cacheable(value = "OCIDPublicKeys", key = "#socialType + '_keys'")
     public OIDCPublicKeysDto getOpenIdPublicKeys(SocialType socialType, String jwksUrl){
-        ResponseEntity<OIDCPublicKeysDto> response = restTemplate.getForEntity(
-                jwksUrl,
-                OIDCPublicKeysDto.class
-        );
 
-        if (response.getStatusCode() != HttpStatus.OK) {
-            throw new RuntimeException("공개키 획득 실패");
+        try {
+            ResponseEntity<OIDCPublicKeysDto> response = restTemplate.getForEntity(
+                    jwksUrl,
+                    OIDCPublicKeysDto.class
+            );
+
+            if (response.getStatusCode() != HttpStatus.OK) {
+                throw new IllegalArgumentException("OIDCPublicKeys 목록 획득 실패");
+            }
+
+            log.info("body = {}", Arrays.toString(response.getBody().keys()));
+            return response.getBody();
+
+        } catch (RestClientException e) {
+            throw new IllegalArgumentException("OIDCPublicKeys 목록 획득 실패 ", e);
         }
 
-        log.info("body = {}", Arrays.toString(response.getBody().keys()));
-        return response.getBody();
     }
 
     /**

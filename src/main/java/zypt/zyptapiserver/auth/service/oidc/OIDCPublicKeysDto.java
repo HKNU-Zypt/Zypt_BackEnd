@@ -1,4 +1,6 @@
 package zypt.zyptapiserver.auth.service.oidc;
 
-public record OIDCPublicKeysDto(OIDCPublicKeyDto[] keys) {
+import java.io.Serializable;
+
+public record OIDCPublicKeysDto(OIDCPublicKeyDto[] keys) implements Serializable {
 }

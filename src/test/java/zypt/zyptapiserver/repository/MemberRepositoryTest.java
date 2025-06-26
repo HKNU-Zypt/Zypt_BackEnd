@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import zypt.zyptapiserver.Service.MemberService;
 import zypt.zyptapiserver.Service.MemberServiceImpl;
 import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.domain.SocialRefreshToken;
+import zypt.zyptapiserver.domain.enums.SocialType;
 
 import java.util.Optional;
 
@@ -29,6 +31,11 @@ class MemberRepositoryTest {
 
     @PersistenceContext
     EntityManager em;
+
+    @BeforeEach
+    void init() {
+        service.saveSocialRefreshToken("feb50faf-d69d-47a7-a303-faa29a9d01af", "abc", SocialType.NAVER);
+    }
 
     @Test
     @DisplayName("부정확한 멤버 저장시 JPA 반응 테스트")
@@ -50,7 +57,6 @@ class MemberRepositoryTest {
     @DisplayName("영속화 확인")
     void persistTest() {
         service.deleteSocialRefreshToken("feb50faf-d69d-47a7-a303-faa29a9d01af");
-
 
     }
 }

@@ -81,6 +81,11 @@ public class AuthService {
     }
 
 
+    /**
+     * 토큰을 통해 인증 객체 등록
+     * @param response
+     * @param refreshToken
+     */
     public void authenticateUserFromToken(HttpServletResponse response, String refreshToken) {
         Claims claims = jwtUtils.getSubjectEvenIfExpired(refreshToken);// 만료된 accessToken의 userId값을 추출
 
@@ -148,28 +153,37 @@ public class AuthService {
     }
 
 
+    /**
+     * 로그아웃으로  리프레시 토큰을 삭제
+     * @param memberId
+     */
     public void logout(String memberId) {
         redisRepository.deleteRefreshToken(memberId);
     }
 
+    /**
+     * 회원탈퇴 (소셜 연동 해제)
+     * 카카오는 소셜 아이디만으로 탈퇴 가능
+     * 그외 소셜은 액세스토큰이 필요하기에 리프레시 토큰으로 오프라인 액세스토큰 갱신 후 해제 요청
+     *
+     * @param memberId
+     */
     @Transactional
     public void disconnect(String memberId) {
         Member member = memberRepository.findMemberById(memberId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
         SocialService service = socialServiceFactory.getService(member.getSocialType());
 
         if (member.getSocialType() != SocialType.KAKAO) {
-            SocialRefreshToken refreshToken = memberRepository.findSocialRefreshTokenById(memberId).orElseThrow(() -> new RuntimeException("토큰 없음"));
-            memberRepository.deleteRefreshTokenById(memberId);
+            SocialRefreshToken refreshToken = memberRepository.findSocialRefreshTokenById(memberId)
+                            .orElseThrow(() -> new IllegalStateException("토큰 없음"));
 
             service.disconnectSocialAccount(refreshToken.getToken());
-
+            memberRepository.deleteRefreshTokenById(memberId);
         } else {
             service.disconnectSocialAccount(member.getSocialId());
         }
-
-
-        //TODO 리프레시 토큰 삭제해야함
-
+        redisRepository.deleteRefreshToken(memberId); // 리프레시 토큰삭제
+        memberRepository.deleteMember(member); // 멤버 삭제
     }
 
 }

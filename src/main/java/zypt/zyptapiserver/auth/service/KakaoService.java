@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import zypt.zyptapiserver.annotation.SocialIdentifier;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
@@ -68,8 +69,7 @@ public class KakaoService implements SocialService {
     }
 
     @Override
-    public boolean disconnectSocialAccount(String socialId) {
-
+    public void disconnectSocialAccount(String socialId) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "KakaoAK " + adminKey);
         headers.add("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
@@ -77,20 +77,22 @@ public class KakaoService implements SocialService {
         body.add("target_id_type", "user_id");
         body.add("target_id", socialId);
 
-        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
-        ResponseEntity<UnlinkDto> response = restTemplate.postForEntity(
-                SocialType.KAKAO.getUnlink(),
-                entity,
-                UnlinkDto.class
-        );
+        try {
+            HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
+            ResponseEntity<UnlinkDto> response = restTemplate.postForEntity(
+                    SocialType.KAKAO.getUnlink(),
+                    entity,
+                    UnlinkDto.class
+            );
 
-        if (response.getStatusCode() == HttpStatus.OK) {
-            log.info("언링크 성공, 회원 번호 = {}", response.getBody());
+            if (response.getStatusCode() == HttpStatus.OK) {
+                log.info("언링크 성공, 회원 번호 = {}", response.getBody());
+            }
 
-            return true;
+        } catch (RestClientException e ) {
+            throw new IllegalArgumentException("소셜 연동 해제 실패");
         }
 
-        return false;
     }
 
 

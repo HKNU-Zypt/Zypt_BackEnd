@@ -15,7 +15,7 @@ class OIDCServiceTest {
 
     @Autowired
     CacheManager cacheManager;
-    OIDCService service = new OIDCService();
+
 
     @Test
     void openKeyCacheTest() throws JsonProcessingException {
