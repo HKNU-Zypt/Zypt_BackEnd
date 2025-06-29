@@ -1,7 +1,6 @@
 package zypt.zyptapiserver.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 import zypt.zyptapiserver.auth.service.*;
@@ -24,26 +23,42 @@ public class SocialServiceConfig {
 
     @Value("${kakao.APP_KEY}")
     private String kakaoAppKey;
+    @Value("${kakao.ADMIN_KEY}")
+    private String kakaoAdminKey;
 
-    private final OIDCService service = new OIDCService();
-    private final ObjectMapper mapper;
+    @Value("${naver.CLIENT_ID}")
+    private String naverClientId;
+
+    @Value("${naver.CLIENT_SECRET}")
+    private String naverClientSecret;
+
     private final JwtUtils jwtUtils;
+    private final ObjectMapper mapper;
+    private final OIDCService service;
+
+    private final RestTemplate restTemplate;
 
     // 소셜 타입 , 소셜 서비스를 맵에 등록
     public Map<SocialType, SocialService> socialTypeSocialServiceMap() {
         Map<SocialType, SocialService> map = new EnumMap<>(SocialType.class);
-        map.put(SocialType.KAKAO, getKakaoServiceV1());
-        map.put(SocialType.GOOGLE, getGoogleServiceV1());
-        map.put(SocialType.NAVER, null);
+        map.put(SocialType.KAKAO, getKakaoService());
+        map.put(SocialType.GOOGLE, getGoogleService());
+        map.put(SocialType.NAVER, getNaverService());
         return map;
     }
 
-    private @NotNull GoogleServiceV1 getGoogleServiceV1() {
-        return new GoogleServiceV1(clientId, mapper, service, jwtUtils);
+    @Bean
+    public GoogleService getGoogleService() {
+        return new GoogleService(clientId, mapper, service, jwtUtils, restTemplate);
     }
 
-    private @NotNull KakaoServiceV1 getKakaoServiceV1() {
-        return new KakaoServiceV1(kakaoAppKey, mapper, service, jwtUtils);
+    @Bean
+    public KakaoService getKakaoService() {
+        return new KakaoService(kakaoAppKey, kakaoAdminKey, mapper, service, jwtUtils, restTemplate);
+    }
+    @Bean
+    public NaverService getNaverService() {
+        return new NaverService(naverClientId, naverClientSecret, mapper, service, jwtUtils, restTemplate);
     }
 
     @Bean

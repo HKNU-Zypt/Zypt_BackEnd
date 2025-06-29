@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .sessionManagement(c ->
                         c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))   // 세션 사용 X
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("api/auth/login/**").permitAll()
+                        auth.requestMatchers("api/auth/login/**", "api/auth/logout").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .exceptionHandling(e ->

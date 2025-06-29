@@ -19,9 +19,17 @@ public class RedisRepository {
         valueOperations().set("refresh:" + memberId, refreshToken, Duration.ofDays(14));
     }
 
-    // 없을 시 null 반환, null when key does not exist or used in pipeline / transaction.
+    // 없을 시 null 반환
     public String findRefreshToken(String memberId) {
         return valueOperations().get("refresh:" + memberId);
+    }
+
+    /**
+     * 삭제, 없을 시 false 반환하지만 굳이 할 필요없음
+     * @param memberId
+     */
+    public void deleteRefreshToken(String memberId) {
+        template.delete("refresh:" + memberId);
     }
 
     private ValueOperations<String, String> valueOperations() {

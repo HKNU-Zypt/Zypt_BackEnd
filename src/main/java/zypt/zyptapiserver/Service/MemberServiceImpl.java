@@ -1,10 +1,12 @@
 package zypt.zyptapiserver.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import zypt.zyptapiserver.domain.Member;
+import zypt.zyptapiserver.domain.SocialRefreshToken;
 import zypt.zyptapiserver.domain.dto.MemberInfoDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.exception.MemberNotFoundException;
@@ -12,6 +14,7 @@ import zypt.zyptapiserver.repository.MemberRepository;
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -53,6 +56,54 @@ public class MemberServiceImpl implements MemberService {
         }
 
         member.updateNickName(nickName);
+
+    }
+
+    @Override
+    public void updateEmail(String memberId, String email) {
+        Member member = repository.findMemberById(memberId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
+
+        member.updateEmail(email);
+
+
+    }
+
+    @Override
+    public void saveSocialRefreshToken(String memberId, String refreshToken, SocialType type) {
+        if (repository.findSocialRefreshTokenById(memberId).isEmpty()) {
+            Member member = repository.findMemberById(memberId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
+
+            SocialRefreshToken refreshTokenEntity = new SocialRefreshToken(refreshToken, type);
+            member.addSocialRefreshToken(refreshTokenEntity);
+
+            repository.saveSocialRefreshToken(refreshTokenEntity);
+
+            log.info("리프레시 토큰 저장 성공");
+            return;
+        }
+
+        log.info("리프레시 토큰 이미 존재");
+    }
+
+    /**
+     * 소셜 리프레시 토큰을 찾는다.
+     * @param memberId
+     */
+    @Override
+    public SocialRefreshToken findSocialRefreshToken(String memberId) {
+        SocialRefreshToken refreshToken = repository.findSocialRefreshTokenById(memberId).orElseThrow(() -> new IllegalArgumentException("소셜 리프레시 토큰 조회 실패"));
+
+        return refreshToken;
+    }
+
+    /**
+     * 소셜 리프레시 토큰을 삭제한다.
+     * @param memberId
+     */
+    @Override
+    public void deleteSocialRefreshToken(String memberId) {
+        Member member = repository.findMemberById(memberId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
+        member.removeSocialRefreshToken();
 
     }
 

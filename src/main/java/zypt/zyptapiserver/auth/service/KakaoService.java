@@ -1,57 +1,94 @@
 package zypt.zyptapiserver.auth.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.stereotype.Service;
+import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+import zypt.zyptapiserver.annotation.SocialIdentifier;
+import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
+import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeysDto;
+import zypt.zyptapiserver.auth.service.oidc.OIDCService;
 import zypt.zyptapiserver.auth.user.KakaoUserInfo;
 import zypt.zyptapiserver.auth.user.UserInfo;
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
-import org.springframework.web.client.RestTemplate;
+import zypt.zyptapiserver.domain.dto.UnlinkDto;
+import zypt.zyptapiserver.domain.enums.SocialType;
+import zypt.zyptapiserver.util.JwtUtils;
+
+import java.io.IOException;
+import java.security.PublicKey;
+import java.util.Base64;
 
 @Slf4j
-@Service
+@SocialIdentifier(SocialType.KAKAO)
+@RequiredArgsConstructor
 public class KakaoService implements SocialService {
 
+    private final String kakaoAppKey;
+    private final String adminKey;
 
-    private static final RestTemplate restTemplate = new RestTemplate();
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
+    private final OIDCService service;
+    private final JwtUtils jwtUtils;
+    private final RestTemplate restTemplate;
+
 
     // 유저 정보 가져오기
     @Override
-    public UserInfo getUserInfo(String token) {
-        String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
+    public UserInfo getUserInfo(String token)  {
+        // 토큰에서 kid를 공개키 목록에 있는지 확인 후 공개키 정보를 가져옴
+        String header = token.split("\\.")[0];
+        // ID 토큰 헤더 디코딩
+        byte[] decode = Base64.getUrlDecoder().decode(header);
 
         try {
-            ResponseEntity<String> response = restTemplate.exchange(
-                    userInfoUrl,
-                    HttpMethod.GET,
-                    entity,
-                    String.class
-            );
+            JsonNode jsonNode = objectMapper.readTree(decode);
+            String kid = jsonNode.get("kid").asText(); // kid 추출
 
-            // 응답 성공시 카카오의 정보를 가져와 kakaoUserInfo 객체 생성해서 반환
-            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                JsonNode json = objectMapper.readTree(response.getBody());
-                JsonNode kakaoAccount = json.get("kakao_account");
+            String jwksUrl = service.getJwksUrl(SocialType.KAKAO);
+            OIDCPublicKeysDto publicKeysDto = service.getOpenIdPublicKeys(SocialType.KAKAO, jwksUrl);
+            OIDCPublicKeyDto keyDto = service.getPublicKeyByKid(kid, publicKeysDto.keys()); // kid에 맞는 공개키 탐색
+            PublicKey key = OIDCService.createRsaPublicKey(keyDto);
 
-                return new KakaoUserInfo(json.get("id").asText()
-                        ,kakaoAccount.get("email").asText()
-                );
+            // 검증
+            Claims claims = jwtUtils.validationIdToken(token, kakaoAppKey, SocialType.KAKAO.getIss(), key);
 
-            }
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            return new KakaoUserInfo(claims.getSubject(),
+                    claims.get("email", String.class));
+
+        } catch (IOException e) {
+            throw new IllegalStateException("ID 토큰 헤더 파싱에 실패했습니다. ",e);
         }
 
-
-        return null;
     }
+
+    @Override
+    public void disconnectSocialAccount(String socialId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "KakaoAK " + adminKey);
+        headers.add("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("target_id_type", "user_id");
+        body.add("target_id", socialId);
+
+
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
+        ResponseEntity<UnlinkDto> response = restTemplate.postForEntity(
+                SocialType.KAKAO.getUnlink(),
+                entity,
+                UnlinkDto.class
+        );
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            log.info("언링크 성공, 회원 번호 = {}", response.getBody());
+        }
+    }
+
+
 }

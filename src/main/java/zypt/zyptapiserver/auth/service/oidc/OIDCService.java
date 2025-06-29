@@ -4,12 +4,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import zypt.zyptapiserver.auth.exception.InvalidTokenException;
 import zypt.zyptapiserver.domain.enums.SocialType;
+import zypt.zyptapiserver.auth.exception.InvalidOidcPublicKeyException;
+import zypt.zyptapiserver.auth.exception.OidcPublicKeyFetchException;
 
 import java.math.BigInteger;
 import java.security.KeyFactory;
@@ -21,10 +27,12 @@ import java.util.Arrays;
 import java.util.Base64;
 
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class OIDCService {
 
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final RestTemplate restTemplate;
+    private final ObjectMapper mapper;
 
     // OIDC 문서 정보 가져오기
     // SpringEL언어 사용
@@ -44,10 +52,8 @@ public class OIDCService {
             return jsonNode.get("jwks_uri").asText();
 
         } catch (JsonProcessingException e) {
-            //TODO 예외 따로?
-            throw new RuntimeException(e);
+            throw new OidcPublicKeyFetchException("OIDC Jwks 획득 실패 ", e);
         }
-
     }
 
 
@@ -57,20 +63,24 @@ public class OIDCService {
      * @return
      */
     @Cacheable(value = "OCIDPublicKeys", key = "#socialType + '_keys'")
-    public OIDCPublicKeysDto getOpenIdPublicKeys(SocialType socialType){
-        String jwksUrl = getJwksUrl(socialType);
+    public OIDCPublicKeysDto getOpenIdPublicKeys(SocialType socialType, String jwksUrl){
 
-        ResponseEntity<OIDCPublicKeysDto> response = restTemplate.getForEntity(
-                jwksUrl,
-                OIDCPublicKeysDto.class
-        );
+        try {
+            ResponseEntity<OIDCPublicKeysDto> response = restTemplate.getForEntity(
+                    jwksUrl,
+                    OIDCPublicKeysDto.class
+            );
 
-        if (response.getStatusCode() != HttpStatus.OK) {
-            throw new RuntimeException("공개키 획득 실패");
+            if (response.getStatusCode() != HttpStatus.OK) {
+                throw new OidcPublicKeyFetchException("OIDCPublicKeys 목록 획득 실패");
+            }
+
+            log.info("body = {}", Arrays.toString(response.getBody().keys()));
+            return response.getBody();
+
+        } catch (RestClientException e) {
+            throw new OidcPublicKeyFetchException("OIDCPublicKeys 목록 획득 실패 ", e);
         }
-
-        log.info("body = {}", Arrays.toString(response.getBody().keys()));
-        return response.getBody();
     }
 
     /**
@@ -79,13 +89,11 @@ public class OIDCService {
      * @param kid
      * @return
      */
-    public OIDCPublicKeyDto getPublicKeyByKid(String kid, SocialType socialType) {
-        OIDCPublicKeyDto[] keys = getOpenIdPublicKeys(socialType).keys();
-
+    public OIDCPublicKeyDto getPublicKeyByKid(String kid, OIDCPublicKeyDto[] keys) {
         return Arrays.stream(keys)
                 .filter(k -> k.kid().equals(kid))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("일치하는 공개키가 없습니다."));
+                .orElseThrow(() -> new InvalidTokenException("일치하는 공개키가 없습니다."));
     }
 
     /**
@@ -103,9 +111,9 @@ public class OIDCService {
             // RSA256은 RSA 키 타입 + SHA-256을 사용하는 방식
             return KeyFactory.getInstance("RSA").generatePublic(spec);
 
-            // TODO 예외 처리?
+            // TODO 예외 처리
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new InvalidOidcPublicKeyException("RSA 공개키 생성 실패", e);
         }
     }
 

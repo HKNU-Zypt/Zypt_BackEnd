@@ -25,6 +25,10 @@ public class Member extends BaseTimeEntity {
     private SocialType socialType;
     private String socialId;
 
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private SocialRefreshToken socialRefreshToken;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FocusTime> focusTimes = new ArrayList<>();
 
@@ -42,9 +46,21 @@ public class Member extends BaseTimeEntity {
         this.nickName = nickName;
     }
 
+    public void updateEmail(String email) {
+        this.email = email;
+    }
     // 연관관계 편의 메서드
     public void addFocusTimes(FocusTime focusTime) {
         focusTimes.add(focusTime);
         focusTime.setMember(this);
+    }
+
+    public void addSocialRefreshToken(SocialRefreshToken token) {
+        this.socialRefreshToken = token;
+        token.addMember(this);
+    }
+
+    public void removeSocialRefreshToken() {
+        this.socialRefreshToken = null;
     }
 }

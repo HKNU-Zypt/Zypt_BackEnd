@@ -35,7 +35,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-
+    implementation 'org.springframework.retry:spring-retry'
     compileOnly 'org.projectlombok:lombok'
 
     testCompileOnly 'org.projectlombok:lombok' // 테스트 의존성 추가
@@ -45,6 +45,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.mockito:mockito-core' // mokito
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // jwt 설정

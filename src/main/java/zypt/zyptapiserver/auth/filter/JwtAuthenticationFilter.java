@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         // 로그인 요청이면 다음 필터로 이동
-        if (request.getRequestURI().equals("/api/auth/login")) {
+        if (request.getRequestURI().equals("/api/auth/login") || request.getRequestURI().equals("/api/auth/logout")) {
             filterChain.doFilter(request, response);
             return;
         }
