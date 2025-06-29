@@ -24,6 +24,10 @@ public class RedisRepository {
         return valueOperations().get("refresh:" + memberId);
     }
 
+    /**
+     * 삭제, 없을 시 false 반환하지만 굳이 할 필요없음
+     * @param memberId
+     */
     public void deleteRefreshToken(String memberId) {
         template.delete("refresh:" + memberId);
     }

@@ -21,6 +21,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -175,10 +176,11 @@ public class AuthService {
 
         if (member.getSocialType() != SocialType.KAKAO) {
             SocialRefreshToken refreshToken = memberRepository.findSocialRefreshTokenById(memberId)
-                            .orElseThrow(() -> new IllegalStateException("토큰 없음"));
+                            .orElseThrow(() -> new NoSuchElementException("토큰 없음"));
 
             service.disconnectSocialAccount(refreshToken.getToken());
             memberRepository.deleteRefreshTokenById(memberId);
+
         } else {
             service.disconnectSocialAccount(member.getSocialId());
         }

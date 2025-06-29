@@ -63,7 +63,7 @@ public class KakaoService implements SocialService {
                     claims.get("email", String.class));
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException("ID 토큰 헤더 파싱에 실패했습니다. ",e);
         }
 
     }
@@ -77,22 +77,17 @@ public class KakaoService implements SocialService {
         body.add("target_id_type", "user_id");
         body.add("target_id", socialId);
 
-        try {
-            HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
-            ResponseEntity<UnlinkDto> response = restTemplate.postForEntity(
-                    SocialType.KAKAO.getUnlink(),
-                    entity,
-                    UnlinkDto.class
-            );
 
-            if (response.getStatusCode() == HttpStatus.OK) {
-                log.info("언링크 성공, 회원 번호 = {}", response.getBody());
-            }
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
+        ResponseEntity<UnlinkDto> response = restTemplate.postForEntity(
+                SocialType.KAKAO.getUnlink(),
+                entity,
+                UnlinkDto.class
+        );
 
-        } catch (RestClientException e ) {
-            throw new IllegalArgumentException("소셜 연동 해제 실패");
+        if (response.getStatusCode() == HttpStatus.OK) {
+            log.info("언링크 성공, 회원 번호 = {}", response.getBody());
         }
-
     }
 
 

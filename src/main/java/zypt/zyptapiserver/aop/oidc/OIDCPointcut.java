@@ -7,7 +7,8 @@ public class OIDCPointcut {
     @Pointcut("execution(public * *.oidc.getPublicKeyByKid(..))")
     public void oidc() {}
 
-    @Pointcut("target(zypt.zyptapiserver.auth.service.SocialService)")
+    @Pointcut("execution(* zypt.zyptapiserver.auth.service.SocialService.getUserInfo(..))")
     public void getUserInfo() {}
+
 
 }

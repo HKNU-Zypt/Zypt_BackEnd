@@ -9,13 +9,18 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
+import org.springframework.stereotype.Component;
 import zypt.zyptapiserver.annotation.SocialIdentifier;
+import zypt.zyptapiserver.auth.exception.InvalidOidcPublicKeyException;
+import zypt.zyptapiserver.auth.exception.InvalidTokenException;
+import zypt.zyptapiserver.auth.exception.OidcPublicKeyFetchException;
 import zypt.zyptapiserver.auth.user.UserInfo;
 import zypt.zyptapiserver.domain.enums.SocialType;
 
 import java.util.Objects;
 
 
+@Component
 @Aspect
 @Slf4j
 @RequiredArgsConstructor
@@ -45,9 +50,10 @@ public class OIDCAspect {
     @Around("OIDCPointcut.getUserInfo()")
     public UserInfo oidcReCache(ProceedingJoinPoint joinPoint) throws Throwable {
         try {
+            log.info("OIDC를 통한 소셜 로그인 시작 ");
             return (UserInfo) joinPoint.proceed();
 
-        } catch (RuntimeException  e) {
+        } catch (OidcPublicKeyFetchException | InvalidTokenException  | InvalidOidcPublicKeyException e) {
             log.warn("SocialService 호출 실패로 캐시 초기화 후 재시도: {}", e.getMessage(), e);
 
             // social 타입을 정의한 SocialIdentifier 애노테이션으로 찾기

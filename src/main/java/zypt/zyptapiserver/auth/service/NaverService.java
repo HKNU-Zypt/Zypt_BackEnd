@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import zypt.zyptapiserver.annotation.SocialIdentifier;
 import zypt.zyptapiserver.auth.exception.JsonCustomException;
@@ -97,7 +98,7 @@ public class NaverService implements SocialService {
                         String.class
                 );
         if (res.getStatusCode() != HttpStatus.OK || res.getBody() == null ) {
-            throw new IllegalStateException("소셜 연동 해제 실패");
+            throw new RestClientException("소셜 연동 해제 실패");
         }
 
         log.info("response = code : {}, body = {}", res.getStatusCode() , res.getBody());

@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import zypt.zyptapiserver.annotation.SocialIdentifier;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
@@ -55,7 +56,7 @@ public class GoogleService implements SocialService {
 
             return new GoogleUserInfo(claims.getSubject(), claims.get("email", String.class));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException("ID 토큰 헤더 파싱에 실패했습니다. ",e);
         }
     }
 
@@ -69,9 +70,11 @@ public class GoogleService implements SocialService {
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(multiValueMap,httpHeaders);
         ResponseEntity<String> res = restTemplate.postForEntity("https://oauth2.googleapis.com/revoke", entity, String.class);
 
-        if (res.getStatusCode() == HttpStatus.OK) {
-            log.info("구글 연동 해제 완료");
+        if (res.getStatusCode() != HttpStatus.OK) {
+            throw new RestClientException("요청 실패");
         }
+
+        log.info("구글 연동 해제 완료");
 
     }
 }

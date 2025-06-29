@@ -6,16 +6,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import zypt.zyptapiserver.auth.exception.InvalidTokenException;
 import zypt.zyptapiserver.domain.enums.SocialType;
+import zypt.zyptapiserver.auth.exception.InvalidOidcPublicKeyException;
+import zypt.zyptapiserver.auth.exception.OidcPublicKeyFetchException;
 
 import java.math.BigInteger;
 import java.security.KeyFactory;
@@ -34,7 +34,6 @@ public class OIDCService {
     private final RestTemplate restTemplate;
     private final ObjectMapper mapper;
 
-    // TODO advisor로 예외 터졌을 시 캐시 갱신하도록 짜야함  CacheManager 이용
     // OIDC 문서 정보 가져오기
     // SpringEL언어 사용
     @Cacheable(value = "OIDC_JWKS", key = "#socialType")
@@ -53,10 +52,8 @@ public class OIDCService {
             return jsonNode.get("jwks_uri").asText();
 
         } catch (JsonProcessingException e) {
-            //TODO 예외 따로?
-            throw new IllegalArgumentException("OIDC Jwks 획득 실패 ", e);
+            throw new OidcPublicKeyFetchException("OIDC Jwks 획득 실패 ", e);
         }
-
     }
 
 
@@ -75,16 +72,15 @@ public class OIDCService {
             );
 
             if (response.getStatusCode() != HttpStatus.OK) {
-                throw new IllegalArgumentException("OIDCPublicKeys 목록 획득 실패");
+                throw new OidcPublicKeyFetchException("OIDCPublicKeys 목록 획득 실패");
             }
 
             log.info("body = {}", Arrays.toString(response.getBody().keys()));
             return response.getBody();
 
         } catch (RestClientException e) {
-            throw new IllegalArgumentException("OIDCPublicKeys 목록 획득 실패 ", e);
+            throw new OidcPublicKeyFetchException("OIDCPublicKeys 목록 획득 실패 ", e);
         }
-
     }
 
     /**
@@ -97,7 +93,7 @@ public class OIDCService {
         return Arrays.stream(keys)
                 .filter(k -> k.kid().equals(kid))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("일치하는 공개키가 없습니다."));
+                .orElseThrow(() -> new InvalidTokenException("일치하는 공개키가 없습니다."));
     }
 
     /**
@@ -115,9 +111,9 @@ public class OIDCService {
             // RSA256은 RSA 키 타입 + SHA-256을 사용하는 방식
             return KeyFactory.getInstance("RSA").generatePublic(spec);
 
-            // TODO 예외 처리?
+            // TODO 예외 처리
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new InvalidOidcPublicKeyException("RSA 공개키 생성 실패", e);
         }
     }
 
