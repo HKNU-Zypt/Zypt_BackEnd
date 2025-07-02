@@ -11,8 +11,11 @@ import zypt.zyptapiserver.repository.FocusTimeJdbcRepository;
 import zypt.zyptapiserver.repository.FocusTimeJpaRepository;
 import zypt.zyptapiserver.repository.MemberRepository;
 
-import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -52,27 +55,70 @@ public class FocusTimeServiceImpl implements FocusTimeService {
     @Override
     public List<FocusTimeResponseDto> findAllFocusTimes(String memberId) {
         List<FocusTimeResponseDto> focusTimes = focusTimeJdbcRepository.findAllFocusTimes(memberId);
-        List<Long> list = focusTimes.stream().mapToLong(FocusTimeResponseDto::id).boxed().toList();
-        List<FragmentedUnFocusedTimeDto> unFocusTimes = focusTimeJdbcRepository.findAllFragmentedUnFocusTimes(list);
+        List<Long> list = focusTimes.stream().mapToLong(FocusTimeResponseDto::getId).distinct().boxed().toList(); // focus_id 리스트 추출
+        List<FragmentedUnFocusedTimeDto> unFocusTimes = focusTimeJdbcRepository.findAllFragmentedUnFocusTimes(list); // in 검색
 
-        // TODO 이제 두개를 합쳐야함
+        // id값을 FragmentedUnFocusedTimeDto에 하나하나 매핑해야함
+        Map<Long, List<FragmentedUnFocusedTimeDto>> unFocusedTimesMap  =
+                unFocusTimes.stream()
+                        .collect(Collectors.groupingBy(FragmentedUnFocusedTimeDto::focusId));
 
-        return List.of();
+        // 매핑
+        return focusTimes.stream().map(focusTime -> {
+                    List<FragmentedUnFocusedTimeDto> associatedUnFocusedTimes =
+                            unFocusedTimesMap.getOrDefault(focusTime.getId(), new ArrayList<>());
+
+                    focusTime.addUnFocusedTimeDtos(associatedUnFocusedTimes);
+                    return focusTime;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
-    public FocusTimeDto findFocusTime(long focus_id) {
-        return null;
+    public FocusTimeResponseDto findFocusTime(long focus_id) {
+        List<FragmentedUnFocusedTimeDto> unFocusTimes = focusTimeJdbcRepository.findAllFragmentedUnFocusTimes(List.of(focus_id));
+
+        FocusTimeResponseDto focusTimeResponseDto = focusTimeJdbcRepository.findFocusTime(focus_id)
+                .orElseThrow(() ->
+                        new NoSuchElementException("focus_id에 해당하는 FocusTime이 존재하지 않습니다."));
+
+        focusTimeResponseDto.addUnFocusedTimeDtos(unFocusTimes);
+
+        return focusTimeResponseDto;
+    }
+
+
+    @Override
+    public List<FocusTimeResponseDto> findFocusTimesByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day) {
+
+        List<FocusTimeResponseDto> focusTimeDtos = focusTimeJdbcRepository.findFocusTimesByYearAndMonthAndDay(memberId, year, month, day);
+
+        List<Long> focusIds = focusTimeDtos.stream()
+                .mapToLong(FocusTimeResponseDto::getId)
+                .distinct()
+                .boxed()
+                .toList();
+
+        List<FragmentedUnFocusedTimeDto> unFocusTimes = focusTimeJdbcRepository.findAllFragmentedUnFocusTimes(focusIds);
+
+        Map<Long, List<FragmentedUnFocusedTimeDto>> unFocusMap = unFocusTimes.stream().collect(Collectors.groupingBy(FragmentedUnFocusedTimeDto::focusId));
+
+        focusTimeDtos.stream().map(focusTime -> {
+            Long id = focusTime.getId();
+            List<FragmentedUnFocusedTimeDto> fragmentedUnFocusedTimeDtos = unFocusMap.getOrDefault(id, new ArrayList<>());
+            focusTime.addUnFocusedTimeDtos(fragmentedUnFocusedTimeDtos);
+
+            return focusTime;
+        });
+
+
+        return focusTimeDtos;
     }
 
     @Override
-    public List<FocusTimeDto> findFocusTimesByLocalDate(LocalDate date) {
-        return List.of();
+    public void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day) {
+        focusTimeJdbcRepository.deleteFocusTimeByYearAndMonthAndDay(memberId, year, month, day);
     }
 
-    @Override
-    public List<FocusDayMarkDto> findFocusTimesByMonth(int year, int month) {
-        return List.of();
-    }
 
 }

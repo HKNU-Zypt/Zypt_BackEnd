@@ -3,17 +3,12 @@ package zypt.zyptapiserver.repository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.domain.dto.*;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -34,7 +29,6 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
                 = new FocusTime(member, start_at, end_at, date);
 
         em.persist(newFocusTime);
-
         return Optional.of(newFocusTime);
     }
 
@@ -56,17 +50,24 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
     }
 
     @Override
-    public Optional<FocusTimeDto> findFocusTime(long focusId) {
+    public Optional<FocusTimeResponseDto> findFocusTime(long focusId) {
         return Optional.empty();
     }
 
     @Override
-    public List<FocusTimeDto> findFocusTimesByLocalDate(LocalDate date) {
+    public List<FocusTimeResponseDto> findFocusTimesByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day) {
         return List.of();
     }
 
     @Override
-    public List<FocusDayMarkDto> findFocusTimesByMonth(int year, int month) {
+    public List<Integer> findFocusTimesByMonth(String memberId, int year, int month) {
         return List.of();
     }
+
+    @Override
+    public void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day) {
+
+    }
+
+
 }

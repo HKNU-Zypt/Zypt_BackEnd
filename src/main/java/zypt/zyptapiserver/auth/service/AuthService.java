@@ -48,9 +48,9 @@ public class AuthService {
      * redis 예외시에도 DB에 멤버가 저장됨, 따라서 트랜잭션을 적용해 회원가입 로직 도중 예외 발생시 저장을 방지
      */
     @Transactional
-    public void handleAuthenticationFromSocialToken(HttpServletResponse response, SocialType socialType, String idToken) {
+    public void handleAuthenticationFromSocialToken(HttpServletResponse response, SocialType socialType, String token) {
         SocialService socialService = socialServiceFactory.getService(socialType);
-        UserInfo userInfo = socialService.getUserInfo(idToken);
+        UserInfo userInfo = socialService.getUserInfo(token);
 
         if (userInfo == null) {
             throw new InvalidTokenException("소셜 AccessToken이 유효하지 않거나 형식이 잘못되었습니다");
@@ -170,20 +170,25 @@ public class AuthService {
      * @param memberId
      */
     @Transactional
-    public void disconnect(String memberId) {
+    public void disconnect(String memberId, String token) {
         Member member = memberRepository.findMemberById(memberId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
         SocialService service = socialServiceFactory.getService(member.getSocialType());
 
-        if (member.getSocialType() != SocialType.KAKAO) {
+        if (member.getSocialType() == SocialType.KAKAO) {
+            service.disconnectSocialAccount(member.getSocialId());
+
+        } else if (member.getSocialType() == SocialType.NAVER){
             SocialRefreshToken refreshToken = memberRepository.findSocialRefreshTokenById(memberId)
-                            .orElseThrow(() -> new NoSuchElementException("토큰 없음"));
+                    .orElseThrow(() -> new NoSuchElementException("토큰 없음"));
 
             service.disconnectSocialAccount(refreshToken.getToken());
             memberRepository.deleteRefreshTokenById(memberId);
 
+            // 구글
         } else {
-            service.disconnectSocialAccount(member.getSocialId());
+            service.disconnectSocialAccount(token);
         }
+
         redisRepository.deleteRefreshToken(memberId); // 리프레시 토큰삭제
         memberRepository.deleteMember(member); // 멤버 삭제
     }

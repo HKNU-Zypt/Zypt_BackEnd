@@ -7,16 +7,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import zypt.zyptapiserver.annotation.SocialIdentifier;
 import zypt.zyptapiserver.auth.exception.JsonCustomException;
-import zypt.zyptapiserver.auth.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeysDto;
 import zypt.zyptapiserver.auth.service.oidc.OIDCService;
@@ -29,41 +26,46 @@ import zypt.zyptapiserver.util.JwtUtils;
 import java.io.IOException;
 import java.security.PublicKey;
 import java.util.Base64;
-import java.util.Map;
 
 @Slf4j
 @SocialIdentifier(SocialType.NAVER)
 @RequiredArgsConstructor
-public class NaverService implements SocialService {
+public class NaverOIDCService implements SocialService {
     private final String naverClientId;
     private final String clientSecret;
     private final ObjectMapper objectMapper;
+    private final OIDCService service;
+    private final JwtUtils jwtUtils;
     private final RestTemplate restTemplate;
 
     private static final String NAVER_TOKEN_REQUEST_URL = "https://nid.naver.com/oauth2.0/token";
-    private static final String PROFILE_URL = "https://openapi.naver.com/v1/nid/me";
+
+
     // 유저 정보 가져오기
     @Override
     public UserInfo getUserInfo(String token)  {
-
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                PROFILE_URL,
-                Map.of("Authorization", token),
-                String.class);
-
-        if (response.getStatusCode() != HttpStatus.OK) {
-            throw new MissingTokenException("토큰이 잘못되었거나 잘못된 사용자");
-        }
+        // 토큰에서 kid를 공개키 목록에 있는지 확인 후 공개키 정보를 가져옴
+        String header = token.split("\\.")[0];
+        // ID 토큰 헤더 디코딩
+        byte[] decode = Base64.getUrlDecoder().decode(header);
 
         try {
-            JsonNode profile = objectMapper.readTree(response.getBody());
-            String socialId = profile.get("response").get("id").asText();
-            String email = profile.get("response").get("email").asText();
+            JsonNode jsonNode = objectMapper.readTree(decode);
+            String kid = jsonNode.get("kid").asText(); // kid 추출
 
-            return new NaverUserInfo(socialId, email);
+            String jwksUrl = service.getJwksUrl(SocialType.NAVER);
+            OIDCPublicKeysDto publicKeysDto = service.getOpenIdPublicKeys(SocialType.NAVER, jwksUrl);
 
-        } catch (JsonProcessingException e) {
-            throw new JsonCustomException(e);
+            OIDCPublicKeyDto keyDto = service.getPublicKeyByKid(kid, publicKeysDto.keys()); // kid에 맞는 공개키 탐색
+            PublicKey key = OIDCService.createRsaPublicKey(keyDto);
+
+            // 검증
+            Claims claims = jwtUtils.validationIdToken(token, naverClientId, SocialType.NAVER.getIss(), key);
+
+            return new NaverUserInfo(claims.getSubject(), "tmp");
+
+        } catch (IOException e) {
+            throw new IllegalStateException("ID 토큰 헤더 파싱에 실패했습니다. " , e);
         }
 
     }

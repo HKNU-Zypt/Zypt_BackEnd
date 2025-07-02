@@ -28,17 +28,22 @@ public interface FocusTimeRepository {
 
     /**
      * 집중 id로 단건 집중 데이터 조회
+     *
      * @param focusId
      * @return FocusTimeDTO
      */
-    Optional<FocusTimeDto> findFocusTime(long focusId);
+    Optional<FocusTimeResponseDto> findFocusTime(long focusId);
+
 
     /**
-     * 해당 날짜의 집중 데이터를 조회
-     * @param date 날짜 데이터 YYYY-MM-DD
-     * @return FocusTimeDto 리스트
+     * 년-월-일 조회
+     * @param year
+     * @param month
+     * @param day
+     * @return
      */
-    List<FocusTimeDto> findFocusTimesByLocalDate(LocalDate date);
+    List<FocusTimeResponseDto> findFocusTimesByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day);
+
 
 
     /**
@@ -48,7 +53,9 @@ public interface FocusTimeRepository {
      * @param month
      * @return FocusDayMarkDto 리스트
      */
-    List<FocusDayMarkDto> findFocusTimesByMonth(int year, int month);
+    List<Integer> findFocusTimesByMonth(String memberId,int year, int month);
 
+
+    void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day);
 
 }

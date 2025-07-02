@@ -48,18 +48,24 @@ public class SocialServiceConfig {
     }
 
     @Bean
-    public GoogleService getGoogleService() {
-        return new GoogleService(clientId, mapper, service, jwtUtils, restTemplate);
+    public GoogleOIDCService getGoogleService() {
+        return new GoogleOIDCService(clientId, mapper, service, jwtUtils, restTemplate);
     }
 
     @Bean
     public KakaoService getKakaoService() {
         return new KakaoService(kakaoAppKey, kakaoAdminKey, mapper, service, jwtUtils, restTemplate);
     }
+
+    @Bean
+    public NaverOIDCService getNaverOidcService() {
+        return new NaverOIDCService(naverClientId, naverClientSecret, mapper, service, jwtUtils, restTemplate);
+    }
     @Bean
     public NaverService getNaverService() {
-        return new NaverService(naverClientId, naverClientSecret, mapper, service, jwtUtils, restTemplate);
+        return new NaverService(naverClientId, naverClientSecret, mapper, restTemplate);
     }
+
 
     @Bean
     public SocialServiceFactory socialServiceFactory() {
