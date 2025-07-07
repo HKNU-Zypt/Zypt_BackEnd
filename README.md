@@ -102,3 +102,7 @@ docker compose up -d --build
 docker compose down
 ```
 컴포즈로 묶은 컨테이너 전부 종료 및 삭제 
+
+스웨거로 API 확인
+
+http://localhost:8080/swagger-ui/index.html#/
