@@ -10,7 +10,6 @@ import java.util.List;
 
 // 클라이언트에게 전송할 DTO
 @Getter
-@AllArgsConstructor
 public class FocusTimeResponseDto {
     private final Long id;
     private final String memberId;
@@ -18,6 +17,14 @@ public class FocusTimeResponseDto {
     private final LocalTime endAt;
     private final LocalDate createDate;
     private List<FragmentedUnFocusedTimeDto> unFocusedTimeDtos;
+
+    public FocusTimeResponseDto(Long id, String memberId, LocalTime startAt, LocalTime endAt, LocalDate createDate) {
+        this.id = id;
+        this.memberId = memberId;
+        this.startAt = startAt;
+        this.endAt = endAt;
+        this.createDate = createDate;
+    }
 
     public void addUnFocusedTimeDtos(List<FragmentedUnFocusedTimeDto> dtos) {
         unFocusedTimeDtos = dtos;

@@ -1,6 +1,6 @@
 package zypt.zyptapiserver.controller;
 
-import jakarta.annotation.Nullable;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +14,7 @@ import zypt.zyptapiserver.domain.dto.FocusTimeResponseDto;
 import java.util.List;
 
 @Slf4j
+@Tag(name = "FocusTime API", description = "FocusTime API")
 @RequestMapping("/api/focus_times")
 @RestController
 @RequiredArgsConstructor
@@ -37,11 +38,6 @@ public class FocusTimeController {
                                            @RequestParam(value = "month", required = false) Integer month,
                                            @RequestParam(value = "day", required = false) Integer day) {
 
-        if (year == null && month != null
-                || year == null && day != null
-                || day != null && month == null) {
-            return ResponseEntity.badRequest().body("년-월-일로 순서에 맞게 입력 해주세요 ");
-        }
 
         List<FocusTimeResponseDto> ResponseDtos = focusTimeService.findFocusTimesByYearAndMonthAndDay(userDetails.getUsername(), year, month, day);
 
@@ -61,14 +57,12 @@ public class FocusTimeController {
                                            @RequestParam(value = "month", required = false) Integer month,
                                            @RequestParam(value = "day", required = false) Integer day) {
 
-        if (year == null && month != null
-                || year == null && day != null
-                || day != null && month == null) {
-            return ResponseEntity.badRequest().body("년-월-일로 순서에 맞게 입력 해주세요 ");
-        }
+
 
         focusTimeService.deleteFocusTimeByYearAndMonthAndDay(userDetails.getUsername(), year, month, day);
         return ResponseEntity.ok("집중 데이터 삭제 완료");
     }
+
+
 
 }

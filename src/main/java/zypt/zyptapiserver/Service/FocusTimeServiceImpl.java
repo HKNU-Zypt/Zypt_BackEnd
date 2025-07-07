@@ -56,6 +56,11 @@ public class FocusTimeServiceImpl implements FocusTimeService {
     public List<FocusTimeResponseDto> findAllFocusTimes(String memberId) {
         List<FocusTimeResponseDto> focusTimes = focusTimeJdbcRepository.findAllFocusTimes(memberId);
         List<Long> list = focusTimes.stream().mapToLong(FocusTimeResponseDto::getId).distinct().boxed().toList(); // focus_id 리스트 추출
+
+        if (list.isEmpty()) {
+            throw new NoSuchElementException("focus id가 하나도 없습니다.");
+        }
+
         List<FragmentedUnFocusedTimeDto> unFocusTimes = focusTimeJdbcRepository.findAllFragmentedUnFocusTimes(list); // in 검색
 
         // id값을 FragmentedUnFocusedTimeDto에 하나하나 매핑해야함
@@ -91,6 +96,10 @@ public class FocusTimeServiceImpl implements FocusTimeService {
     @Override
     public List<FocusTimeResponseDto> findFocusTimesByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day) {
 
+        if (validateYearMonthDay(year, month, day)) {
+            throw new IllegalArgumentException("년-월-일 순서에 맞게 날짜를 입력");
+        }
+
         List<FocusTimeResponseDto> focusTimeDtos = focusTimeJdbcRepository.findFocusTimesByYearAndMonthAndDay(memberId, year, month, day);
 
         List<Long> focusIds = focusTimeDtos.stream()
@@ -98,6 +107,10 @@ public class FocusTimeServiceImpl implements FocusTimeService {
                 .distinct()
                 .boxed()
                 .toList();
+
+        if (focusIds.isEmpty()) {
+            throw new NoSuchElementException("focus id가 하나도 없습니다.");
+        }
 
         List<FragmentedUnFocusedTimeDto> unFocusTimes = focusTimeJdbcRepository.findAllFragmentedUnFocusTimes(focusIds);
 
@@ -117,8 +130,16 @@ public class FocusTimeServiceImpl implements FocusTimeService {
 
     @Override
     public void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day) {
+        if (validateYearMonthDay(year, month, day)) {
+            throw new IllegalArgumentException("년-월-일 순서에 맞게 날짜를 입력");
+        }
+
         focusTimeJdbcRepository.deleteFocusTimeByYearAndMonthAndDay(memberId, year, month, day);
     }
 
-
+    private static boolean validateYearMonthDay(Integer year, Integer month, Integer day) {
+        return year == null && month != null
+                || year == null && day != null
+                || day != null && month == null;
+    }
 }

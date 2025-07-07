@@ -16,10 +16,7 @@ import zypt.zyptapiserver.domain.enums.UnFocusedType;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -60,7 +57,7 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
     // 집중하지 않은 시간 총합을 반환
     @Transactional
     public Long bulkInsertUnfocusedTimes(Long focusId, List<FragmentedUnFocusedTimeInsertDto> unfocusedTimes) {
-        String sql = "INSERT INTO fragmented_unfocused_time(focused_id, start_at, end_at, type, unfocused_time) " +
+        String sql = "INSERT INTO fragmented_unfocused_time(focus_id, start_at, end_at, type, unfocused_time) " +
                 "VALUES(:focus_id,:start_at,:end_at,:type,:unfocused_time)";
 
         List<SqlParameterSource> batchParams = new ArrayList<>();
@@ -70,7 +67,7 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
             param.addValue("focus_id", focusId);
             param.addValue("start_at", insertDto.startAt());
             param.addValue("end_at", insertDto.endAt());
-            param.addValue("type", insertDto.type());
+            param.addValue("type", insertDto.type().name());
             param.addValue("unfocused_time", insertDto.calculateUnfocusedDuration());
             batchParams.add(param);
         }
@@ -94,14 +91,14 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
                     rs.getString("member_id"),
                     rs.getTime("start_at").toLocalTime(),
                     rs.getTime("end_at").toLocalTime(),
-                    rs.getDate("create_date").toLocalDate(),
-                    null)
+                    rs.getDate("create_date").toLocalDate())
         );
     }
 
     @Override
     public List<FragmentedUnFocusedTimeDto> findAllFragmentedUnFocusTimes(List<Long> focusIdList) {
         String sql = "SELECT * FROM fragmented_unfocused_time WHERE focus_id IN(:focusIdList)";
+
 
         MapSqlParameterSource param = new MapSqlParameterSource();
         param.addValue("focusIdList", focusIdList);
@@ -120,9 +117,9 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
     @Override
     public Optional<FocusTimeResponseDto> findFocusTime(long focusId) {
 
-        String sql = "SELECT * FROM focus_time WHERE focus_id = :focusId";
+        String sql = "SELECT * FROM focus_time WHERE id = :focusId";
         MapSqlParameterSource param = new MapSqlParameterSource();
-        param.addValue("focus_id", focusId);
+        param.addValue("focusId", focusId);
 
 
         return jdbcTemplate.query(sql, param,
@@ -132,8 +129,8 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
                                 rs.getString("member_id"),
                                 rs.getTime("start_at").toLocalTime(),
                                 rs.getTime("end_at").toLocalTime(),
-                                rs.getDate("create_date").toLocalDate(),
-                                null)).stream().findFirst();
+                                rs.getDate("create_date").toLocalDate())
+        ).stream().findFirst();
     }
 
 
@@ -184,7 +181,6 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
                                 rs.getTime("start_at").toLocalTime(),
                                 rs.getTime("end_at").toLocalTime(),
                                 rs.getDate("create_date").toLocalDate()
-                                , null
                         ));
     }
 //
@@ -240,7 +236,7 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
     @Override
     @Transactional
     public void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day) {
-        String sql = "DELETE FROM focus_time WHERE member_id = :memberId";
+        String sql = "SELECT id FROM focus_time WHERE member_id = :memberId";
         MapSqlParameterSource param = new MapSqlParameterSource();
         param.addValue("memberId", memberId);
 
@@ -257,10 +253,20 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
             param.addValue("_day", day);
         }
 
-        int update = jdbcTemplate.update(sql, param);
-        if (update == 0) {
-            throw new IllegalStateException("focusTime 삭제 실패");
+        List<Long> ids = jdbcTemplate.query(sql, param, (rs, rowNum) -> rs.getLong("id"));
+        if (ids.isEmpty()) {
+            throw new NoSuchElementException("삭제할 focusTime 존재하지 않음");
         }
 
+        String deleteChildSql = "DELETE FROM fragmented_unfocused_time WHERE focus_id IN (:ids)";
+
+        jdbcTemplate.update(deleteChildSql, new MapSqlParameterSource("ids", ids));
+
+        String deleteParentSql = "DELETE FROM focus_time WHERE id IN (:ids)";
+        int deleted = jdbcTemplate.update(deleteParentSql, new MapSqlParameterSource("ids", ids));
+
+        if (deleted == 0) {
+            throw new IllegalStateException("focusTime 삭제 실패");
+        }
     }
 }

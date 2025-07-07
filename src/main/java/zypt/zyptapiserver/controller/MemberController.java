@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -11,13 +12,14 @@ import zypt.zyptapiserver.domain.dto.MemberInfoDto;
 
 @Slf4j
 @RestController
+@Tag(name = "Member API", description = "멤버에 대한 API")
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
 
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<MemberInfoDto> findMemberInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
         MemberInfoDto infoDto = memberService.findMember(userDetails.getUsername());
         return ResponseEntity.ok(infoDto);
@@ -43,7 +45,7 @@ public class MemberController {
      * @param nickName    변경할 닉네임
      * @return             200 OK
      */
-    @PatchMapping("/")
+    @PatchMapping("")
     public ResponseEntity<String> updateMemberNickName(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam("nickName") String nickName) {
         memberService.updateNickName(userDetails.getUsername(), nickName);
         return ResponseEntity.ok("닉네임 변경 완료");

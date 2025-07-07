@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import zypt.zyptapiserver.domain.enums.SocialType;
 
 @Slf4j
 @RestController
+@Tag(name = "Auth API", description = "로그인, 인증, 인가에 대한 API")
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {

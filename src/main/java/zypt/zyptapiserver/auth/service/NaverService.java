@@ -8,6 +8,7 @@ import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -45,10 +46,13 @@ public class NaverService implements SocialService {
     // 유저 정보 가져오기
     @Override
     public UserInfo getUserInfo(String token)  {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.postForEntity(
                 PROFILE_URL,
-                Map.of("Authorization", token),
+                requestEntity,
                 String.class);
 
         if (response.getStatusCode() != HttpStatus.OK) {
