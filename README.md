@@ -13,9 +13,12 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/livekit
-    username: 본인의 mysql username
-    password: 비밀번호
+    username: root
+    password: 1234
 
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
 
 
   jpa:
@@ -29,6 +32,7 @@ spring:
       # OSIV OFF
     open-in-view: false
 
+
   # redis config
   data:
     redis:
@@ -37,53 +41,60 @@ spring:
 
 
 livekit:
-  api-key: 라이브킷 api 키
-  secret-key: 시크릿 키
-  URL: 자신의 api url
-
+  api-key: 
+  secret-key: 
+  URL: 
 
 jwt :
-  SECRET_KEY : 임의의 문자열 32자리
+  SECRET_KEY : 
   ACCESS_TOKEN_EXPIRATION : 43200000    # 12hour milliseconds
   REFRESH_TOKEN_EXPIRATION : 1209600000 # 14days
 
 google:
-  CLIENT_ID : 클라이언트 id 값
+  CLIENT_ID : 
 
 kakao:
-  APP_KEY : 카카오 네이티브 앱 키 
+  APP_KEY : 
+  ADMIN_KEY : 
+
+naver:
+  CLIENT_ID : 
+  CLIENT_SECRET : 
+
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev-docker
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql-db:3306/zypt
+    username: root
+    password: 1234
+
+  # redis config
+  data:
+    redis:
+      host: redis-cache-server
+      port: 6379
+
 
 ```
+키값 및 빈칸 다 입력
+
+
 ### 2. docker 설치
-### 3. docker에 redis 설치
-  리눅스 실행
-  
-  ```
-  docker pull redis
-  ```
-
-redis 컨테이너 생성  (-p : 포트포워딩 지정, --name : 컨테이너 이름 지정)
+intellJ 혹은 해당 스프링 프로젝트 폴더에서 명령어 툴을 실행
 ```
-sudo docker run -p 6379:6379 --name [원하는 이름] redis
+./gradlew clean build 
 ```
-
-docker 컨테이너 상태 확인
-```
-sudo docker ps -a 
-```
-
-docker 컨테이너 실행
-```
-sudo docker start [컨테이너 이름]
+해당 명령어로 빌드
 
 ```
-
-\* docker reids cli 실행
+docker compose up -d --build
 ```
-docker exec -i -t [컨테이너 이름] redis-cli
-```
-  
-### 4. schema.sql의 DDL sql을 mysql에서 실행
-- 자동 적용할 수 있지만 실수 방지 및 예외상황 발생 방지를 위해 수동 생성
+컴포즈로 한번에 컨테이너 띄우기
 
-### 6. 스프링 main 실행
