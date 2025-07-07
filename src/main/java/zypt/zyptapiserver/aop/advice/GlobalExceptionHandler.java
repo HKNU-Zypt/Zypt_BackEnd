@@ -5,16 +5,23 @@ import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import zypt.zyptapiserver.auth.exception.InvalidTokenException;
 import zypt.zyptapiserver.auth.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.exception.InvalidOidcPublicKeyException;
+import zypt.zyptapiserver.controller.AuthController;
+import zypt.zyptapiserver.controller.FocusTimeController;
+import zypt.zyptapiserver.controller.LiveKitController;
+import zypt.zyptapiserver.controller.MemberController;
 import zypt.zyptapiserver.exception.MemberNotFoundException;
 import zypt.zyptapiserver.auth.exception.OidcPublicKeyFetchException;
 
-@RestControllerAdvice
+import java.util.NoSuchElementException;
+
+@RestControllerAdvice(annotations = RestController.class, basePackageClasses = {AuthController.class, MemberController.class, LiveKitController.class, FocusTimeController.class})
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(MemberNotFoundException.class)
@@ -22,8 +29,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
-    @ExceptionHandler({RedisConnectionFailureException.class,
-            DataAccessException.class})
+    @ExceptionHandler(RedisConnectionFailureException.class)
     public ResponseEntity<String> redisConnectionFailure(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
@@ -51,5 +57,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
     public ResponseEntity<String> serverException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버에 문제가 있습니다. " + ex.getMessage());
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<String> dataAccessException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버에 문제가 있습니다 관리자를 호출하세요 " + ex.getMessage());
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<String> noSuchElementException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("요청한 내용은 DB에 존재하지 않습니다. " + ex.getMessage());
     }
 }

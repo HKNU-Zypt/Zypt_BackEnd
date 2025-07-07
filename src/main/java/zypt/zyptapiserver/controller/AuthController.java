@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,13 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import zypt.zyptapiserver.Service.MemberService;
 import zypt.zyptapiserver.auth.service.AuthService;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
-import zypt.zyptapiserver.domain.SocialRefreshToken;
 import zypt.zyptapiserver.domain.dto.RefreshTokenRequestDto;
 import zypt.zyptapiserver.domain.dto.SocialLoginDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
 
 @Slf4j
 @RestController
+@Tag(name = "Auth API", description = "로그인, 인증, 인가에 대한 API")
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
@@ -27,23 +28,14 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> socialLogin(@RequestBody SocialLoginDto socialLoginDto, HttpServletResponse response) {
-        authService.handleAuthenticationFromSocialToken(response, socialLoginDto.type(), socialLoginDto.idToken());
+        authService.handleAuthenticationFromSocialToken(response, socialLoginDto.type(), socialLoginDto.token());
 
-        if (socialLoginDto.type() != SocialType.KAKAO) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String memberId = authentication.getName();
-
-
-            memberService.saveSocialRefreshToken(memberId, socialLoginDto.refreshToken(), socialLoginDto.type());
-
-        }
-
-        // Naver의 경우 Open ID 토큰에 회원 정보가 없기에 따로 처리해줘야함
         if (socialLoginDto.type() == SocialType.NAVER) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String memberId = authentication.getName();
 
-            memberService.updateEmail(memberId, socialLoginDto.email());
+            memberService.saveSocialRefreshToken(memberId, socialLoginDto.refreshToken(), socialLoginDto.type());
+
         }
 
         return ResponseEntity.ok("로그인 성공");
@@ -68,7 +60,6 @@ public class AuthController {
      */
     @PostMapping("/refresh")
     public ResponseEntity<String> refreshAccessToken(@RequestBody RefreshTokenRequestDto requestDto, HttpServletResponse response) {
-        //TODO 테스트 해야함
         authService.authenticateUserFromToken(response, requestDto.refreshToken());
         return ResponseEntity.ok("로그인 성공");
     }
@@ -81,9 +72,9 @@ public class AuthController {
      * 3. 소셜 리프레시 토큰 삭제
      * @return
      */
-    @DeleteMapping("/")
-    public ResponseEntity<String> deleteMember(@AuthenticationPrincipal CustomUserDetails details) {
-        authService.disconnect(details.getUsername());
+    @DeleteMapping("")
+    public ResponseEntity<String> deleteMember(@AuthenticationPrincipal CustomUserDetails details, @RequestBody(required = false) String token) {
+        authService.disconnect(details.getUsername(), token);
         return ResponseEntity.ok("회원 탈퇴 완료");
     }
 }

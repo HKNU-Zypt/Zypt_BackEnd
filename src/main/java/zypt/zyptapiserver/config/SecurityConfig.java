@@ -40,7 +40,12 @@ public class SecurityConfig {
                 .sessionManagement(c ->
                         c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))   // 세션 사용 X
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("api/auth/login/**", "api/auth/logout").permitAll()
+                        auth.requestMatchers("api/auth/login/**",
+                                        "api/auth/logout",
+                                        "/swagger-ui/**", // Swagger UI 정적 리소스 허용
+                                        "/v3/api-docs/**", // Swagger API 문서 정의 허용 (OpenAPI 3)
+                                        "v3/api-docs"
+                                ).permitAll()
                                 .anyRequest().authenticated()
                 )
                 .exceptionHandling(e ->

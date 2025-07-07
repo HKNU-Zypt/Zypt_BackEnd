@@ -1,5 +1,7 @@
 package zypt.zyptapiserver.auth.filter;
 
+import jakarta.annotation.PostConstruct;
+import org.springframework.util.AntPathMatcher;
 import zypt.zyptapiserver.auth.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.service.AuthService;
 import zypt.zyptapiserver.domain.enums.SocialType;
@@ -14,9 +16,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
-@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
@@ -25,12 +30,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
+    private final List<String> whiteList = Arrays.asList(
+            "/api/auth/login/**",
+            "/api/auth/logout",
+            "/api/auth/refresh",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/v3/api-docs",
+            "/favicon.ico"
+    );
+
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+
+    private boolean isWhiteListed(String uri) {
+        return whiteList.stream().anyMatch(pattern -> antPathMatcher.match(pattern, uri));
+    }
+
+    public JwtAuthenticationFilter(JwtUtils jwtUtils, AuthService authService) {
+        this.jwtUtils = jwtUtils;
+        this.authService = authService;
+
+    }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        // 로그인 요청이면 다음 필터로 이동
-        if (request.getRequestURI().equals("/api/auth/login") || request.getRequestURI().equals("/api/auth/logout")) {
+        log.info("url = {}", request.getRequestURI());
+        // 화이트 리스트의 경우 넘어감
+        if (isWhiteListed(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             return;
         }

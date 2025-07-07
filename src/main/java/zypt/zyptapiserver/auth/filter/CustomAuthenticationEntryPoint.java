@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import zypt.zyptapiserver.auth.exception.MissingTokenException;
 
 import java.io.IOException;
 
@@ -26,6 +27,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
      */
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
+
+
         String responseBody = "해당 요청에 충분한 인증이 되지 않았습니다.";
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

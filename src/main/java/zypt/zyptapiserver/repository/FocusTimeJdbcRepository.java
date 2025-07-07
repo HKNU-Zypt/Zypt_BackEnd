@@ -1,10 +1,6 @@
 package zypt.zyptapiserver.repository;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -17,17 +13,10 @@ import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.domain.dto.*;
 import zypt.zyptapiserver.domain.enums.UnFocusedType;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -41,18 +30,19 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
         String sql = "INSERT INTO focus_time(member_id, start_at, end_at, create_date, focus_time, total_time) values(:member_id, :start_at, :end_at, :create_date, :focus_time, :total_time)";
         long totalTime = ChronoUnit.SECONDS.between(start_at, end_at);
         KeyHolder keyHolder = new GeneratedKeyHolder();
+
         MapSqlParameterSource param = new MapSqlParameterSource();
         param.addValue("member_id", member.getId());
         param.addValue("start_at", start_at);
         param.addValue("end_at", end_at);
         param.addValue("create_date", date);
-        param.addValue("focus_time", date);
+        param.addValue("focus_time", 0);
         param.addValue("total_time", totalTime);
 
         int update = jdbcTemplate.update(sql, param, keyHolder);
 
         if (update == 0) {
-            throw new IllegalArgumentException("focusTime 저장 실패");
+            throw new IllegalStateException("focusTime 저장 실패");
         }
 
         if (keyHolder.getKey() == null) {
@@ -67,7 +57,7 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
     // 집중하지 않은 시간 총합을 반환
     @Transactional
     public Long bulkInsertUnfocusedTimes(Long focusId, List<FragmentedUnFocusedTimeInsertDto> unfocusedTimes) {
-        String sql = "INSERT INTO fragmented_unfocused_time(focused_id, start_at, end_at, type, unfocused_time) " +
+        String sql = "INSERT INTO fragmented_unfocused_time(focus_id, start_at, end_at, type, unfocused_time) " +
                 "VALUES(:focus_id,:start_at,:end_at,:type,:unfocused_time)";
 
         List<SqlParameterSource> batchParams = new ArrayList<>();
@@ -77,7 +67,7 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
             param.addValue("focus_id", focusId);
             param.addValue("start_at", insertDto.startAt());
             param.addValue("end_at", insertDto.endAt());
-            param.addValue("type", insertDto.type());
+            param.addValue("type", insertDto.type().name());
             param.addValue("unfocused_time", insertDto.calculateUnfocusedDuration());
             batchParams.add(param);
         }
@@ -101,14 +91,14 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
                     rs.getString("member_id"),
                     rs.getTime("start_at").toLocalTime(),
                     rs.getTime("end_at").toLocalTime(),
-                    rs.getDate("create_date").toLocalDate(),
-                    null)
+                    rs.getDate("create_date").toLocalDate())
         );
     }
 
     @Override
     public List<FragmentedUnFocusedTimeDto> findAllFragmentedUnFocusTimes(List<Long> focusIdList) {
-        String sql = "SELECT * FROM fragmented_unfocused_time WHERE IN(:focusIdList)";
+        String sql = "SELECT * FROM fragmented_unfocused_time WHERE focus_id IN(:focusIdList)";
+
 
         MapSqlParameterSource param = new MapSqlParameterSource();
         param.addValue("focusIdList", focusIdList);
@@ -125,20 +115,158 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
     }
 
     @Override
-    public Optional<FocusTimeDto> findFocusTime(long focusId) {
+    public Optional<FocusTimeResponseDto> findFocusTime(long focusId) {
 
-        return Optional.empty();
+        String sql = "SELECT * FROM focus_time WHERE id = :focusId";
+        MapSqlParameterSource param = new MapSqlParameterSource();
+        param.addValue("focusId", focusId);
+
+
+        return jdbcTemplate.query(sql, param,
+                (rs, rowNum) ->
+                        new FocusTimeResponseDto(
+                                rs.getLong("id"),
+                                rs.getString("member_id"),
+                                rs.getTime("start_at").toLocalTime(),
+                                rs.getTime("end_at").toLocalTime(),
+                                rs.getDate("create_date").toLocalDate())
+        ).stream().findFirst();
+    }
+
+
+//    @Override
+//    public List<FocusTimeDto> findFocusTimesByYearAndMonthAndDay(int year, int month, int day) {
+//        LocalDate findDate = LocalDate.of(year, month, day);
+//        String sql = "SELECT * FROM focus_time WHERE create_date =:findDate";
+//        MapSqlParameterSource param = new MapSqlParameterSource();
+//        param.addValue("findDate", findDate);
+//
+//        return jdbcTemplate.query(sql, param,
+//                (rs, rowNum) ->
+//                        new FocusTimeDto(
+//                                rs.getString("member_id"),
+//                                rs.getTime("start_at").toLocalTime(),
+//                                rs.getTime("end_at").toLocalTime(),
+//                                rs.getDate("create_date").toLocalDate()
+//                                , null
+//                        ));
+//    }
+//
+    @Override
+    public List<FocusTimeResponseDto> findFocusTimesByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day) {
+        String sql = "SELECT * FROM focus_time WHERE member_id = :memberId";
+        MapSqlParameterSource param = new MapSqlParameterSource();
+        param.addValue("memberId", memberId);
+
+        if (year != null) {
+            sql += " AND YEAR(create_date) =:_year";
+            param.addValue("_year", year);
+        }
+
+        if (month != null) {
+            sql += " AND MONTH(create_date) =:_month";
+            param.addValue("_month", month);
+        }
+
+        if (day != null) {
+            sql += " AND DAY(create_date) =:_day";
+            param.addValue("_day", day);
+        }
+
+        return jdbcTemplate.query(sql, param,
+                (rs, rowNum) ->
+                        new FocusTimeResponseDto(
+                                rs.getLong("id"),
+                                rs.getString("member_id"),
+                                rs.getTime("start_at").toLocalTime(),
+                                rs.getTime("end_at").toLocalTime(),
+                                rs.getDate("create_date").toLocalDate()
+                        ));
+    }
+//
+//    @Override
+//    public List<FocusTimeDto> findFocusTimesByYearAndMonth(int year, int month) {
+//        String sql = "SELECT * FROM focus_time WHERE YEAR(create_date) = :year AND MONTH(create_date) = :month";
+//        MapSqlParameterSource param = new MapSqlParameterSource();
+//        param.addValue("year", year);
+//        param.addValue("month", month);
+//
+//        return jdbcTemplate.query(sql, param,
+//                (rs, rowNum) ->
+//                        new FocusTimeDto(
+//                                rs.getString("member_id"),
+//                                rs.getTime("start_at").toLocalTime(),
+//                                rs.getTime("end_at").toLocalTime(),
+//                                rs.getDate("create_date").toLocalDate()
+//                                , null
+//                        ));
+//    }
+//
+//    @Override
+//    public List<FocusTimeDto> findFocusTimesByYear(int year) {
+//        String sql = "SELECT * FROM focus_time WHERE YEAR(create_date) = :year";
+//        MapSqlParameterSource param = new MapSqlParameterSource();
+//        param.addValue("year", year);
+//
+//        return jdbcTemplate.query(sql, param,
+//                (rs, rowNum) ->
+//                        new FocusTimeDto(
+//                                rs.getString("member_id"),
+//                                rs.getTime("start_at").toLocalTime(),
+//                                rs.getTime("end_at").toLocalTime(),
+//                                rs.getDate("create_date").toLocalDate()
+//                                , null
+//                        ));
+//    }
+
+    @Override
+    public List<Integer> findFocusTimesByMonth(String memberId, int year, int month) {
+        String sql = "SELECT DAY(create_date) as days FROM focus_time WHERE member_id = :memberId AND YEAR(create_date) =:year AND MONTH(create_date) = :month";
+        MapSqlParameterSource param = new MapSqlParameterSource();
+        param.addValue("memberId", memberId);
+        param.addValue("year", year);
+        param.addValue("month", month);
+
+        return jdbcTemplate.query(sql, param,
+                (rs, rowNum) ->
+                        rs.getInt("days")
+        );
     }
 
     @Override
-    public List<FocusTimeDto> findFocusTimesByLocalDate(LocalDate date) {
-        return List.of();
+    @Transactional
+    public void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day) {
+        String sql = "SELECT id FROM focus_time WHERE member_id = :memberId";
+        MapSqlParameterSource param = new MapSqlParameterSource();
+        param.addValue("memberId", memberId);
+
+        if (year != null) {
+            sql += " AND YEAR(create_date) = :_year";
+            param.addValue("_year", year);
+        }
+        if (month != null) {
+            sql += " AND MONTH(create_date) = :_month";
+            param.addValue("_month", month);
+        }
+        if (day != null) {
+            sql += " AND DAY(create_date) = :_day";
+            param.addValue("_day", day);
+        }
+
+        List<Long> ids = jdbcTemplate.query(sql, param, (rs, rowNum) -> rs.getLong("id"));
+        if (ids.isEmpty()) {
+            throw new NoSuchElementException("삭제할 focusTime 존재하지 않음");
+        }
+
+        String deleteChildSql = "DELETE FROM fragmented_unfocused_time WHERE focus_id IN (:ids)";
+
+        jdbcTemplate.update(deleteChildSql, new MapSqlParameterSource("ids", ids));
+
+        String deleteParentSql = "DELETE FROM focus_time WHERE id IN (:ids)";
+        int deleted = jdbcTemplate.update(deleteParentSql, new MapSqlParameterSource("ids", ids));
+
+        if (deleted == 0) {
+            throw new IllegalStateException("focusTime 삭제 실패");
+        }
     }
-
-    @Override
-    public List<FocusDayMarkDto> findFocusTimesByMonth(int year, int month) {
-        return List.of();
-    }
-
-
 }
