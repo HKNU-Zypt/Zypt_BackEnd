@@ -1,7 +1,5 @@
 package zypt.zyptapiserver.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.security.web.context.NullSecurityContextRepository;
 import zypt.zyptapiserver.auth.filter.CustomAuthenticationEntryPoint;
 import zypt.zyptapiserver.auth.filter.JwtAuthenticationFilter;
 import zypt.zyptapiserver.auth.service.AuthService;

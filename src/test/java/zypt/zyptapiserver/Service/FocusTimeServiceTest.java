@@ -56,9 +56,9 @@ class FocusTimeServiceTest {
                 dto.add(insertDto);
             }
 
-            FocusTimeDto focusTimeDto = new FocusTimeDto(member.getId(), LocalTime.now().plus(Duration.ofMinutes(i)), LocalTime.now().plus(Duration.ofHours(2)), LocalDate.now().plusDays(i), dto);
-            FocusTimeDto focusTimeDto1 = new FocusTimeDto(member.getId(), LocalTime.now().plus(Duration.ofMinutes(i)), LocalTime.now().plus(Duration.ofHours(2)), LocalDate.now().plusDays(i + 1), dto);
-            FocusTimeDto focusTimeDto2 = new FocusTimeDto(member.getId(), LocalTime.now().plus(Duration.ofMinutes(i)), LocalTime.now().plus(Duration.ofHours(2)), LocalDate.now().plusDays(i + 2), dto);
+            FocusTimeDto focusTimeDto = new FocusTimeDto( LocalTime.now().plus(Duration.ofMinutes(i)), LocalTime.now().plus(Duration.ofHours(2)), LocalDate.now().plusDays(i), dto);
+            FocusTimeDto focusTimeDto1 = new FocusTimeDto( LocalTime.now().plus(Duration.ofMinutes(i)), LocalTime.now().plus(Duration.ofHours(2)), LocalDate.now().plusDays(i + 1), dto);
+            FocusTimeDto focusTimeDto2 = new FocusTimeDto( LocalTime.now().plus(Duration.ofMinutes(i)), LocalTime.now().plus(Duration.ofHours(2)), LocalDate.now().plusDays(i + 2), dto);
 
             service.saveFocusTime(member.getId(), focusTimeDto);
             service.saveFocusTime(member.getId(), focusTimeDto1);
@@ -79,7 +79,7 @@ class FocusTimeServiceTest {
                 dto.add(insertDto);
             }
 
-            FocusTimeDto focusTimeDto = new FocusTimeDto(member.getId(), LocalTime.now().plus(Duration.ofMinutes(i)), LocalTime.now().plus(Duration.ofHours(2)), LocalDate.now(), dto);
+            FocusTimeDto focusTimeDto = new FocusTimeDto(LocalTime.now().plus(Duration.ofMinutes(i)), LocalTime.now().plus(Duration.ofHours(2)), LocalDate.now(), dto);
 
             service.saveFocusTime(member.getId(), focusTimeDto);
         }

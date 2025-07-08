@@ -1,10 +1,7 @@
 package zypt.zyptapiserver.domain;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import zypt.zyptapiserver.domain.enums.SocialType;
 
 import java.util.ArrayList;
@@ -14,6 +11,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
+@ToString
 public class Member extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.UUID)

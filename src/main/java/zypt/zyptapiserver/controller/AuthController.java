@@ -2,6 +2,7 @@ package zypt.zyptapiserver.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +60,7 @@ public class AuthController {
      * @return            200 OK
      */
     @PostMapping("/refresh")
-    public ResponseEntity<String> refreshAccessToken(@RequestBody RefreshTokenRequestDto requestDto, HttpServletResponse response) {
+    public ResponseEntity<String> refreshAccessToken(@Valid @RequestBody RefreshTokenRequestDto requestDto, HttpServletResponse response) {
         authService.authenticateUserFromToken(response, requestDto.refreshToken());
         return ResponseEntity.ok("로그인 성공");
     }

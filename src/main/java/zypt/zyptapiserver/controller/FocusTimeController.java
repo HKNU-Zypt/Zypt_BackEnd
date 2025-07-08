@@ -1,6 +1,7 @@
 package zypt.zyptapiserver.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class FocusTimeController {
 
     @PostMapping
     public ResponseEntity<?> saveFocusTime(@AuthenticationPrincipal CustomUserDetails details,
-                                           @RequestBody FocusTimeDto focusTimeDto) {
+                                           @Valid @RequestBody FocusTimeDto focusTimeDto) {
 
 
         focusTimeService.saveFocusTime(details.getUsername(), focusTimeDto);

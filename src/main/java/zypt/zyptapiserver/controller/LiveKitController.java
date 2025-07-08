@@ -25,7 +25,7 @@ public class LiveKitController {
     @PostMapping("/create")
     public ResponseEntity<LiveKitAccessTokenDTO> createRoom(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                             @RequestParam("roomName") String roomName,
-                                                            @RequestParam(name = "maxParticipant", defaultValue = "10") int maxParticipant) throws IOException {
+                                                            @RequestParam(name = "maxParticipant", required = false, defaultValue = "10") int maxParticipant) throws IOException {
         return ResponseEntity.ok(service.createRoom(userDetails.getNickName(), userDetails.getUsername(), roomName, maxParticipant));
     }
 
