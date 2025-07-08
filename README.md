@@ -1,5 +1,5 @@
 # 필수 설치
-Java, Mysql, Redis, Docker, intelliJ
+Docker, intelliJ
 
 # 사용법
 ### 0. git clone 
