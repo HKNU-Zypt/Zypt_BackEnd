@@ -235,7 +235,21 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
 
     @Override
     @Transactional
-    public void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day) {
+    public void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day, List<Long> ids) {
+        String deleteChildSql = "DELETE FROM fragmented_unfocused_time WHERE focus_id IN (:ids)";
+
+        jdbcTemplate.update(deleteChildSql, new MapSqlParameterSource("ids", ids));
+
+        String deleteParentSql = "DELETE FROM focus_time WHERE id IN (:ids)";
+        int deleted = jdbcTemplate.update(deleteParentSql, new MapSqlParameterSource("ids", ids));
+
+        if (deleted == 0) {
+            throw new IllegalStateException("focusTime 삭제 실패");
+        }
+    }
+
+    @Override
+    public List<Long> findFocusTimeIdsByDate(String memberId, Integer year, Integer month, Integer day) {
         String sql = "SELECT id FROM focus_time WHERE member_id = :memberId";
         MapSqlParameterSource param = new MapSqlParameterSource();
         param.addValue("memberId", memberId);
@@ -254,19 +268,6 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
         }
 
         List<Long> ids = jdbcTemplate.query(sql, param, (rs, rowNum) -> rs.getLong("id"));
-        if (ids.isEmpty()) {
-            throw new NoSuchElementException("삭제할 focusTime 존재하지 않음");
-        }
-
-        String deleteChildSql = "DELETE FROM fragmented_unfocused_time WHERE focus_id IN (:ids)";
-
-        jdbcTemplate.update(deleteChildSql, new MapSqlParameterSource("ids", ids));
-
-        String deleteParentSql = "DELETE FROM focus_time WHERE id IN (:ids)";
-        int deleted = jdbcTemplate.update(deleteParentSql, new MapSqlParameterSource("ids", ids));
-
-        if (deleted == 0) {
-            throw new IllegalStateException("focusTime 삭제 실패");
-        }
+        return ids;
     }
 }

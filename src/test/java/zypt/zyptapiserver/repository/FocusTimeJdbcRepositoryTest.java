@@ -7,18 +7,14 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
-import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.FocusTimeDto;
 import zypt.zyptapiserver.domain.dto.FocusTimeResponseDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,13 +38,13 @@ class FocusTimeJdbcRepositoryTest {
     EntityManager em;
 
     @BeforeEach
-    @Transactional
     void init() {
 
         log.info("초기화 ");
         Member member = Member.builder().email("abc@aa.cc").nickName(UUID.randomUUID().toString()).socialType(SocialType.KAKAO).socialId("2gjdkl12333").build();
         memberRepository.save(member);
 
+        log.info("member 영속화 ? = {}", em.contains(member));
         log.info("중간 초기화 ");
 
         jpaRepository.saveFocusTime(member, LocalDate.of(2025, 6, 30), LocalTime.now(), LocalTime.now().plusHours(1)).get();
@@ -61,6 +57,7 @@ class FocusTimeJdbcRepositoryTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("집중 데이터 멤버 ID로 전부 조회 성공 테스트")
     void findAllFocusTime() {
 
@@ -75,6 +72,7 @@ class FocusTimeJdbcRepositoryTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("집중 데이터 조회 특정 날짜 테스트")
     void findFocusTime() {
 
@@ -105,7 +103,8 @@ class FocusTimeJdbcRepositoryTest {
 
         //when
 //        repository.deleteFocusTimeByYearAndMonthAndDay(member.getId(), 2025, null, null);
-        repository.deleteFocusTimeByYearAndMonthAndDay(member.getId(), 2025, 5, 30);
+        List<Long> ids = repository.findFocusTimeIdsByDate(member.getId(), 2025, 5, 30);
+        repository.deleteFocusTimeByYearAndMonthAndDay(member.getId(), 2025, 5, 30, ids);
         List<FocusTimeResponseDto> allFocusTimes = repository.findAllFocusTimes(member.getId());
 
 

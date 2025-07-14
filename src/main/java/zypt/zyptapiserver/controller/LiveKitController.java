@@ -26,28 +26,34 @@ public class LiveKitController {
     public ResponseEntity<LiveKitAccessTokenDTO> createRoom(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                             @RequestParam("roomName") String roomName,
                                                             @RequestParam(name = "maxParticipant", required = false, defaultValue = "10") int maxParticipant) throws IOException {
-        return ResponseEntity.ok(service.createRoom(userDetails.getNickName(), userDetails.getUsername(), roomName, maxParticipant));
+        LiveKitAccessTokenDTO liveKitAccessTokenDTO = service.createRoom(userDetails.getNickName(), userDetails.getUsername(), roomName, maxParticipant);
+        return ResponseEntity.ok(liveKitAccessTokenDTO);
     }
 
     @PostMapping("/{roomName}")
     public ResponseEntity<LiveKitAccessTokenDTO> joinRoom(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                           @PathVariable("roomName") String roomName) {
-        return ResponseEntity.ok(service.getLiveKitAccessToken(userDetails.getNickName(), userDetails.getUsername(), roomName));
+        LiveKitAccessTokenDTO liveKitAccessTokenDTO = service.getLiveKitAccessToken(userDetails.getNickName(), userDetails.getUsername(), roomName);
+        return ResponseEntity.ok(liveKitAccessTokenDTO);
     }
 
     @GetMapping("/{roomName}/participant")
     public ResponseEntity<List<LiveKitParticipantDTO>> findParticipantByRoomName(@PathVariable("roomName") String roomName) {
-        return ResponseEntity.ok(service.getRoomParticipantsByRoomName(roomName));
+        List<LiveKitParticipantDTO> participantsDto = service.getRoomParticipantsByRoomName(roomName);
+        return ResponseEntity.ok(participantsDto);
     }
 
     @GetMapping("")
     public ResponseEntity<List<LiveKitRoomDTO>> findAllRooms() {
-        return ResponseEntity.ok(service.findAllRooms());
+        List<LiveKitRoomDTO> allRooms = service.findAllRooms();
+        return ResponseEntity.ok(allRooms);
     }
 
     @DeleteMapping("/{roomName}")
-    public ResponseEntity<Boolean> deleteRoomByRoomName(@PathVariable("roomName") String roomName) {
-        return ResponseEntity.ok(service.deleteRoom(roomName));
+    public ResponseEntity<String> deleteRoomByRoomName(@PathVariable("roomName") String roomName) {
+        service.deleteRoom(roomName);
+
+        return ResponseEntity.ok(roomName + " 방을 삭제하였습니다.");
     }
 
 }

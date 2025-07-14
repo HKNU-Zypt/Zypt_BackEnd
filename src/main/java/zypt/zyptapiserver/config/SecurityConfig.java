@@ -40,11 +40,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("api/auth/login/**",
                                         "api/auth/logout",
-                                        "/swagger-ui/**", // Swagger UI 정적 리소스 허용
-                                        "/v3/api-docs/**", // Swagger API 문서 정의 허용 (OpenAPI 3)
-                                        "v3/api-docs"
+                                        "swagger-ui/**", // Swagger UI 정적 리소스 허용
+                                        "v3/api-docs/**", // Swagger API 문서 정의 허용 (OpenAPI 3)
+                                        "favicon.ico"
                                 ).permitAll()
-                                .anyRequest().authenticated()
+                                .requestMatchers("api/**").authenticated()
+                                .anyRequest().permitAll()
                 )
                 .exceptionHandling(e ->
                         e.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))

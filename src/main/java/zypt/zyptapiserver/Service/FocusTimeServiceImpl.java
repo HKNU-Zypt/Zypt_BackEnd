@@ -3,6 +3,9 @@ package zypt.zyptapiserver.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import zypt.zyptapiserver.auth.exception.FocusTimeNotFoundException;
+import zypt.zyptapiserver.auth.exception.FocusTimeSaveFailedException;
+import zypt.zyptapiserver.auth.exception.InvalidParamException;
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.domain.dto.*;
@@ -40,7 +43,7 @@ public class FocusTimeServiceImpl implements FocusTimeService {
         FocusTime focusTime = focusTimeJpaRepository
                 .saveFocusTime(member, focusTimeDto.createDate(), insertDto.startAt(), insertDto.endAt())
                 .orElseThrow(() ->
-                        new IllegalArgumentException("집중 시간을 저장할 수 없음"));
+                        new FocusTimeSaveFailedException("집중 시간을 저장할 수 없음"));
 
         // unfocusedTime jdbcBulkInsert로 저장
         Long sumUnFocusedTimes = focusTimeJdbcRepository.bulkInsertUnfocusedTimes(focusTime.getId(), focusTimeDto.fragmentedUnFocusedTimeInsertDtos());
@@ -58,7 +61,7 @@ public class FocusTimeServiceImpl implements FocusTimeService {
         List<Long> list = focusTimes.stream().mapToLong(FocusTimeResponseDto::getId).distinct().boxed().toList(); // focus_id 리스트 추출
 
         if (list.isEmpty()) {
-            throw new NoSuchElementException("focus id가 하나도 없습니다.");
+            throw new FocusTimeNotFoundException("focus id가 하나도 없습니다.");
         }
 
         List<FragmentedUnFocusedTimeDto> unFocusTimes = focusTimeJdbcRepository.findAllFragmentedUnFocusTimes(list); // in 검색
@@ -85,7 +88,7 @@ public class FocusTimeServiceImpl implements FocusTimeService {
 
         FocusTimeResponseDto focusTimeResponseDto = focusTimeJdbcRepository.findFocusTime(focus_id)
                 .orElseThrow(() ->
-                        new NoSuchElementException("focus_id에 해당하는 FocusTime이 존재하지 않습니다."));
+                        new FocusTimeNotFoundException("focus_id에 해당하는 FocusTime이 존재하지 않습니다."));
 
         focusTimeResponseDto.addUnFocusedTimeDtos(unFocusTimes);
 
@@ -97,7 +100,7 @@ public class FocusTimeServiceImpl implements FocusTimeService {
     public List<FocusTimeResponseDto> findFocusTimesByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day) {
 
         if (validateYearMonthDay(year, month, day)) {
-            throw new IllegalArgumentException("년-월-일 순서에 맞게 날짜를 입력");
+            throw new InvalidParamException("년-월-일 순서에 맞게 날짜를 입력");
         }
 
         List<FocusTimeResponseDto> focusTimeDtos = focusTimeJdbcRepository.findFocusTimesByYearAndMonthAndDay(memberId, year, month, day);
@@ -109,7 +112,7 @@ public class FocusTimeServiceImpl implements FocusTimeService {
                 .toList();
 
         if (focusIds.isEmpty()) {
-            throw new NoSuchElementException("focus id가 하나도 없습니다.");
+            throw new FocusTimeNotFoundException("focus id가 하나도 없습니다.");
         }
 
         List<FragmentedUnFocusedTimeDto> unFocusTimes = focusTimeJdbcRepository.findAllFragmentedUnFocusTimes(focusIds);
@@ -131,10 +134,16 @@ public class FocusTimeServiceImpl implements FocusTimeService {
     @Override
     public void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day) {
         if (validateYearMonthDay(year, month, day)) {
-            throw new IllegalArgumentException("년-월-일 순서에 맞게 날짜를 입력");
+            throw new InvalidParamException("년-월-일 순서에 맞게 날짜를 입력");
+        }
+        List<Long> ids = focusTimeJdbcRepository.findFocusTimeIdsByDate(memberId, year, month, day);
+
+        if (ids.isEmpty()) {
+            throw new FocusTimeNotFoundException("삭제할 focusTime 존재하지 않음");
         }
 
-        focusTimeJdbcRepository.deleteFocusTimeByYearAndMonthAndDay(memberId, year, month, day);
+        focusTimeJdbcRepository.deleteFocusTimeByYearAndMonthAndDay(memberId, year, month, day, ids);
+
     }
 
     private static boolean validateYearMonthDay(Integer year, Integer month, Integer day) {

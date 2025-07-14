@@ -65,19 +65,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String accessToken = resolveToken(request);
 
-        if (accessToken == null) {
-            log.warn("Missing access token");
-            throw new MissingTokenException("Access 토큰이 필요합니다.");
-        }
-
         // 검증 성공 시 Authentication 생성 및 인가
-        if (jwtUtils.validationToken(accessToken)) {
+        if (accessToken != null && jwtUtils.validationToken(accessToken)) {
             String id = jwtUtils.extractId(accessToken);
             authService.registryAuthenticatedUser(id);
-
-            // 액세스 토큰 만료시 예외를 반환하고 클라이언트는 리프레시 토큰전송해 검증받는다.
-        } else {
-            throw new MissingTokenException("액세스 토큰 만료");
         }
 
         // 다음 필터로 이동

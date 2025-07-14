@@ -56,6 +56,7 @@ public interface FocusTimeRepository {
     List<Integer> findFocusTimesByMonth(String memberId,int year, int month);
 
 
-    void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day);
+    void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day, List<Long> ids);
 
+    List<Long> findFocusTimeIdsByDate(String memberId, Integer year, Integer month, Integer day);
 }

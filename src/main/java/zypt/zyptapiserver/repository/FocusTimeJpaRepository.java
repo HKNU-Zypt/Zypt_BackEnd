@@ -65,8 +65,13 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
     }
 
     @Override
-    public void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day) {
+    public void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day, List<Long> ids) {
 
+    }
+
+    @Override
+    public List<Long> findFocusTimeIdsByDate(String memberId, Integer year, Integer month, Integer day) {
+        return List.of();
     }
 
 

@@ -26,7 +26,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 
 @Slf4j
-@Transactional
 @SpringBootTest
 class MemberRepositoryTest {
 
@@ -53,6 +52,7 @@ class MemberRepositoryTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("부정확한 멤버 저장시 JPA 반응 테스트")
     void saveMemberTest() {
         assertThatThrownBy(() -> {
@@ -62,6 +62,7 @@ class MemberRepositoryTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("")
     void saveMemberAndFindMemberTest() {
         Member saveMember = repository.save(Member.builder().nickName("ㅎㅎ").socialId("123423").build());
@@ -72,6 +73,7 @@ class MemberRepositoryTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("영속화 확인")
     void persistTest() {
         Member member = service.findMemberBySocialId(SocialType.NAVER, "123");
@@ -88,6 +90,7 @@ class MemberRepositoryTest {
 
 
     @Test
+    @Transactional
     @DisplayName("존재하지 않는 멤버 조회시 예외 발생 테스트")
     public void notExistMember() throws Exception {
         // then
@@ -103,6 +106,7 @@ class MemberRepositoryTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("멤버 삭제 테스트")
     public void deleteMemberSuccessTest() throws Exception {
         //given

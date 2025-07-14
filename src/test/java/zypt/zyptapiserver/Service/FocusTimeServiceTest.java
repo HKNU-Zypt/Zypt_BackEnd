@@ -25,7 +25,6 @@ import java.util.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Transactional
 @Slf4j
 class FocusTimeServiceTest {
 
@@ -85,7 +84,9 @@ class FocusTimeServiceTest {
         }
     }
 
+
     @Test
+    @Transactional
     @DisplayName("한 멤버의 모든 집중 시간을 조회해서 성공하는지 테스트")
     void findAllFocusTimeSuccessTest() {
         //given, when
@@ -97,6 +98,7 @@ class FocusTimeServiceTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("없는 멤버 id로 실패 테스트")
     void findAllFocusTimeFailIdInvalidTest() {
         // then
@@ -105,6 +107,7 @@ class FocusTimeServiceTest {
 
 
     @Test
+    @Transactional
     @DisplayName("조건에 맞는 focus 데이터가 없어 예외를 던지는 테스트")
     void findAllFocusTimeFailTest() {
         // NoSuchElementException
@@ -113,24 +116,33 @@ class FocusTimeServiceTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("조건에 맞는 focus 데이터 하나 조회 테스트")
     void findOneFocusTimeTest() {
+        Member member = memberRepository.findBySocialId(SocialType.GOOGLE, "abc1").get();
         // given when
-        FocusTimeResponseDto focusTime = service.findFocusTime(1);
+        Long id = service.findAllFocusTimes(member.getId()).get(0).getId();
+        FocusTimeResponseDto focusTime = service.findFocusTime(id);
         // then
         Assertions.assertThat(focusTime).isNotNull();
     }
 
     @Test
+    @Transactional
     @DisplayName("날자 기반 조회 성공 테스트")
     void findOneFocusTimeByDateSuccessTest() {
         // given
         Member member = members.get(0);
 
         //when
-        List<FocusTimeResponseDto> focusTimesByYear = service.findFocusTimesByYearAndMonthAndDay(member.getId(), 2025, null, null);
-        List<FocusTimeResponseDto> focusTimesByYearAndMonth = service.findFocusTimesByYearAndMonthAndDay(member.getId(), 2025, 7, null);
-        List<FocusTimeResponseDto> focusTimesByYearAndMonthAndDay = service.findFocusTimesByYearAndMonthAndDay(member.getId(), 2025, 7, 4);
+        LocalDate date = LocalDate.now();
+        int year = date.getYear();
+        int month = date.getMonthValue();
+        int day = date.getDayOfMonth();
+
+        List<FocusTimeResponseDto> focusTimesByYear = service.findFocusTimesByYearAndMonthAndDay(member.getId(), year, null, null);
+        List<FocusTimeResponseDto> focusTimesByYearAndMonth = service.findFocusTimesByYearAndMonthAndDay(member.getId(), year, month, null);
+        List<FocusTimeResponseDto> focusTimesByYearAndMonthAndDay = service.findFocusTimesByYearAndMonthAndDay(member.getId(), year, month, day);
 
         // then
         Assertions.assertThat(focusTimesByYear.size()).isEqualTo(3);
@@ -139,6 +151,7 @@ class FocusTimeServiceTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("날자 기반 조회 순서 틀림 실패 테스트")
     void findOneFocusTimeByDateFailTest() {
         // given
@@ -151,6 +164,7 @@ class FocusTimeServiceTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("날자 기반 focustime 삭제 실패 테스트")
     void deleteFocusTimeByDayFailTest() {
         // given
@@ -164,6 +178,7 @@ class FocusTimeServiceTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("날자 기반 focustime 삭제 테스트")
     void deleteFocusTimeByDaySuccessTest() {
         // given
@@ -177,6 +192,7 @@ class FocusTimeServiceTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("날자 기반 focustime 년-월 조건 삭제 테스트")
     void deleteFocusTimeByDaySuccess2Test() {
         // given
@@ -190,13 +206,17 @@ class FocusTimeServiceTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("날자 기반 focustime 년-월-일 삭제 테스트")
     void deleteFocusTimeByDaySuccess3Test() {
         // given
         Member member = members.get(0);
-
+        LocalDate date = LocalDate.now();
+        int year = date.getYear();
+        int month = date.getMonthValue();
+        int day = date.getDayOfMonth();
         //when
-        service.deleteFocusTimeByYearAndMonthAndDay(member.getId(), 2025, 7, 4);
+        service.deleteFocusTimeByYearAndMonthAndDay(member.getId(), year, month, day);
 
         List<FocusTimeResponseDto> allFocusTimes = service.findAllFocusTimes(member.getId());
         //then

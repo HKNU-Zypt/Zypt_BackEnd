@@ -1,6 +1,5 @@
 package zypt.zyptapiserver.Service;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -64,7 +63,9 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void updateEmail(String memberId, String email) {
-        Member member = repository.findMemberById(memberId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
+        Member member = repository
+                .findMemberById(memberId)
+                .orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
 
         member.updateEmail(email);
 
@@ -74,7 +75,9 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void saveSocialRefreshToken(String memberId, String refreshToken, SocialType type) {
         if (repository.findSocialRefreshTokenById(memberId).isEmpty()) {
-            Member member = repository.findMemberById(memberId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
+            Member member = repository
+                    .findMemberById(memberId)
+                    .orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
 
             SocialRefreshToken refreshTokenEntity = new SocialRefreshToken(refreshToken, type);
             member.addSocialRefreshToken(refreshTokenEntity);
@@ -94,7 +97,9 @@ public class MemberServiceImpl implements MemberService {
      */
     @Override
     public SocialRefreshToken findSocialRefreshToken(String memberId) {
-        SocialRefreshToken refreshToken = repository.findSocialRefreshTokenById(memberId).orElseThrow(() -> new IllegalArgumentException("소셜 리프레시 토큰 조회 실패"));
+        SocialRefreshToken refreshToken = repository
+                .findSocialRefreshTokenById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("소셜 리프레시 토큰 조회 실패"));
 
         return refreshToken;
     }
@@ -105,14 +110,18 @@ public class MemberServiceImpl implements MemberService {
      */
     @Override
     public void deleteSocialRefreshToken(String memberId) {
-        Member member = repository.findMemberById(memberId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
+        Member member = repository
+                .findMemberById(memberId)
+                .orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
         member.removeSocialRefreshToken();
 
     }
 
     @Override
     public void deleteMember(String id) {
-        Member member = repository.findMemberById(id).orElseThrow(() -> new MemberNotFoundException("이미 존재하지 않는 회원입니다. "));
+        Member member = repository
+                .findMemberById(id)
+                .orElseThrow(() -> new MemberNotFoundException("이미 존재하지 않는 회원입니다. "));
         repository.deleteMember(member);
     }
 
