@@ -63,6 +63,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+
         String accessToken = resolveToken(request);
 
         // 검증 성공 시 Authentication 생성 및 인가
