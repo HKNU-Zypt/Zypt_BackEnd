@@ -1,7 +1,6 @@
 package zypt.zyptapiserver.auth.service;
 
 import io.jsonwebtoken.Claims;
-import org.apache.coyote.BadRequestException;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.auth.exception.InvalidParamException;
 import zypt.zyptapiserver.auth.exception.InvalidTokenException;
@@ -23,7 +22,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -126,9 +124,10 @@ public class AuthService {
 
         // 메모리에 리프레시 토큰이 없거나, 만료되었다면 리프레시 토큰을 재생성하고 저장
         if (refreshToken == null || !jwtUtils.validationToken(refreshToken)) {
-            String newRefreshToken = jwtUtils.generateRefreshToken(member.getId());
-            redisRepository.saveRefreshToken(member.getId(), newRefreshToken); // redis에 리프레시 토큰 저장
+            refreshToken = jwtUtils.generateRefreshToken(member.getId());
+            redisRepository.saveRefreshToken(member.getId(), refreshToken); // redis에 리프레시 토큰 저장
         }
+
 
         return refreshToken;
     }

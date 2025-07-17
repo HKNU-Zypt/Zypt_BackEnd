@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import zypt.zyptapiserver.annotation.SocialIdentifier;
 import zypt.zyptapiserver.auth.exception.InvalidTokenException;
