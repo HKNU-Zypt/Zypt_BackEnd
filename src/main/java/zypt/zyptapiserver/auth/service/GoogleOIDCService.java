@@ -39,20 +39,21 @@ public class GoogleOIDCService implements SocialService {
     @Override
     public UserInfo getUserInfo(String token) {
         String[] header = token.split("\\.");
+
         byte[] decode = Base64.getUrlDecoder().decode(header[0]);
+
 
         try {
             JsonNode node = objectMapper.readTree(decode);
             log.info("node = {}", node.toPrettyString());
             String kid = node.get("kid").asText();
 
+
             String jwksUrl = service.getJwksUrl(SocialType.GOOGLE);
             OIDCPublicKeysDto publicKeysDto = service.getOpenIdPublicKeys(SocialType.GOOGLE, jwksUrl);
             OIDCPublicKeyDto keyDto = service.getPublicKeyByKid(kid, publicKeysDto.keys()); // kid에 맞는 공개키 탐색
             PublicKey key = OIDCService.createRsaPublicKey(keyDto);
-
             Claims claims = jwtUtils.validationIdToken(token, client_id, SocialType.GOOGLE.getIss(), key);
-
             return new GoogleUserInfo(claims.getSubject(), claims.get("email", String.class));
         } catch (IOException e) {
             throw new IllegalStateException("ID 토큰 헤더 파싱에 실패했습니다. ",e);

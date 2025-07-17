@@ -3,6 +3,7 @@ package zypt.zyptapiserver.auth.service;
 import io.jsonwebtoken.Claims;
 import org.apache.coyote.BadRequestException;
 import org.springframework.transaction.annotation.Transactional;
+import zypt.zyptapiserver.auth.exception.InvalidParamException;
 import zypt.zyptapiserver.auth.exception.InvalidTokenException;
 import zypt.zyptapiserver.auth.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
@@ -49,6 +50,11 @@ public class AuthService {
      */
     @Transactional
     public void handleAuthenticationFromSocialToken(HttpServletResponse response, SocialType socialType, String token) {
+
+        if (socialType == null || token == null) {
+            throw new InvalidParamException("토큰 혹은 소셜타입이 없음");
+        }
+
         SocialService socialService = socialServiceFactory.getService(socialType);
         UserInfo userInfo = socialService.getUserInfo(token);
 
@@ -119,7 +125,7 @@ public class AuthService {
         String refreshToken = redisRepository.findRefreshToken(member.getId());
 
         // 메모리에 리프레시 토큰이 없거나, 만료되었다면 리프레시 토큰을 재생성하고 저장
-        if (refreshToken.isEmpty() || !jwtUtils.validationToken(refreshToken)) {
+        if (refreshToken == null || !jwtUtils.validationToken(refreshToken)) {
             String newRefreshToken = jwtUtils.generateRefreshToken(member.getId());
             redisRepository.saveRefreshToken(member.getId(), newRefreshToken); // redis에 리프레시 토큰 저장
         }
