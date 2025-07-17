@@ -86,18 +86,17 @@ public class AuthService {
     /**
      * 토큰을 통해 인증 객체 등록
      * @param response
-     * @param refreshToken
+     * @param token
      */
-    public void authenticateUserFromToken(HttpServletResponse response, String refreshToken) {
-        Claims claims = jwtUtils.getSubjectEvenIfExpired(refreshToken);// 만료된 accessToken의 userId값을 추출
-
+    public void authenticateUserFromToken(HttpServletResponse response, String token) {
+        Claims claims = jwtUtils.getSubjectEvenIfExpired(token);// 만료된 accessToken의 userId값을 추출
         String id = claims.getSubject();
+
         String savedRefreshToken = redisRepository.findRefreshToken(id); ;// redis에 저장된 리프레시 토큰을 찾음, 잘못된 id값일시 redis에서 예외를 던짐
 
-        if (!refreshToken.equals(savedRefreshToken)) {
+        if (!token.equals(savedRefreshToken)) {
             throw new InvalidTokenException("비정상적인 리프레시 토큰");
         }
-
         log.info("액세스 토큰 만료 리프레시 발급 = {}", savedRefreshToken);
 
         // 리프레시 토큰 검증 (검증 성공시)
@@ -120,7 +119,7 @@ public class AuthService {
         String refreshToken = redisRepository.findRefreshToken(member.getId());
 
         // 메모리에 리프레시 토큰이 없거나, 만료되었다면 리프레시 토큰을 재생성하고 저장
-        if (refreshToken == null || !jwtUtils.validationToken(refreshToken)) {
+        if (refreshToken.isEmpty() || !jwtUtils.validationToken(refreshToken)) {
             String newRefreshToken = jwtUtils.generateRefreshToken(member.getId());
             redisRepository.saveRefreshToken(member.getId(), newRefreshToken); // redis에 리프레시 토큰 저장
         }
