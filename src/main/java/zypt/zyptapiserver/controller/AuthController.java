@@ -28,7 +28,7 @@ public class AuthController {
     private final MemberService memberService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> socialLogin(@RequestBody SocialLoginDto socialLoginDto, HttpServletResponse response) {
+    public ResponseEntity<String> socialLogin(@Valid @RequestBody SocialLoginDto socialLoginDto, HttpServletResponse response) {
         authService.handleAuthenticationFromSocialToken(response, socialLoginDto.type(), socialLoginDto.token());
 
         if (socialLoginDto.type() == SocialType.NAVER) {
