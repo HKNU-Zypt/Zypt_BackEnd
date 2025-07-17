@@ -10,12 +10,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
+import zypt.zyptapiserver.auth.exception.FocusTimeNotFoundException;
+import zypt.zyptapiserver.auth.exception.InvalidParamException;
 import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.domain.dto.FocusTimeDto;
 import zypt.zyptapiserver.domain.dto.FocusTimeResponseDto;
 import zypt.zyptapiserver.domain.dto.FragmentedUnFocusedTimeInsertDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.domain.enums.UnFocusedType;
+import zypt.zyptapiserver.repository.MemberJdbcRepository;
 import zypt.zyptapiserver.repository.MemberRepository;
 
 import java.time.Duration;
@@ -35,6 +38,9 @@ class FocusTimeServiceTest {
     MemberRepository memberRepository;
 
     @Autowired
+    MemberJdbcRepository memberJdbcRepository;
+
+    @Autowired
     TransactionTemplate template;
 
     List<Member> members = new ArrayList<>();
@@ -42,7 +48,12 @@ class FocusTimeServiceTest {
     @BeforeEach
     void init() {
         for (int i = 0; i < 5; i++) {
+            // JPA로 저장하고 JDBC로 삽입시 JPA는 실제로 DB에 아직 반영하지 않았기에 jdbc로 focusTime을 insert 하면 db에 memberid에 맞는 레코드가 하나도 저장되지 않았기에 예외발생함
+            // 따라서 jdbc는 따로 jdbc로 member 처리
+
             Member member = memberRepository.save(Member.builder().email("abc@gmail.com").socialId("abc" + i).socialType(SocialType.GOOGLE).nickName(UUID.randomUUID().toString()).build());
+
+//            Member member = memberJdbcRepository.save(new Member(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "abc@google.com", SocialType.GOOGLE, "abc" + i));
             members.add(member);
         }
 
@@ -58,6 +69,7 @@ class FocusTimeServiceTest {
             FocusTimeDto focusTimeDto = new FocusTimeDto( LocalTime.now().plus(Duration.ofMinutes(i)), LocalTime.now().plus(Duration.ofHours(2)), LocalDate.now().plusDays(i), dto);
             FocusTimeDto focusTimeDto1 = new FocusTimeDto( LocalTime.now().plus(Duration.ofMinutes(i)), LocalTime.now().plus(Duration.ofHours(2)), LocalDate.now().plusDays(i + 1), dto);
             FocusTimeDto focusTimeDto2 = new FocusTimeDto( LocalTime.now().plus(Duration.ofMinutes(i)), LocalTime.now().plus(Duration.ofHours(2)), LocalDate.now().plusDays(i + 2), dto);
+
 
             service.saveFocusTime(member.getId(), focusTimeDto);
             service.saveFocusTime(member.getId(), focusTimeDto1);
@@ -102,7 +114,7 @@ class FocusTimeServiceTest {
     @DisplayName("없는 멤버 id로 실패 테스트")
     void findAllFocusTimeFailIdInvalidTest() {
         // then
-        Assertions.assertThatThrownBy(() -> service.findAllFocusTimes("없는 id")).isInstanceOf(NoSuchElementException.class);
+        Assertions.assertThatThrownBy(() -> service.findAllFocusTimes("없는 id")).isInstanceOf(FocusTimeNotFoundException.class);
     }
 
 
@@ -112,7 +124,7 @@ class FocusTimeServiceTest {
     void findAllFocusTimeFailTest() {
         // NoSuchElementException
         // then
-        Assertions.assertThatThrownBy(() -> service.findFocusTime(55555555)).isInstanceOf(NoSuchElementException.class);
+        Assertions.assertThatThrownBy(() -> service.findFocusTime(55555555)).isInstanceOf(FocusTimeNotFoundException.class);
     }
 
     @Test
@@ -158,9 +170,9 @@ class FocusTimeServiceTest {
         Member member = members.get(0);
 
         //when
-        Assertions.assertThatThrownBy(() -> service.findFocusTimesByYearAndMonthAndDay(member.getId(), null, 7, null)).isInstanceOf(IllegalArgumentException.class);
-        Assertions.assertThatThrownBy(() -> service.findFocusTimesByYearAndMonthAndDay(member.getId(), null, null, 4)).isInstanceOf(IllegalArgumentException.class);
-        Assertions.assertThatThrownBy(() -> service.findFocusTimesByYearAndMonthAndDay(member.getId(), null, 7, 4)).isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> service.findFocusTimesByYearAndMonthAndDay(member.getId(), null, 7, null)).isInstanceOf(InvalidParamException.class);
+        Assertions.assertThatThrownBy(() -> service.findFocusTimesByYearAndMonthAndDay(member.getId(), null, null, 4)).isInstanceOf(InvalidParamException.class);
+        Assertions.assertThatThrownBy(() -> service.findFocusTimesByYearAndMonthAndDay(member.getId(), null, 7, 4)).isInstanceOf(InvalidParamException.class);
     }
 
     @Test
@@ -174,7 +186,7 @@ class FocusTimeServiceTest {
         service.deleteFocusTimeByYearAndMonthAndDay(member.getId(), null, null, null);
 
         //then
-        Assertions.assertThatThrownBy(() -> service.findAllFocusTimes(member.getId())).isInstanceOf(NoSuchElementException.class);
+        Assertions.assertThatThrownBy(() -> service.findAllFocusTimes(member.getId())).isInstanceOf(FocusTimeNotFoundException.class);
     }
 
     @Test
@@ -188,7 +200,7 @@ class FocusTimeServiceTest {
         service.deleteFocusTimeByYearAndMonthAndDay(member.getId(), 2025, null, null);
 
         //then
-        Assertions.assertThatThrownBy(() -> service.findAllFocusTimes(member.getId())).isInstanceOf(NoSuchElementException.class);
+        Assertions.assertThatThrownBy(() -> service.findAllFocusTimes(member.getId())).isInstanceOf(FocusTimeNotFoundException.class);
     }
 
     @Test
@@ -202,7 +214,7 @@ class FocusTimeServiceTest {
         service.deleteFocusTimeByYearAndMonthAndDay(member.getId(), 2025, 7, null);
 
         //then
-        Assertions.assertThatThrownBy(() -> service.findAllFocusTimes(member.getId())).isInstanceOf(NoSuchElementException.class);
+        Assertions.assertThatThrownBy(() -> service.findAllFocusTimes(member.getId())).isInstanceOf(FocusTimeNotFoundException.class);
     }
 
     @Test

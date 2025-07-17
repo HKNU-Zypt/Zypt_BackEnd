@@ -33,7 +33,7 @@ public class MemberServiceImpl implements MemberService {
     public MemberInfoDto findMember(String id) {
         Member member = repository.findMemberById(id).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
 
-        return new MemberInfoDto(member.getNickName(), member.getEmail());
+        return new MemberInfoDto(member.getId(), member.getNickName(), member.getEmail());
     }
 
     // social id로 멤버 조회

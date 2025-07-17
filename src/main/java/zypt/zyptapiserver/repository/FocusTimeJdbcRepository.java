@@ -1,6 +1,7 @@
 package zypt.zyptapiserver.repository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -8,6 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import zypt.zyptapiserver.Service.MemberServiceImpl;
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.domain.dto.*;
@@ -18,15 +20,16 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class FocusTimeJdbcRepository implements FocusTimeRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
-
+    private final MemberServiceImpl memberService;
 
     @Override
-    public Optional<FocusTime> saveFocusTime(Member member, LocalDate date, LocalTime start_at, LocalTime end_at) {
+    public Optional<FocusTime> saveFocusTime(Member member, LocalDate date, LocalTime start_at, LocalTime end_at, Long sumUnFocusedTimes) {
         String sql = "INSERT INTO focus_time(member_id, start_at, end_at, create_date, focus_time, total_time) values(:member_id, :start_at, :end_at, :create_date, :focus_time, :total_time)";
         long totalTime = ChronoUnit.SECONDS.between(start_at, end_at);
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -36,7 +39,7 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
         param.addValue("start_at", start_at);
         param.addValue("end_at", end_at);
         param.addValue("create_date", date);
-        param.addValue("focus_time", 0);
+        param.addValue("focus_time", totalTime - sumUnFocusedTimes);
         param.addValue("total_time", totalTime);
 
         int update = jdbcTemplate.update(sql, param, keyHolder);

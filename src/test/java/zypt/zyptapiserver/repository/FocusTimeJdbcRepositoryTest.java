@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
+import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.domain.dto.FocusTimeResponseDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
@@ -47,11 +48,12 @@ class FocusTimeJdbcRepositoryTest {
         log.info("member 영속화 ? = {}", em.contains(member));
         log.info("중간 초기화 ");
 
-        jpaRepository.saveFocusTime(member, LocalDate.of(2025, 6, 30), LocalTime.now(), LocalTime.now().plusHours(1)).get();
-        jpaRepository.saveFocusTime(member, LocalDate.of(2025, 6, 29), LocalTime.now(), LocalTime.now().plusHours(1)).get();
-        jpaRepository.saveFocusTime(member, LocalDate.of(2025, 5, 30), LocalTime.now(), LocalTime.now().plusHours(1)).get();
-        jpaRepository.saveFocusTime(member, LocalDate.of(2024, 5, 29), LocalTime.now(), LocalTime.now().plusHours(1)).get();
-        jpaRepository.saveFocusTime(member, LocalDate.of(2024, 5, 28), LocalTime.now(), LocalTime.now().plusHours(1)).get();
+        jpaRepository.saveFocusTime(member, LocalDate.of(2025, 6, 30), LocalTime.now(), LocalTime.now().plusHours(1), 1L).get();
+        jpaRepository.saveFocusTime(member, LocalDate.of(2025, 6, 29), LocalTime.now(), LocalTime.now().plusHours(1), 1L).get();
+        jpaRepository.saveFocusTime(member, LocalDate.of(2025, 5, 30), LocalTime.now(), LocalTime.now().plusHours(1), 1L).get();
+        jpaRepository.saveFocusTime(member, LocalDate.of(2024, 5, 29), LocalTime.now(), LocalTime.now().plusHours(1), 1L).get();
+        FocusTime focusTime = jpaRepository.saveFocusTime(member, LocalDate.of(2024, 5, 28), LocalTime.now(), LocalTime.now().plusHours(1), 1L).get();
+
         log.info("초기화 성공");
 
     }
