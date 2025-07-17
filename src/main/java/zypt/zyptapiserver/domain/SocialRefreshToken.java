@@ -1,11 +1,14 @@
 package zypt.zyptapiserver.domain;
 
+import com.querydsl.core.annotations.QueryProjection;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import zypt.zyptapiserver.domain.enums.SocialType;
 
 @Getter
 @Entity
+@NoArgsConstructor
 public class SocialRefreshToken {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,9 +23,8 @@ public class SocialRefreshToken {
     @Enumerated(EnumType.STRING)
     private SocialType socialType;
 
-    public SocialRefreshToken() {
-    }
 
+    @QueryProjection
     public SocialRefreshToken(String token, SocialType socialType) {
         this.token = token;
         this.socialType = socialType;

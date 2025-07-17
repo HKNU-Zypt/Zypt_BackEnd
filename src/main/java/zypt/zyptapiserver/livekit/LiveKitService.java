@@ -78,16 +78,13 @@ public class LiveKitService {
      * @param roomName
      * @return true
      */
-    public boolean deleteRoom(String roomName) {
+    public void deleteRoom(String roomName) {
         boolean isDeletedRoom = LiveKitTemplate.execute(() -> client.deleteRoom(roomName).execute().isSuccessful());
 
         // 방 삭제 실패시 에러를 던짐
         if (!isDeletedRoom) {
             throw new DeleteFailException("방 삭제 실패 : " + roomName);
         }
-
-        // 삭제후 방 조회시 비어있다면 삭제된 것이므로 true 반환
-        return true;
     }
 
     /**

@@ -7,5 +7,7 @@ package zypt.zyptapiserver.domain.dto;
  * @param month
  * @param day
  */
+
 public record FocusDayMarkDto(int year, int month, int day) {
+
 }

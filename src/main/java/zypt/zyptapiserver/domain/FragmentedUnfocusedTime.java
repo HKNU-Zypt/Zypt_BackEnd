@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.domain;
 
+import com.querydsl.core.annotations.QueryProjection;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,12 +27,16 @@ public class FragmentedUnfocusedTime {
     @JoinColumn(name = "focus_id")
     private FocusTime focusTime;
 
-    public FragmentedUnfocusedTime(Long id, LocalTime startAt, LocalTime endAt, UnFocusedType type) {
+    @QueryProjection
+    public FragmentedUnfocusedTime(Long id, LocalTime startAt, LocalTime endAt, UnFocusedType type, Long unfocusedTime, FocusTime focusTime) {
+        this.id = id;
         this.startAt = startAt;
         this.endAt = endAt;
         this.type = type;
-        this.unfocusedTime = calculateTotalUnFocusedTime();
+        this.unfocusedTime = unfocusedTime;
+        this.focusTime = focusTime;
     }
+
 
     private long calculateTotalUnFocusedTime() {
         return ChronoUnit.SECONDS.between(startAt, endAt);

@@ -50,19 +50,23 @@ public class NaverService implements SocialService {
         headers.set("Authorization", "Bearer " + token);
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                PROFILE_URL,
-                requestEntity,
-                String.class);
+        ResponseEntity<String> response;
+        try {
+            response = restTemplate.postForEntity(
+                    PROFILE_URL,
+                    requestEntity,
+                    String.class);
 
-        if (response.getStatusCode() != HttpStatus.OK) {
-            throw new MissingTokenException("토큰이 잘못되었거나 잘못된 사용자");
+        } catch (RestClientException ex) {
+            throw new MissingTokenException("잘못되거나 만료된 토큰");
+
         }
 
         try {
             JsonNode profile = objectMapper.readTree(response.getBody());
             String socialId = profile.get("response").get("id").asText();
             String email = profile.get("response").get("email").asText();
+
 
             return new NaverUserInfo(socialId, email);
 

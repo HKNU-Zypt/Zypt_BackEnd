@@ -74,6 +74,7 @@ public class AuthService {
 
         String newAccessToken = jwtUtils.generateAccessToken(member.getId());
         String newRefreshToken = findRefreshTokenInRedis(member);
+
         registryAuthenticatedUser(member.getId(), member.getNickName());
 
         // 응답에 토큰 삽입

@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface FocusTimeRepository {
 
     // FocusTime 저장
-    Optional<FocusTime> saveFocusTime(Member member, LocalDate date, LocalTime start_at, LocalTime end_at);
+    Optional<FocusTime> saveFocusTime(Member member, LocalDate date, LocalTime start_at, LocalTime end_at, Long sumUnFocusedTimes);
 
     // UnfocusedTimes 벌크 삽입
     Long bulkInsertUnfocusedTimes(Long focusId, List<FragmentedUnFocusedTimeInsertDto> unfocusedTimes);
@@ -56,6 +56,7 @@ public interface FocusTimeRepository {
     List<Integer> findFocusTimesByMonth(String memberId,int year, int month);
 
 
-    void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day);
+    void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day, List<Long> ids);
 
+    List<Long> findFocusTimeIdsByDate(String memberId, Integer year, Integer month, Integer day);
 }

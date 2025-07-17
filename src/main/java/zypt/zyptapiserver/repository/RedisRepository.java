@@ -11,7 +11,7 @@ import java.time.Duration;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class RedisRepository {
+public class  RedisRepository {
 
     private final StringRedisTemplate template;
 

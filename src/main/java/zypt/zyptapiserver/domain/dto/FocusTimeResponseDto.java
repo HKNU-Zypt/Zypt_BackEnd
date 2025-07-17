@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.domain.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import zypt.zyptapiserver.domain.FragmentedUnfocusedTime;
@@ -18,6 +19,7 @@ public class FocusTimeResponseDto {
     private final LocalDate createDate;
     private List<FragmentedUnFocusedTimeDto> unFocusedTimeDtos;
 
+    @QueryProjection
     public FocusTimeResponseDto(Long id, String memberId, LocalTime startAt, LocalTime endAt, LocalDate createDate) {
         this.id = id;
         this.memberId = memberId;

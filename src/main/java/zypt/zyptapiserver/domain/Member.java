@@ -1,10 +1,8 @@
 package zypt.zyptapiserver.domain;
 
+import com.querydsl.core.annotations.QueryProjection;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import zypt.zyptapiserver.domain.enums.SocialType;
 
 import java.util.ArrayList;
@@ -14,6 +12,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
+@ToString
 public class Member extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.UUID)
@@ -33,6 +32,7 @@ public class Member extends BaseTimeEntity {
     private List<FocusTime> focusTimes = new ArrayList<>();
 
     @Builder
+    @QueryProjection
     public Member(String id, String nickName, String email, SocialType socialType, String socialId) {
         this.id = id;
         this.nickName = nickName;

@@ -1,4 +1,6 @@
 package zypt.zyptapiserver.domain.dto;
 
-public record RefreshTokenRequestDto(String refreshToken) {
+import jakarta.validation.constraints.NotNull;
+
+public record RefreshTokenRequestDto(@NotNull String refreshToken) {
 }
