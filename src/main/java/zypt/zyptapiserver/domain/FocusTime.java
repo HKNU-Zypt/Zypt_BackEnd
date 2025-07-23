@@ -53,7 +53,15 @@ public class FocusTime {
         this.totalTime = calculateTotalTime();
     }
 
-
+    public FocusTime( Member member, LocalTime startAt, LocalTime endAt, LocalDate createDate, Long focusTime, Long totalTime, List<FragmentedUnfocusedTime> unfocusedTimes) {
+        this.member = member;
+        this.startAt = startAt;
+        this.endAt = endAt;
+        this.createDate = createDate;
+        this.focusTime = focusTime;
+        this.totalTime = totalTime;
+        this.unfocusedTimes = unfocusedTimes;
+    }
 
     // 시작 시간과 끝시간의 차를 구해 총 서비스 이용시간을 구한다.
     private long calculateTotalTime() {
@@ -84,5 +92,9 @@ public class FocusTime {
     public void addFragmentedUnfocusedTime(FragmentedUnfocusedTime unfocusedTime) {
         unfocusedTimes.add(unfocusedTime);
         unfocusedTime.setFocusTime(this);
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

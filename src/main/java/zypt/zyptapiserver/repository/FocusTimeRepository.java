@@ -12,10 +12,10 @@ import java.util.Optional;
 public interface FocusTimeRepository {
 
     // FocusTime 저장
-    Optional<FocusTime> saveFocusTime(Member member, LocalDate date, LocalTime start_at, LocalTime end_at, Long sumUnFocusedTimes);
+    Optional<FocusTime> saveFocusTime(Member member, LocalDate date, LocalTime startAt, LocalTime endAt, Long sumUnFocusedTimes);
 
     // UnfocusedTimes 벌크 삽입
-    Long bulkInsertUnfocusedTimes(Long focusId, List<FragmentedUnFocusedTimeInsertDto> unfocusedTimes);
+    void bulkInsertUnfocusedTimes(Long focusId, List<FragmentedUnFocusedTimeInsertDto> unfocusedTimes);
 
     /**
      * 특정 회원의 모든 집중 시간 데이터를 조회

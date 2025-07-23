@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="zypt.zyptapiserver.repository.mapper.FocusMapper">
+
+    <insert id="saveFocusTime" parameterType="FocusTime"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO focus_time (member_id, start_at, end_at, create_date, focus_time, total_time)
+        VALUES (#{member.id}, #{startAt}, #{endAt}, #{createDate}, #{focusTime}, #{totalTime})
+    </insert>
+
+    <insert id="bulkInsert">
+        INSERT INTO fragmented_unfocused_time (focus_id, start_at, end_at, type, unfocused_time)
+        VALUES
+        <foreach collection="unfocusedTimes" item="unfocus" separator=",">
+            (#{focusId}, #{unfocus.startAt}, #{unfocus.endAt}, #{unfocus.type}, #{unfocus.calculateUnfocusedDuration})
+        </foreach>
+    </insert>
+
+    <select id="findAll" resultType="FocusTimeResponseDto">
+        SELECT id,
+               member_id AS memberId,
+               start_at AS startAt,
+               end_at AS endAt,
+               create_date AS createDate
+        FROM focus_time
+        WHERE member_id=#{memberId}
+        ORDER BY create_date
+    </select>
+
+    <select id="find" resultType="FocusTimeResponseDto">
+        SELECT id,
+               member_id AS memberId,
+               start_at AS startAt,
+               end_at AS endAt,
+               create_date AS createDate
+
+        FROM focus_time
+        WHERE id=#{focusId}
+        ORDER BY create_date
+    </select>
+
+    <select id="findAllFragmentedUnFocusTimes" resultType="FragmentedUnFocusedTimeDto">
+        SELECT id,
+               focus_id AS focusId,
+               start_at AS startAt,
+               end_at AS endAt,
+               type,
+               unfocused_time AS unFocusedTime
+        FROM fragmented_unfocused_time
+        WHERE focus_id IN
+        <foreach collection="focusIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="findFocusTimeByDate" resultType="FocusTimeResponseDto">
+        SELECT id,
+               member_id AS memberId,
+               start_at AS startAt,
+               end_at AS endAt,
+               create_date AS createDate
+
+        FROM focus_time
+        WHERE member_id=#{memberId}
+        <include refid="dateCond"/>
+
+        ORDER BY create_date
+    </select>
+
+    <delete id="deleteFocusTimeByDate">
+        DELETE FROM focus_time
+        WHERE member_id=#{memberId}
+        <include refid="dateCond"/>
+    </delete>
+
+
+    <select id="findFocusTimeIdsByDate" resultType="Long">
+        SELECT id
+        FROM focus_time
+        WHERE member_id=#{memberId}
+        <include refid="dateCond"/>
+
+    </select>
+
+    <sql id="dateCond">
+        <if test="year != null">
+            AND YEAR(create_date) = #{year}
+        </if>
+
+        <if test="month != null">
+            AND MONTH(create_date) = #{month}
+        </if>
+
+        <if test="day != null">
+            AND DAY(create_date) = #{day}
+        </if>
+    </sql>
+
+
+
+</mapper>

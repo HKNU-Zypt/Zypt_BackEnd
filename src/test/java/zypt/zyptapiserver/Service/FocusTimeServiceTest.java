@@ -51,9 +51,9 @@ class FocusTimeServiceTest {
             // JPA로 저장하고 JDBC로 삽입시 JPA는 실제로 DB에 아직 반영하지 않았기에 jdbc로 focusTime을 insert 하면 db에 memberid에 맞는 레코드가 하나도 저장되지 않았기에 예외발생함
             // 따라서 jdbc는 따로 jdbc로 member 처리
 
-            Member member = memberRepository.save(Member.builder().email("abc@gmail.com").socialId("abc" + i).socialType(SocialType.GOOGLE).nickName(UUID.randomUUID().toString()).build());
+//            Member member = memberRepository.save(Member.builder().email("abc@gmail.com").socialId("abc" + i).socialType(SocialType.GOOGLE).nickName(UUID.randomUUID().toString()).build());
 
-//            Member member = memberJdbcRepository.save(new Member(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "abc@google.com", SocialType.GOOGLE, "abc" + i));
+            Member member = memberJdbcRepository.save(new Member(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "abc@google.com", SocialType.GOOGLE, "abc" + i));
             members.add(member);
         }
 
@@ -135,8 +135,10 @@ class FocusTimeServiceTest {
         // given when
         Long id = service.findAllFocusTimes(member.getId()).get(0).getId();
         FocusTimeResponseDto focusTime = service.findFocusTime(id);
+
         // then
         Assertions.assertThat(focusTime).isNotNull();
+
     }
 
     @Test
