@@ -68,14 +68,16 @@ public class AuthController {
     /**
      * 회원 탈퇴
      * 1. 네이버 구글의 경우 서버내에서 소셜 리프레시 토큰 조회
-     * 1-1. 네이버의 경우 액세스토큰 요청
+     * 1.1 구글의 경우 재로그인으로 액세스토큰 취득
      * 2. 토큰과 함께 연동 해제 요청 전송
      * 3. 소셜 리프레시 토큰 삭제
      * @return
      */
+
+    //TODO String 말고 객체로 바꿀 것
     @DeleteMapping("")
-    public ResponseEntity<String> deleteMember(@AuthenticationPrincipal CustomUserDetails details, @RequestBody(required = false) String token) {
-        authService.disconnect(details.getUsername(), token);
+    public ResponseEntity<String> deleteMember(@AuthenticationPrincipal CustomUserDetails details, @RequestBody(required = false) RefreshTokenRequestDto requestDto) {
+        authService.disconnect(details.getUsername(), requestDto.refreshToken());
         return ResponseEntity.ok("회원 탈퇴 완료");
     }
 }
