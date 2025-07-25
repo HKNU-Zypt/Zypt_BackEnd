@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-//@Tag(name = "LiveKit API", description = "LiveKit 방 생성, 참여 등 API")
+@Tag(name = "LiveKit API", description = "LiveKit 방 생성, 참여 등 API")
 @RequestMapping("/api/rooms")
 @RequiredArgsConstructor
 public class LiveKitController {

@@ -36,9 +36,9 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
 
     // focus time 영속성화
     @Transactional
-    public Optional<FocusTime> saveFocusTime(Member member, LocalDate date, LocalTime start_at, LocalTime end_at, Long sumUnFocusedTimes) {
+    public Optional<FocusTime> saveFocusTime(Member member, LocalDate date, LocalTime startAt, LocalTime endAt, Long sumUnFocusedTimes) {
         FocusTime newFocusTime
-                = new FocusTime(member, start_at, end_at, date, sumUnFocusedTimes);
+                = new FocusTime(member, startAt, endAt, date, sumUnFocusedTimes);
 
         em.persist(newFocusTime);
 
@@ -49,8 +49,8 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
 
 
     @Override
-    public Long bulkInsertUnfocusedTimes(Long focusId, List<FragmentedUnFocusedTimeInsertDto> unfocusedTimes) {
-        return focusTimeJdbcRepository.bulkInsertUnfocusedTimes(focusId, unfocusedTimes);
+    public void bulkInsertUnfocusedTimes(Long focusId, List<FragmentedUnFocusedTimeInsertDto> unfocusedTimes) {
+        focusTimeJdbcRepository.bulkInsertUnfocusedTimes(focusId, unfocusedTimes);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
     }
 
     @Override
-    public List<FragmentedUnFocusedTimeDto> findAllFragmentedUnFocusTimes(List<Long> focusIdList) {
+    public List<FragmentedUnFocusedTimeDto> findAllFragmentedUnFocusTimes(List<Long> focusIds) {
         return queryFactory.select(Projections.constructor(
                 FragmentedUnFocusedTimeDto.class,
                 unfocusedTime.id,
@@ -116,7 +116,7 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
                 unfocusedTime.type,
                 unfocusedTime.unfocusedTime
         )).from(unfocusedTime)
-                .where(unfocusedTime.focusTime.id.in(focusIdList))
+                .where(unfocusedTime.focusTime.id.in(focusIds))
                 .fetch();
     }
 
@@ -194,6 +194,15 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
 
     }
 
+
+    /**
+     * 삭제할 focusTime의 id들을 모두 조회
+     * @param memberId
+     * @param year
+     * @param month
+     * @param day
+     * @return
+     */
     @Override
     public List<Long> findFocusTimeIdsByDate(String memberId, Integer year, Integer month, Integer day) {
         return queryFactory.select(focusTime.id)

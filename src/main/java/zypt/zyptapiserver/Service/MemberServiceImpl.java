@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import zypt.zyptapiserver.auth.exception.InvalidParamException;
 import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.domain.SocialRefreshToken;
 import zypt.zyptapiserver.domain.dto.MemberInfoDto;
@@ -31,7 +32,8 @@ public class MemberServiceImpl implements MemberService {
     // id로 멤버 조회
     @Transactional(readOnly = true)
     public MemberInfoDto findMember(String id) {
-        Member member = repository.findMemberById(id).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
+        Member member = repository.findMemberById(id)
+                .orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
 
         return new MemberInfoDto(member.getId(), member.getNickName(), member.getEmail());
     }
@@ -40,7 +42,8 @@ public class MemberServiceImpl implements MemberService {
     @Transactional(readOnly = true)
     public Member findMemberBySocialId(SocialType type, String socialId) {
 
-        return repository.findBySocialId(type, socialId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
+        return repository.findBySocialId(type, socialId)
+                .orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
     }
 
     // 닉네임 업데이트
@@ -54,7 +57,7 @@ public class MemberServiceImpl implements MemberService {
 
             // 이전과 같은 닉네임시 예외를 던짐
         } else if (member.getNickName().equals(nickName)) {
-            throw new IllegalArgumentException("이전 닉네임 불가");
+            throw new InvalidParamException("이전 닉네임 불가");
         }
 
         member.updateNickName(nickName);

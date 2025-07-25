@@ -29,15 +29,15 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
     private final MemberServiceImpl memberService;
 
     @Override
-    public Optional<FocusTime> saveFocusTime(Member member, LocalDate date, LocalTime start_at, LocalTime end_at, Long sumUnFocusedTimes) {
+    public Optional<FocusTime> saveFocusTime(Member member, LocalDate date, LocalTime startAt, LocalTime endAt, Long sumUnFocusedTimes) {
         String sql = "INSERT INTO focus_time(member_id, start_at, end_at, create_date, focus_time, total_time) values(:member_id, :start_at, :end_at, :create_date, :focus_time, :total_time)";
-        long totalTime = ChronoUnit.SECONDS.between(start_at, end_at);
+        long totalTime = ChronoUnit.SECONDS.between(startAt, endAt);
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         MapSqlParameterSource param = new MapSqlParameterSource();
         param.addValue("member_id", member.getId());
-        param.addValue("start_at", start_at);
-        param.addValue("end_at", end_at);
+        param.addValue("start_at", startAt);
+        param.addValue("end_at", endAt);
         param.addValue("create_date", date);
         param.addValue("focus_time", totalTime - sumUnFocusedTimes);
         param.addValue("total_time", totalTime);
@@ -53,13 +53,13 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
         }
 
         long id = keyHolder.getKey().longValue();
-        return Optional.of(new FocusTime(id, member, start_at, end_at, date));
+        return Optional.of(new FocusTime(id, member, startAt, endAt, date));
     }
 
     // 벌크연산으로 집중하지않은 시간들을 저장
     // 집중하지 않은 시간 총합을 반환
     @Transactional
-    public Long bulkInsertUnfocusedTimes(Long focusId, List<FragmentedUnFocusedTimeInsertDto> unfocusedTimes) {
+    public void bulkInsertUnfocusedTimes(Long focusId, List<FragmentedUnFocusedTimeInsertDto> unfocusedTimes) {
         String sql = "INSERT INTO fragmented_unfocused_time(focus_id, start_at, end_at, type, unfocused_time) " +
                 "VALUES(:focus_id,:start_at,:end_at,:type,:unfocused_time)";
 
@@ -81,8 +81,6 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
         if (sum != unfocusedTimes.size()) {
             throw new IllegalArgumentException("Unfocus 저장 실패");
         }
-
-        return unfocusedTimes.stream().mapToLong(FragmentedUnFocusedTimeInsertDto::calculateUnfocusedDuration).sum();
     }
 
     @Override
@@ -119,11 +117,9 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
 
     @Override
     public Optional<FocusTimeResponseDto> findFocusTime(long focusId) {
-
         String sql = "SELECT * FROM focus_time WHERE id = :focusId";
         MapSqlParameterSource param = new MapSqlParameterSource();
         param.addValue("focusId", focusId);
-
 
         return jdbcTemplate.query(sql, param,
                 (rs, rowNum) ->

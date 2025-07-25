@@ -11,6 +11,7 @@ import zypt.zyptapiserver.Service.FocusTimeService;
 import zypt.zyptapiserver.Service.FocusTimeServiceImpl;
 import zypt.zyptapiserver.repository.FocusTimeJdbcRepository;
 import zypt.zyptapiserver.repository.FocusTimeJpaRepository;
+import zypt.zyptapiserver.repository.FocusTimeMyBatisRepository;
 import zypt.zyptapiserver.repository.MemberRepository;
 
 @Configuration
@@ -18,12 +19,13 @@ import zypt.zyptapiserver.repository.MemberRepository;
 public class ZyptConfig {
 
     private final FocusTimeJdbcRepository focusTimeJdbcRepository;
+    private final FocusTimeMyBatisRepository focusTimeMyBatisRepository;
     private final FocusTimeJpaRepository focusTimeJpaRepository;
     private final MemberRepository memberRepository;
 
     @Bean
     public FocusTimeService focusTimeService() {
-        return new FocusTimeServiceImpl(focusTimeJpaRepository, memberRepository);
+        return new FocusTimeServiceImpl(focusTimeMyBatisRepository, memberRepository);
     }
 
     @Bean
