@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -47,7 +48,9 @@ public class AuthController {
     // 2. 서버에서는 리프레시 토큰을 삭제
     // 3. 성공 응답 반환
     // 4. 클라이언트는 액세스토큰을 삭제
+
     @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "Authorization 헤더에 액세스토큰 필요")
     public ResponseEntity<String> logout(@AuthenticationPrincipal CustomUserDetails details) {
         authService.logout(details.getUsername());
         return ResponseEntity.ok("로그아웃 성공");
@@ -76,6 +79,7 @@ public class AuthController {
 
     //TODO String 말고 객체로 바꿀 것
     @DeleteMapping("")
+    @Operation(summary = "회원탈퇴", description = "Authorization 헤더에 액세스토큰 필요, 구글의 경우 액세스 토큰 필요")
     public ResponseEntity<String> deleteMember(@AuthenticationPrincipal CustomUserDetails details, @RequestBody(required = false) RefreshTokenRequestDto requestDto) {
         authService.disconnect(details.getUsername(), requestDto.refreshToken());
         return ResponseEntity.ok("회원 탈퇴 완료");
