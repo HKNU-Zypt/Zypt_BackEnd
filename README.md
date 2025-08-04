@@ -89,7 +89,7 @@ spring:
 ### 2. docker 설치
 intellJ 혹은 해당 스프링 프로젝트 폴더에서 명령어 툴을 실행
 ```
-./gradlew clean build 
+ ./gradlew clean build -x test
 ```
 해당 명령어로 빌드
 
