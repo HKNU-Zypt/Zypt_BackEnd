@@ -59,8 +59,12 @@ kakao:
 
 naver:
   CLIENT_ID : 
-  CLIENT_SECRET : 
+  CLIENT_SECRET :
 
+mybatis:
+  type-aliases-package: zypt.zyptapiserver.domain
+  configuration:
+    map-underscore-to-camel-case: true
 
 ---
 
