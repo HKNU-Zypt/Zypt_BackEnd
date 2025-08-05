@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS level_exp (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     member_id varchar(36) NOT NULL UNIQUE,
-    member_level int NOT NULL DEFAULT 1,
-    cur_exp int NOT NULL DEFAULT 0,
+    cur_level int NOT NULL DEFAULT 1,
+    cur_exp BIGINT NOT NULL DEFAULT 0,
     FOREIGN KEY(member_id) REFERENCES member (id) ON DELETE CASCADE
 );
 

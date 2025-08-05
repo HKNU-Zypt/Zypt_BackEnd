@@ -2,6 +2,7 @@ package zypt.zyptapiserver.aop.advice;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -84,9 +85,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({DataAccessException.class, FocusTimeSaveFailedException.class})
     public ResponseEntity<ApiErrorResponse> dataAccessException(Exception ex) {
+
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorCode.INTERNAL_SERVER_ERROR
+                        .getApiErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleDuplicateEntry(Exception ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorCode.DATA_INTEGRITY_VIOLATION_ERROR
                         .getApiErrorResponse(ex.getMessage()));
     }
 
@@ -114,7 +124,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                         .getApiErrorResponse(ex.getMessage()));
     }
 
-    // 가존 스프링 404 예외
+    // 기존 스프링 404 예외
     @Override
     protected ResponseEntity<Object> handleNoResourceFoundException(NoResourceFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         return ResponseEntity

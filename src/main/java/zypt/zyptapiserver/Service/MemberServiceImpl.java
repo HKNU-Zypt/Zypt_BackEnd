@@ -70,8 +70,8 @@ public class MemberServiceImpl implements MemberService {
                 .findMemberById(memberId)
                 .orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
 
-        member.updateEmail(email);
 
+        member.updateEmail(email);
 
     }
 

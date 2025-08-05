@@ -8,6 +8,8 @@ services:
         condition: service_healthy
       redis-cache-server:
         condition: service_healthy
+      redis-token-server:
+        condition: service_healthy
 
 
   mysql-db:
@@ -33,3 +35,11 @@ services:
       interval: 5s
       retries: 10
 
+  redis-token-server:
+    image: redis
+    ports:
+      - 6380:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10

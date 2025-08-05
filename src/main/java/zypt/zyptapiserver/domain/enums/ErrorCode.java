@@ -25,6 +25,8 @@ public enum ErrorCode {
     SOCIAL_REFRESH_TOKEN_NOT_FOUND_ERROR(-22, "해당 회원의 RefreshToken 존재하지 않음, 재로그인으로 토큰 획득 시도"),
     FOCUS_TIME_NOT_FOUND_ERROR(-23, "해당 FocusTime 데이터가 존재하지 않음, 요청 날짜를 다시 확인"),
 
+    DATA_INTEGRITY_VIOLATION_ERROR(-33, "무결성 위배, 유니크, 중복, not null, 외래키 등 확인"),
+
     // 심각한 서버 에러
     REDIS_CONNECTION_ERROR(-101, "Redis 연결 실패. 서버 상태 점검 필요");
 

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class LevelExp extends BaseTimeEntity {
+public class LevelExp {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -16,7 +16,11 @@ public class LevelExp extends BaseTimeEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+
+    @Column(name = "cur_level")
     private int level;
+    @Column(name = "cur_exp")
     private long curExp;
 
     @Builder
