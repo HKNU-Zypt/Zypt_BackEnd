@@ -36,8 +36,14 @@ spring:
   # redis config
   data:
     redis:
-      host: localhost
-      port: 6379
+      token_server:
+        host: localhost
+        port: 6379
+
+      cache_server:
+        host: localhost
+        port: 6380
+
 
 
 livekit:
@@ -82,8 +88,14 @@ spring:
   # redis config
   data:
     redis:
-      host: redis-cache-server
-      port: 6379
+      token_server:
+        host: redis-token-server
+        port: 6379
+
+      cache_server:
+        host: redis-cache-server
+        port: 6380
+
 
 
 ```
