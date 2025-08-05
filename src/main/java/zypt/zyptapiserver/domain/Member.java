@@ -25,6 +25,9 @@ public class Member extends BaseTimeEntity {
     private String socialId;
 
 
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private LevelExp levelExp;
+
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private SocialRefreshToken socialRefreshToken;
 
@@ -62,5 +65,10 @@ public class Member extends BaseTimeEntity {
 
     public void removeSocialRefreshToken() {
         this.socialRefreshToken = null;
+    }
+
+    public void addLevelExpInfo(LevelExp levelExp) {
+        this.levelExp = levelExp;
+        levelExp.updateMember(this);
     }
 }

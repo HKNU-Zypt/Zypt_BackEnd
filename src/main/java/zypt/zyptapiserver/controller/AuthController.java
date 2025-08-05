@@ -29,6 +29,7 @@ public class AuthController {
     private final MemberService memberService;
 
     @PostMapping("/login")
+    @Operation(summary = "로그인(회원가입)", description = "네이버의 경우 소셜 리프레시 토큰 필요 나머지는 X")
     public ResponseEntity<String> socialLogin(@RequestBody SocialLoginDto socialLoginDto, HttpServletResponse response) {
         authService.handleAuthenticationFromSocialToken(response, socialLoginDto.type(), socialLoginDto.token());
 
@@ -50,7 +51,7 @@ public class AuthController {
     // 4. 클라이언트는 액세스토큰을 삭제
 
     @PostMapping("/logout")
-    @Operation(summary = "로그아웃", description = "Authorization 헤더에 액세스토큰 필요")
+    @Operation(summary = "로그아웃", description = "Authorization 헤더에 액세스토큰 필요, 서버 내 JWT 리프레시 토큰을 삭제함")
     public ResponseEntity<String> logout(@AuthenticationPrincipal CustomUserDetails details) {
         authService.logout(details.getUsername());
         return ResponseEntity.ok("로그아웃 성공");
@@ -63,6 +64,7 @@ public class AuthController {
      * @return            200 OK
      */
     @PostMapping("/refresh")
+    @Operation(summary = "리프레시", description = "만료된 액세스토큰 재발급, 서버 JWT 리프레시 토큰을 Body에 넣어 전송")
     public ResponseEntity<String> refreshAccessToken(@Valid @RequestBody RefreshTokenRequestDto requestDto, HttpServletResponse response) {
         authService.authenticateUserFromToken(response, requestDto.refreshToken());
         return ResponseEntity.ok("로그인 성공");
@@ -79,7 +81,7 @@ public class AuthController {
 
     //TODO String 말고 객체로 바꿀 것
     @DeleteMapping("")
-    @Operation(summary = "회원탈퇴", description = "Authorization 헤더에 액세스토큰 필요, 구글의 경우 액세스 토큰 필요")
+    @Operation(summary = "회원탈퇴", description = "Authorization 헤더에 액세스토큰 필요, 구글의 경우 액세스 토큰 필요(현재는 재로그인 방법으로 획득할 것)")
     public ResponseEntity<String> deleteMember(@AuthenticationPrincipal CustomUserDetails details, @RequestBody(required = false) RefreshTokenRequestDto requestDto) {
         authService.disconnect(details.getUsername(), requestDto.refreshToken());
         return ResponseEntity.ok("회원 탈퇴 완료");

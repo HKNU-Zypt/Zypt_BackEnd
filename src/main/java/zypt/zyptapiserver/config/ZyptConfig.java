@@ -3,6 +3,8 @@ package zypt.zyptapiserver.config;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,15 +38,22 @@ public class ZyptConfig {
     // swagger
     @Bean
     public OpenAPI openAPI() {
+        SecurityScheme securityScheme = new SecurityScheme()
+                .type(SecurityScheme.Type.HTTP)
+                .scheme("bearer")
+                .bearerFormat("JWT")
+                .in(SecurityScheme.In.HEADER)
+                .name("Authorization");
+
+        SecurityRequirement securityRequirement = new SecurityRequirement().addList("BearerAuth");
+
         return new OpenAPI()
-                .components(new Components())
-                .info(apiInfo());
+                .info(new Info().title("Zypt API")
+                        .description("Zypt Application API Documentation")
+                        .version("v1.0"))
+                .addSecurityItem(securityRequirement)
+                .schemaRequirement("BearerAuth", securityScheme);
+
     }
 
-    private Info apiInfo() {
-        return new Info()
-                .title("Zypt Swagger")
-                .description("Zypt 유저 인증, 인가, REST API 정보")
-                .version("1.0.0");
-    }
 }

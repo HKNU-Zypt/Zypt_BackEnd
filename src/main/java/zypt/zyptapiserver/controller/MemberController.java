@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("")
+    @Operation(summary = "회원 정보 조회", description = "액세스토큰 해더 필수")
     public ResponseEntity<MemberInfoDto> findMemberInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
         MemberInfoDto infoDto = memberService.findMember(userDetails.getUsername());
         return ResponseEntity.ok(infoDto);
@@ -32,6 +34,7 @@ public class MemberController {
      * @return             200 OK
      */
     @PostMapping("/signup")
+    @Operation(summary = "첫 회원가입 시 닉네임 설정", description = "액세스토큰 해더 필수")
     public ResponseEntity<Void> updateMemberNickNameForSignUp(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam("nickName") String nickName) {
         log.info("닉네임 업데이트");
 
@@ -46,6 +49,7 @@ public class MemberController {
      * @return             200 OK
      */
     @PatchMapping("")
+    @Operation(summary = "닉네임 변경", description = "액세스토큰 해더 필수 \n\n 해당 API는 회원가입 이후에 마이페이지에서 닉네임 변경을 원할시 사용")
     public ResponseEntity<String> updateMemberNickName(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam("nickName") String nickName) {
         memberService.updateNickName(userDetails.getUsername(), nickName);
         return ResponseEntity.ok("닉네임 변경 완료");

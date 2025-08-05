@@ -101,6 +101,7 @@ public class AuthService {
         if (!token.equals(savedRefreshToken)) {
             throw new InvalidTokenException("비정상적인 리프레시 토큰");
         }
+
         log.info("액세스 토큰 만료 리프레시 발급 = {}", savedRefreshToken);
 
         // 리프레시 토큰 검증 (검증 성공시)
