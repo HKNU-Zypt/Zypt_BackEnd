@@ -36,7 +36,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/v3/api-docs",
-            "/favicon.ico"
+            "/favicon.ico",
+            "/api/admin/**"
     );
 
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();

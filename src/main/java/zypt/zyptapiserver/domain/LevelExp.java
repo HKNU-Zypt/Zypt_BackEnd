@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import zypt.zyptapiserver.domain.exp.LevelExpInfo;
 
 @Entity
 @Getter
@@ -32,5 +33,10 @@ public class LevelExp {
 
     public void updateMember(Member member) {
         this.member = member;
+    }
+
+    public void updateExpAndLevel(LevelExpInfo info) {
+        level = info.level();
+        curExp = (long) info.exp();
     }
 }

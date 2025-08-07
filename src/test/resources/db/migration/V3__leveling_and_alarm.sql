@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS level_exp (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    member_id varchar(36) NOT NULL UNIQUE,
+    cur_level int NOT NULL DEFAULT 1,
+    cur_exp BIGINT NOT NULL DEFAULT 0,
+    FOREIGN KEY(member_id) REFERENCES member (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS alarm (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    member_id varchar(36) NOT NULL UNIQUE,
+    push_at TIME(0) NOT NULL,
+    FOREIGN KEY(member_id) REFERENCES member(id) ON DELETE CASCADE
+);

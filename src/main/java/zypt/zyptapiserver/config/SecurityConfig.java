@@ -43,7 +43,8 @@ public class SecurityConfig {
                                         "/api/auth/refresh",
                                         "/swagger-ui/**", // Swagger UI 정적 리소스 허용
                                         "/v3/api-docs/**", // Swagger API 문서 정의 허용 (OpenAPI 3)
-                                        "/favicon.ico"
+                                        "/favicon.ico",
+                                        "/api/admin/**"
                                 ).permitAll()
                                 .requestMatchers("/api/**").authenticated()
                                 .anyRequest().permitAll()
