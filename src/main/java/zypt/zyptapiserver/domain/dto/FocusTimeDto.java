@@ -10,11 +10,9 @@ import java.util.List;
 // 클라이언트에게 받은 DTO
 public record FocusTimeDto(
         @NotNull
-        @JsonFormat(pattern = "HH-mm-ss")
         LocalTime startAt,
 
         @NotNull
-        @JsonFormat(pattern = "HH-mm-ss")
         LocalTime endAt,
 
         @NotNull LocalDate createDate,

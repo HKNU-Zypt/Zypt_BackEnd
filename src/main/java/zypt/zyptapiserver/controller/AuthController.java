@@ -38,7 +38,6 @@ public class AuthController {
             String memberId = authentication.getName();
 
             memberService.saveSocialRefreshToken(memberId, socialLoginDto.refreshToken(), socialLoginDto.type());
-
         }
 
         return ResponseEntity.ok("로그인 성공");
