@@ -29,7 +29,7 @@ services:
   redis-cache-server:
     image: redis
     ports:
-      - 6379:6379
+      - 6380:6379
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -38,7 +38,7 @@ services:
   redis-token-server:
     image: redis
     ports:
-      - 6380:6379
+      - 6379:6379
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s

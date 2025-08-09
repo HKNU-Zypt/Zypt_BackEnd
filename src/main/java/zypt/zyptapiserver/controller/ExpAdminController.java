@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import zypt.zyptapiserver.Service.ExpMultiplierManager;
+import zypt.zyptapiserver.config.RedisConfig;
 import zypt.zyptapiserver.domain.exp.AdminEvent;
+import zypt.zyptapiserver.repository.RedisCacheRepository;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -23,6 +25,7 @@ public class ExpAdminController {
 
     private final ExpMultiplierManager manager;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private final RedisCacheRepository redisCacheRepository;
 
     @PostMapping("/exp_event")
     public ResponseEntity<String> expEvent(@RequestParam double multiplier,
@@ -43,6 +46,12 @@ public class ExpAdminController {
         scheduler.schedule(() -> manager.clearAdminEvent(null), delayUntilStart + duration, TimeUnit.SECONDS);
 
         return ResponseEntity.ok("Admin event 스케줄링 됨 " + multiplier + "배 적용 " + startTime + " 부터  " + endTime + " 까지 적용");
+    }
+
+    @PostMapping("/exp_table_init")
+    public ResponseEntity<String> init() {
+        redisCacheRepository.initializeLevelExpTable();
+        return ResponseEntity.ok("초기화 완료");
     }
 
 }

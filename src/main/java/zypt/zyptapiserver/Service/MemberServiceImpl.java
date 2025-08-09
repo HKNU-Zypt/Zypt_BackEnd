@@ -6,11 +6,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import zypt.zyptapiserver.auth.exception.InvalidParamException;
+import zypt.zyptapiserver.domain.LevelExp;
 import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.domain.SocialRefreshToken;
 import zypt.zyptapiserver.domain.dto.MemberInfoDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.exception.MemberNotFoundException;
+import zypt.zyptapiserver.repository.ExpRepository;
 import zypt.zyptapiserver.repository.MemberRepository;
 
 import java.util.UUID;
@@ -22,11 +24,20 @@ import java.util.UUID;
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository repository;
-
+    private final ExpRepository expRepository;
     // 멤버 저장
     public Member saveMember(Member member) {
 
-        return repository.save(member);
+        Member savedMember = repository.save(member);
+        LevelExp levelExp = LevelExp.builder()
+                .level(1)
+                .curExp(0L)
+                .build();
+
+        savedMember.addLevelExpInfo(levelExp);
+        expRepository.save(levelExp);
+
+        return savedMember;
     }
 
     // id로 멤버 조회

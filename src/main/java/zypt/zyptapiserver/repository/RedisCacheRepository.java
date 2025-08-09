@@ -56,4 +56,21 @@ public class RedisCacheRepository {
     public Double getExpByLevel(int level) {
         return zSetOperations.score(EXP_KEY, String.valueOf(level));
     }
+
+    public void initializeLevelExpTable() {
+
+        // 이미 저장된 경우 생략
+        if (Boolean.TRUE.equals(template.hasKey(EXP_KEY))) {
+            return;
+        }
+
+        double baseExp = 100;
+        double multiplier = 1.05;
+        int maxLevel = 100;
+
+        for (int level = 1; level <= maxLevel; level++) {
+            double requiredExp = Math.ceil(baseExp * Math.pow(multiplier, level - 1));
+            zSetOperations.add(EXP_KEY, String.valueOf(level), requiredExp);
+        }
+    }
 }

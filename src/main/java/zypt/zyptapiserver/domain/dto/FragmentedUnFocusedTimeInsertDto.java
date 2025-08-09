@@ -9,11 +9,9 @@ import java.time.temporal.ChronoUnit;
 
 public record FragmentedUnFocusedTimeInsertDto(
         @NotNull
-        @JsonFormat(pattern = "HH-mm-ss")
         LocalTime startAt,
 
         @NotNull
-        @JsonFormat(pattern = "HH-mm-ss")
         LocalTime endAt,
 
         @NotNull UnFocusedType type) {
