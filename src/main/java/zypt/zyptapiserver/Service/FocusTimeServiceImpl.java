@@ -114,19 +114,15 @@ public class FocusTimeServiceImpl implements FocusTimeService {
         }
 
         List<FragmentedUnFocusedTimeDto> unFocusTimes = focusTimeRepository.findAllFragmentedUnFocusTimes(focusIds);
-
         Map<Long, List<FragmentedUnFocusedTimeDto>> unFocusMap = unFocusTimes.stream().collect(Collectors.groupingBy(FragmentedUnFocusedTimeDto::focusId));
 
-        focusTimeDtos.stream().map(focusTime -> {
+        return focusTimeDtos.stream().map(focusTime -> {
             Long id = focusTime.getId();
             List<FragmentedUnFocusedTimeDto> fragmentedUnFocusedTimeDtos = unFocusMap.getOrDefault(id, new ArrayList<>());
             focusTime.addUnFocusedTimeDtos(fragmentedUnFocusedTimeDtos);
 
             return focusTime;
-        });
-
-
-        return focusTimeDtos;
+        }).collect(Collectors.toList());
     }
 
     @Override

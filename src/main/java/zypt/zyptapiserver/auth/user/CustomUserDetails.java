@@ -24,13 +24,11 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private static final long serialVersionUID = 7385011047362978493L;
 
     private final String id;
-    private final String nickName;
     private final Collection<GrantedAuthority> authorities;
 
 
-    public CustomUserDetails(String id, String nickName, String roles) {
+    public CustomUserDetails(String id,  String roles) {
         this.id = id;
-        this.nickName = nickName;
         this.authorities = createAuthorities(roles);
     }
 
@@ -41,11 +39,6 @@ public class CustomUserDetails implements UserDetails, Serializable {
             authorities.add(new SimpleGrantedAuthority(role));
         }
         return authorities;
-    }
-
-
-    public String getNickName() {
-        return nickName;
     }
 
     @Override

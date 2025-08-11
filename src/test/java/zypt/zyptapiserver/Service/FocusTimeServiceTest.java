@@ -211,9 +211,11 @@ class FocusTimeServiceTest {
     void deleteFocusTimeByDaySuccess2Test() {
         // given
         Member member = members.get(0);
+        int year = LocalDate.now().getYear();
+        int month = LocalDate.now().getMonthValue();
 
         //when
-        service.deleteFocusTimeByYearAndMonthAndDay(member.getId(), 2025, 7, null);
+        service.deleteFocusTimeByYearAndMonthAndDay(member.getId(), year, month, null);
 
         //then
         Assertions.assertThatThrownBy(() -> service.findAllFocusTimes(member.getId())).isInstanceOf(FocusTimeNotFoundException.class);

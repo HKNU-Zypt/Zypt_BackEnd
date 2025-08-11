@@ -3,7 +3,9 @@ package zypt.zyptapiserver.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
+import zypt.zyptapiserver.Service.MemberService;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
+import zypt.zyptapiserver.domain.dto.MemberInfoDto;
 import zypt.zyptapiserver.livekit.LiveKitService;
 import zypt.zyptapiserver.livekit.dto.LiveKitAccessTokenDTO;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +24,17 @@ import java.util.List;
 public class LiveKitController {
 
     private final LiveKitService service;
+    private final MemberService memberService;
 
     @PostMapping("/create")
     @Operation(summary = "룸 생성", description = "액세스토큰 해더 필수, \n\n 방이름을 통해 새로운 룸 생성 응답은 방 액세스 토큰")
     public ResponseEntity<LiveKitAccessTokenDTO> createRoom(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                             @RequestParam("roomName") String roomName,
                                                             @RequestParam(name = "maxParticipant", required = false, defaultValue = "10") int maxParticipant) throws IOException {
-        LiveKitAccessTokenDTO liveKitAccessTokenDTO = service.createRoom(userDetails.getNickName(), userDetails.getUsername(), roomName, maxParticipant);
+
+        MemberInfoDto infoDto = memberService.findMember(userDetails.getUsername());
+
+        LiveKitAccessTokenDTO liveKitAccessTokenDTO = service.createRoom(infoDto.nickName(), userDetails.getUsername(), roomName, maxParticipant);
         return ResponseEntity.ok(liveKitAccessTokenDTO);
     }
 
@@ -36,7 +42,10 @@ public class LiveKitController {
     @Operation(summary = "룸 참여", description = "액세스토큰 해더 필수, \n\n api/rooms/방이름 으로 접속")
     public ResponseEntity<LiveKitAccessTokenDTO> joinRoom(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                           @PathVariable("roomName") String roomName) {
-        LiveKitAccessTokenDTO liveKitAccessTokenDTO = service.getLiveKitAccessToken(userDetails.getNickName(), userDetails.getUsername(), roomName);
+
+        MemberInfoDto infoDto = memberService.findMember(userDetails.getUsername());
+
+        LiveKitAccessTokenDTO liveKitAccessTokenDTO = service.getLiveKitAccessToken(infoDto.nickName(), userDetails.getUsername(), roomName);
         return ResponseEntity.ok(liveKitAccessTokenDTO);
     }
 
