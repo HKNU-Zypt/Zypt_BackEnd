@@ -79,7 +79,7 @@ public class AuthService {
         String newAccessToken = jwtUtils.generateAccessToken(member.getId());
         String newRefreshToken = findRefreshTokenInRedis(member);
 
-        registryAuthenticatedUser(member.getId(), member.getNickName());
+        registryAuthenticatedUser(member.getId());
 
         // 응답에 토큰 삽입
         CookieUtils.addCookie(response, newRefreshToken);
@@ -134,10 +134,12 @@ public class AuthService {
     }
 
 
+
     // Authentication 등록
+    @Deprecated
     public void registryAuthenticatedUser(String memberId, String nickName) {
 
-        CustomUserDetails userDetails = new CustomUserDetails(memberId, nickName, "ROLE_USER");
+        CustomUserDetails userDetails = new CustomUserDetails(memberId, "ROLE_USER");
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
@@ -148,10 +150,10 @@ public class AuthService {
     // Authentication 등록 db 조회
     public void registryAuthenticatedUser(String memberId) {
 
-        Member member = memberRepository.findMemberById(memberId)
-                .orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
+//        Member member = memberRepository.findMemberById(memberId)
+//                .orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
 
-        CustomUserDetails userDetails = new CustomUserDetails(memberId, member.getNickName(), "ROLE_USER");
+        CustomUserDetails userDetails = new CustomUserDetails(memberId, "ROLE_USER");
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
