@@ -1,11 +1,6 @@
 package zypt.zyptapiserver.auth.exception;
 
 public class FocusTimeNotFoundException extends RuntimeException {
-
-    public FocusTimeNotFoundException() {
-        super();
-    }
-
     public FocusTimeNotFoundException(String message) {
         super(message);
     }
@@ -14,7 +9,4 @@ public class FocusTimeNotFoundException extends RuntimeException {
         super(message, cause);
     }
 
-    public FocusTimeNotFoundException(Throwable cause) {
-        super(cause);
-    }
 }

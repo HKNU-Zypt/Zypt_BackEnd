@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -24,11 +26,14 @@ import java.security.PublicKey;
 import java.util.Base64;
 
 @Slf4j
+@Service
 @SocialIdentifier(SocialType.GOOGLE)
 @RequiredArgsConstructor
 public class GoogleOIDCService implements SocialService {
 
-    private final String client_id;
+    @Value("${google.CLIENT_ID}")
+    private String client_id;
+
     private final ObjectMapper objectMapper;
     private final OIDCService service;
     private final JwtUtils jwtUtils;
@@ -40,7 +45,6 @@ public class GoogleOIDCService implements SocialService {
         String[] header = token.split("\\.");
 
         byte[] decode = Base64.getUrlDecoder().decode(header[0]);
-
 
         try {
             JsonNode node = objectMapper.readTree(decode);

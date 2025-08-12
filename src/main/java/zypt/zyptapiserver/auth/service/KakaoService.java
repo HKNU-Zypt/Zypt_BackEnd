@@ -6,7 +6,9 @@ import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
@@ -26,12 +28,15 @@ import java.security.PublicKey;
 import java.util.Base64;
 
 @Slf4j
+@Service
 @SocialIdentifier(SocialType.KAKAO)
 @RequiredArgsConstructor
 public class KakaoService implements SocialService {
 
-    private final String kakaoAppKey;
-    private final String adminKey;
+    @Value("${kakao.APP_KEY}")
+    private String kakaoAppKey;
+    @Value("${kakao.ADMIN_KEY}")
+    private String adminKey;
 
     private final ObjectMapper objectMapper;
     private final OIDCService service;

@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.Service;
 
+import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,11 +38,17 @@ class FocusTimeServiceTest {
     @Autowired
     MemberRepository memberRepository;
 
+
     @Autowired
     MemberJdbcRepository memberJdbcRepository;
+    @Autowired
+    MemberService memberService;
 
     @Autowired
     TransactionTemplate template;
+
+    @Autowired
+    EntityManager em;
 
     List<Member> members = new ArrayList<>();
 
@@ -52,10 +59,12 @@ class FocusTimeServiceTest {
             // 따라서 jdbc는 따로 jdbc로 member 처리
 
 //            Member member = memberRepository.save(Member.builder().email("abc@gmail.com").socialId("abc" + i).socialType(SocialType.GOOGLE).nickName(UUID.randomUUID().toString()).build());
-
-            Member member = memberJdbcRepository.save(new Member(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "abc@google.com", SocialType.GOOGLE, "abc" + i));
-            members.add(member);
+//            Member member = memberRepository.save(new Member(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "abc@google.com", SocialType.GOOGLE, "abc" + i));
+            Member member1 = memberService.saveMember(Member.builder().email("abc@gmail.com").socialId("abc" + i).socialType(SocialType.GOOGLE).nickName(UUID.randomUUID().toString()).build());
+            members.add(member1);
         }
+
+
 
         for (int i = 0; i < 5; i++) {
             List<FragmentedUnFocusedTimeInsertDto> dto = new ArrayList<>();

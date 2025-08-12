@@ -27,7 +27,7 @@ public class ZyptConfig {
 
     @Bean
     public FocusTimeService focusTimeService() {
-        return new FocusTimeServiceImpl(focusTimeMyBatisRepository, memberRepository);
+        return new FocusTimeServiceImpl(focusTimeJpaRepository, memberRepository);
     }
 
     @Bean

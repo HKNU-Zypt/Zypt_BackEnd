@@ -7,10 +7,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
@@ -33,11 +35,16 @@ import java.util.Base64;
 import java.util.Map;
 
 @Slf4j
+@Service
 @SocialIdentifier(SocialType.NAVER)
 @RequiredArgsConstructor
 public class NaverService implements SocialService {
-    private final String naverClientId;
-    private final String clientSecret;
+
+    @Value("${naver.CLIENT_ID}")
+    private String naverClientId;
+    @Value("${naver.CLIENT_SECRET}")
+    private String clientSecret;
+
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
 

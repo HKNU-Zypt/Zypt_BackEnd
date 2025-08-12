@@ -12,7 +12,6 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@ToString
 public class Member extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.UUID)
