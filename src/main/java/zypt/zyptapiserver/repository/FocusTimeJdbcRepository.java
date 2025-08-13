@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.Service.MemberServiceImpl;
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
+import zypt.zyptapiserver.domain.dto.FragmentedUnFocusedTimeInsertDto;
 import zypt.zyptapiserver.domain.dto.*;
 import zypt.zyptapiserver.domain.enums.UnFocusedType;
 

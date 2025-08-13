@@ -2,6 +2,7 @@ package zypt.zyptapiserver.repository;
 
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
+import zypt.zyptapiserver.domain.dto.FragmentedUnFocusedTimeInsertDto;
 import zypt.zyptapiserver.domain.dto.*;
 
 import java.time.LocalDate;

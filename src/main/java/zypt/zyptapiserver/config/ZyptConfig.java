@@ -8,9 +8,12 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.client.RestTemplate;
 import zypt.zyptapiserver.Service.FocusTimeService;
 import zypt.zyptapiserver.Service.FocusTimeServiceImpl;
+import zypt.zyptapiserver.Service.FocusTimeServiceImplV2;
 import zypt.zyptapiserver.repository.FocusTimeJdbcRepository;
 import zypt.zyptapiserver.repository.FocusTimeJpaRepository;
 import zypt.zyptapiserver.repository.FocusTimeMyBatisRepository;
@@ -25,9 +28,17 @@ public class ZyptConfig {
     private final FocusTimeJpaRepository focusTimeJpaRepository;
     private final MemberRepository memberRepository;
 
+
     @Bean
+    @Primary
     public FocusTimeService focusTimeService() {
         return new FocusTimeServiceImpl(focusTimeJpaRepository, memberRepository);
+    }
+
+    @Bean
+    @Profile("test")
+    public FocusTimeService focusTimeServiceImplV2() {
+        return new FocusTimeServiceImplV2(focusTimeJpaRepository, memberRepository);
     }
 
     @Bean

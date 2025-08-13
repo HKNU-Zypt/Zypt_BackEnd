@@ -1,6 +1,5 @@
 package zypt.zyptapiserver.repository;
 
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.SimpleExpression;
@@ -8,10 +7,12 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.auth.exception.FocusTimeNotFoundException;
 import zypt.zyptapiserver.domain.*;
+import zypt.zyptapiserver.domain.dto.FragmentedUnFocusedTimeInsertDto;
 import zypt.zyptapiserver.domain.dto.*;
 
 import java.time.LocalDate;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class FocusTimeJpaRepository implements FocusTimeRepository{
@@ -30,9 +32,9 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
     private final JPAQueryFactory queryFactory;
 
     private final QFocusTime focusTime = QFocusTime.focusTime1;
-    private final QFragmentedUnfocusedTime unfocusedTime = QFragmentedUnfocusedTime.fragmentedUnfocusedTime;
-
+    private final QFragmentedUnfocusedTime fragmentedUnfocusedTime = QFragmentedUnfocusedTime.fragmentedUnfocusedTime;
     private final FocusTimeJdbcRepository focusTimeJdbcRepository;
+
 
     // focus time 영속성화
     @Transactional
@@ -64,21 +66,22 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
                 ))
                 .from(focusTime)
                 .where(focusTime.member.id.eq(memberId))
+                .orderBy(focusTime.createDate.desc()) // 최신순
                 .fetch();
 
         List<Long> ids = focusTimeResponseDtoList.stream().map(FocusTimeResponseDto::getId).toList();
 
         List<FragmentedUnFocusedTimeDto> fetch1 = queryFactory.select(Projections.constructor(
                         FragmentedUnFocusedTimeDto.class,
-                        unfocusedTime.id,
-                        unfocusedTime.focusTime.id,
-                        unfocusedTime.startAt,
-                        unfocusedTime.endAt,
-                        unfocusedTime.type,
-                        unfocusedTime.unfocusedTime
+                        fragmentedUnfocusedTime.id,
+                        fragmentedUnfocusedTime.focusTime.id,
+                        fragmentedUnfocusedTime.startAt,
+                        fragmentedUnfocusedTime.endAt,
+                        fragmentedUnfocusedTime.type,
+                        fragmentedUnfocusedTime.unfocusedTime
                 ))
-                .from(unfocusedTime)
-                .where(unfocusedTime.focusTime.id.in(ids))
+                .from(fragmentedUnfocusedTime)
+                .where(fragmentedUnfocusedTime.focusTime.id.in(ids))
                 .fetch();
 
 
@@ -109,14 +112,14 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
     public List<FragmentedUnFocusedTimeDto> findAllFragmentedUnFocusTimes(List<Long> focusIds) {
         return queryFactory.select(Projections.constructor(
                 FragmentedUnFocusedTimeDto.class,
-                unfocusedTime.id,
-                unfocusedTime.focusTime.id,
-                unfocusedTime.startAt,
-                unfocusedTime.endAt,
-                unfocusedTime.type,
-                unfocusedTime.unfocusedTime
-        )).from(unfocusedTime)
-                .where(unfocusedTime.focusTime.id.in(focusIds))
+                fragmentedUnfocusedTime.id,
+                fragmentedUnfocusedTime.focusTime.id,
+                fragmentedUnfocusedTime.startAt,
+                fragmentedUnfocusedTime.endAt,
+                fragmentedUnfocusedTime.type,
+                fragmentedUnfocusedTime.unfocusedTime
+        )).from(fragmentedUnfocusedTime)
+                .where(fragmentedUnfocusedTime.focusTime.id.in(focusIds))
                 .fetch();
     }
 
@@ -139,15 +142,15 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
 
         List<FragmentedUnFocusedTimeDto> unFocusedTimeDtos = queryFactory.select(Projections.constructor(
                         FragmentedUnFocusedTimeDto.class,
-                        unfocusedTime.id,
-                        unfocusedTime.focusTime.id,
-                        unfocusedTime.startAt,
-                        unfocusedTime.endAt,
-                        unfocusedTime.type,
-                        unfocusedTime.unfocusedTime
+                        fragmentedUnfocusedTime.id,
+                        fragmentedUnfocusedTime.focusTime.id,
+                        fragmentedUnfocusedTime.startAt,
+                        fragmentedUnfocusedTime.endAt,
+                        fragmentedUnfocusedTime.type,
+                        fragmentedUnfocusedTime.unfocusedTime
                 ))
-                .from(unfocusedTime)
-                .where(unfocusedTime.focusTime.id.eq(focusId))
+                .from(fragmentedUnfocusedTime)
+                .where(fragmentedUnfocusedTime.focusTime.id.eq(focusId))
                 .fetch();
 
         fetchOne.addUnFocusedTimeDtos(unFocusedTimeDtos);
@@ -170,6 +173,7 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
                         eqOrNull(focusTime.createDate.year(), year),
                         eqOrNull(focusTime.createDate.month(), month),
                         eqOrNull(focusTime.createDate.dayOfMonth(), day))
+                .orderBy(focusTime.createDate.asc())
                 .fetch();
 
         return focusTimeResponseDtoList;
@@ -180,7 +184,38 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
         return List.of();
     }
 
+
+    // 해당 기간에 있는 기록들 조회 (통계용)
+    public List<FocusTimeForStatisticsDto> findFocusTimeForStatistics(String memberId, LocalDate startDate, LocalDate endDate) {
+        return queryFactory.select(new QFocusTimeForStatisticsDto(
+                        focusTime.id,
+                        focusTime.startAt,
+                        focusTime.endAt,
+                        focusTime.createDate
+                ))
+                .from(focusTime)
+                .where(focusTime.member.id.eq(memberId)
+                        .and(focusTime.createDate.between(startDate, endDate)))
+                .orderBy(focusTime.createDate.desc())
+                .fetch();
+    }
+
+    // 1분 이상의 집중하지않은 모든 시간 조회
+    public List<UnFocusTimeForStatisticsDto> findUnFocusTimeForStatistics(List<Long> ids) {
+        return queryFactory.select(new QUnFocusTimeForStatisticsDto(
+                        fragmentedUnfocusedTime.startAt,
+                        fragmentedUnfocusedTime.endAt,
+                        fragmentedUnfocusedTime.unfocusedTime
+                ))
+                .from(fragmentedUnfocusedTime)
+                .where(fragmentedUnfocusedTime.focusTime.id.in(ids)
+                        .and(fragmentedUnfocusedTime.unfocusedTime.goe(60)))
+                .fetch();
+    }
+
+
     @Override
+    @Transactional
     public void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day, List<Long> ids) {
         queryFactory.delete(focusTime)
                 .where(focusTime.member.id.eq(memberId),
@@ -189,19 +224,13 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
                         eqOrNull(focusTime.createDate.dayOfMonth(), day))
                 .execute();
 
-        queryFactory.delete(unfocusedTime)
-                .where(unfocusedTime.focusTime.id.in(ids));
-
+        queryFactory.delete(fragmentedUnfocusedTime)
+                .where(fragmentedUnfocusedTime.focusTime.id.in(ids));
     }
 
 
     /**
      * 삭제할 focusTime의 id들을 모두 조회
-     * @param memberId
-     * @param year
-     * @param month
-     * @param day
-     * @return
      */
     @Override
     public List<Long> findFocusTimeIdsByDate(String memberId, Integer year, Integer month, Integer day) {

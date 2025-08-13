@@ -1,31 +1,28 @@
 package zypt.zyptapiserver.Service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.auth.exception.FocusTimeNotFoundException;
 import zypt.zyptapiserver.auth.exception.FocusTimeSaveFailedException;
 import zypt.zyptapiserver.auth.exception.InvalidParamException;
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.FocusTimeInsertDto;
-import zypt.zyptapiserver.domain.dto.FragmentedUnFocusedTimeInsertDto;
 import zypt.zyptapiserver.domain.dto.*;
 import zypt.zyptapiserver.exception.MemberNotFoundException;
-import zypt.zyptapiserver.repository.FocusTimeRepository;
+import zypt.zyptapiserver.repository.FocusTimeJpaRepository;
 import zypt.zyptapiserver.repository.MemberRepository;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
-@Slf4j
 @RequiredArgsConstructor
-public class FocusTimeServiceImpl implements FocusTimeService {
+public class FocusTimeServiceImplV2 implements FocusTimeService {
 
-    private final FocusTimeRepository focusTimeRepository;
+    private final FocusTimeJpaRepository focusTimeRepository;
     private final MemberRepository memberRepository;
 
     @Transactional
@@ -137,10 +134,95 @@ public class FocusTimeServiceImpl implements FocusTimeService {
         if (ids.isEmpty()) {
             throw new FocusTimeNotFoundException("삭제할 focusTime 존재하지 않음");
         }
+
         focusTimeRepository.deleteFocusTimeByYearAndMonthAndDay(memberId, year, month, day, ids);
 
     }
 
+    public FocusTimeForStatisticsResponseDto findFocusTimesForStatisticsByDateRange(String memberId, LocalDate startDate, LocalDate endDate) {
+        int[] focusScoresPerHours = new int[24];
+
+        List<FocusTimeForStatisticsDto> timeForStatistics = focusTimeRepository.findFocusTimeForStatistics(memberId, startDate, endDate);
+        List<Long> ids = timeForStatistics.stream()
+                .mapToLong(FocusTimeForStatisticsDto::getId)
+                .boxed()
+                .toList();
+
+        List<UnFocusTimeForStatisticsDto> unFocusTimeForStatistics = focusTimeRepository.findUnFocusTimeForStatistics(ids);
+
+        // 집중한 시간 저장
+        for (int i = 0; i < timeForStatistics.size(); i++) {
+            FocusTimeForStatisticsDto statisticsDto = timeForStatistics.get(i);
+            LocalTime startTime = statisticsDto.getStartAt();
+            LocalTime endTime = statisticsDto.getEndAt();
+
+            int start = startTime.getHour();
+            int end = endTime.getHour();
+
+            // end 시간이 00시를 넘어가는 경우 (내일로 넘어감)
+            if (start > end) {
+
+                for (int j = start + 1; j < end + 24; j++) {
+                    focusScoresPerHours[(j) % 24] += 60;
+                }
+
+            } else {
+                for (int j = start + 1; j < end; j++) {
+                    focusScoresPerHours[j] += 60;
+                }
+
+            }
+
+            // 시작과 끝 시간이 같다면
+            if (start == end) {
+                focusScoresPerHours[start] += (endTime.getMinute() - startTime.getMinute() + 1);
+
+            } else {
+                focusScoresPerHours[start] += 60 - startTime.getMinute();
+                focusScoresPerHours[end] += endTime.getMinute();
+            }
+
+        }
+
+
+        // 집중하지 않은 시간 빼기
+        for (int i = 0; i < unFocusTimeForStatistics.size(); i++) {
+            UnFocusTimeForStatisticsDto unFocusTimeForStatisticsDto = unFocusTimeForStatistics.get(i);
+            LocalTime startTime = unFocusTimeForStatisticsDto.getStartAt();
+            LocalTime endTime = unFocusTimeForStatisticsDto.getEndAt();
+
+            int start = startTime.getHour();
+            int end = endTime.getHour();
+
+            // end 시간이 00시를 넘어가는 경우 (내일로 넘어감)
+            if (start > end) {
+
+                for (int j = start + 1; j < end + 24; j++) {
+                    focusScoresPerHours[(j) % 24] -= 60;
+                }
+
+            } else {
+                for (int j = start + 1; j < end; j++) {
+                    focusScoresPerHours[j] -= 60;
+                }
+
+            }
+
+            // 시작과 끝 시간이 같다면
+            if (start == end) {
+                focusScoresPerHours[start] -= (endTime.getMinute() - startTime.getMinute() + 1);
+
+            } else {
+                focusScoresPerHours[start] -= 60 - startTime.getMinute();
+                focusScoresPerHours[end] -= endTime.getMinute();
+            }
+
+        }
+
+
+        return new FocusTimeForStatisticsResponseDto(startDate, endDate, focusScoresPerHours);
+
+    }
 
     private static boolean validateYearMonthDay(Integer year, Integer month, Integer day) {
         return year == null && month != null

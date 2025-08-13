@@ -1,6 +1,5 @@
 package zypt.zyptapiserver.domain.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
