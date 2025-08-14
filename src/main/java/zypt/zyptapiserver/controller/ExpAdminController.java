@@ -6,8 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import zypt.zyptapiserver.Service.ExpMultiplierManager;
-import zypt.zyptapiserver.config.RedisConfig;
+import zypt.zyptapiserver.service.exp.ExpMultiplierManager;
 import zypt.zyptapiserver.domain.exp.AdminEvent;
 import zypt.zyptapiserver.repository.RedisCacheRepository;
 

@@ -10,17 +10,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
-import zypt.zyptapiserver.Service.MemberService;
-import zypt.zyptapiserver.Service.MemberServiceImpl;
+import zypt.zyptapiserver.domain.dto.member.MemberAndLevelInfoDto;
+import zypt.zyptapiserver.repository.Member.MemberRepository;
+import zypt.zyptapiserver.service.member.MemberService;
 import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.domain.SocialRefreshToken;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.exception.MemberNotFoundException;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -88,7 +87,6 @@ class MemberRepositoryTest {
     }
 
 
-
     @Test
     @Transactional
     @DisplayName("존재하지 않는 멤버 조회시 예외 발생 테스트")
@@ -118,5 +116,20 @@ class MemberRepositoryTest {
         //then
         assertThatThrownBy(() -> service.findMemberBySocialId(SocialType.NAVER, "123"))
                 .isInstanceOf(MemberNotFoundException.class);
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("경험치까지 같이 조회")
+    void findMemberWithLevelExpTest() {
+        // given
+        Member member = service.findMemberBySocialId(SocialType.NAVER, "123");
+        Optional<MemberAndLevelInfoDto> info = repository.findMemberAndLevelInfo(member.getId());
+
+        MemberAndLevelInfoDto memberAndLevelInfoDto = info.get();
+        assertThat(memberAndLevelInfoDto.getLevel()).isEqualTo(1);
+
+        log.info("result = {}", memberAndLevelInfoDto);
+
     }
 }

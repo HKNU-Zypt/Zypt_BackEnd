@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.domain;
 
+import com.querydsl.core.annotations.QueryProjection;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class LevelExp {
     private long curExp;
 
     @Builder
+    @QueryProjection
     public LevelExp(Member member, int level, long curExp) {
         this.member = member;
         this.level = level;

@@ -12,7 +12,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import zypt.zyptapiserver.annotation.SocialIdentifier;
-import zypt.zyptapiserver.auth.exception.InvalidTokenException;
+import zypt.zyptapiserver.exception.InvalidTokenException;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeysDto;
 import zypt.zyptapiserver.auth.service.oidc.OIDCService;

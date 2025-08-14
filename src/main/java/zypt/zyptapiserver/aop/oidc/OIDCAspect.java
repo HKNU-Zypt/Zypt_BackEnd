@@ -11,13 +11,11 @@ import org.springframework.cache.CacheManager;
 
 import org.springframework.stereotype.Component;
 import zypt.zyptapiserver.annotation.SocialIdentifier;
-import zypt.zyptapiserver.auth.exception.InvalidOidcPublicKeyException;
-import zypt.zyptapiserver.auth.exception.InvalidTokenException;
-import zypt.zyptapiserver.auth.exception.OidcPublicKeyFetchException;
+import zypt.zyptapiserver.exception.InvalidOidcPublicKeyException;
+import zypt.zyptapiserver.exception.InvalidTokenException;
+import zypt.zyptapiserver.exception.OidcPublicKeyFetchException;
 import zypt.zyptapiserver.auth.user.UserInfo;
 import zypt.zyptapiserver.domain.enums.SocialType;
-
-import java.util.Objects;
 
 
 @Component

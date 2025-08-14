@@ -2,17 +2,18 @@ package zypt.zyptapiserver.auth.service;
 
 import io.jsonwebtoken.Claims;
 import org.springframework.transaction.annotation.Transactional;
-import zypt.zyptapiserver.auth.exception.InvalidParamException;
-import zypt.zyptapiserver.auth.exception.InvalidTokenException;
-import zypt.zyptapiserver.auth.exception.MissingTokenException;
+import zypt.zyptapiserver.exception.InvalidParamException;
+import zypt.zyptapiserver.exception.InvalidTokenException;
+import zypt.zyptapiserver.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
 import zypt.zyptapiserver.auth.user.UserInfo;
 import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.domain.SocialRefreshToken;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.exception.MemberNotFoundException;
-import zypt.zyptapiserver.repository.MemberRepository;
+import zypt.zyptapiserver.repository.Member.MemberRepository;
 import zypt.zyptapiserver.repository.RedisRepository;
+import zypt.zyptapiserver.service.member.MemberService;
 import zypt.zyptapiserver.util.CookieUtils;
 import zypt.zyptapiserver.util.JwtUtils;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,15 +31,17 @@ public class AuthService {
 
     private final RedisRepository redisRepository;
     private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final SocialServiceFactory socialServiceFactory;
     private final JwtUtils jwtUtils;
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
-    public AuthService(RedisRepository redisRepository, MemberRepository memberRepository, SocialServiceFactory socialServiceFactory, JwtUtils jwtUtils) {
+    public AuthService(RedisRepository redisRepository, MemberRepository memberRepository, MemberService memberService, SocialServiceFactory socialServiceFactory, JwtUtils jwtUtils) {
         this.redisRepository = redisRepository;
         this.memberRepository = memberRepository;
+        this.memberService = memberService;
         this.socialServiceFactory = socialServiceFactory;
         this.jwtUtils = jwtUtils;
     }
@@ -72,7 +75,7 @@ public class AuthService {
                             .build();
 
                     // 회원 db에 저장 및 토큰 생성
-                    memberRepository.save(newMember);
+                    memberService.saveMember(newMember);
                     return newMember;
                 });
 
@@ -150,8 +153,6 @@ public class AuthService {
     // Authentication 등록 db 조회
     public void registryAuthenticatedUser(String memberId) {
 
-//        Member member = memberRepository.findMemberById(memberId)
-//                .orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
 
         CustomUserDetails userDetails = new CustomUserDetails(memberId, "ROLE_USER");
         UsernamePasswordAuthenticationToken authenticationToken

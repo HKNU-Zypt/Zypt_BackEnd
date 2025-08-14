@@ -1,25 +1,19 @@
 package zypt.zyptapiserver.auth.filter;
 
-import jakarta.annotation.PostConstruct;
 import org.springframework.util.AntPathMatcher;
-import zypt.zyptapiserver.auth.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.service.AuthService;
-import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.util.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

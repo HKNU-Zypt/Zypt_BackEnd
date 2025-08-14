@@ -11,7 +11,6 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import zypt.zyptapiserver.annotation.SocialIdentifier;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
@@ -19,7 +18,7 @@ import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeysDto;
 import zypt.zyptapiserver.auth.service.oidc.OIDCService;
 import zypt.zyptapiserver.auth.user.KakaoUserInfo;
 import zypt.zyptapiserver.auth.user.UserInfo;
-import zypt.zyptapiserver.domain.dto.UnlinkDto;
+import zypt.zyptapiserver.domain.dto.member.UnlinkDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.util.JwtUtils;
 
