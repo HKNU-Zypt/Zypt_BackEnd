@@ -27,7 +27,7 @@ public class FocusTimeServiceImpl implements FocusTimeService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void saveFocusTime(String memberId, FocusTimeDto focusTimeDto) {
+    public long saveFocusTime(String memberId, FocusTimeDto focusTimeDto) {
         // 멤버 엔티티 조회
         Member member = memberRepository
                 .findMemberById(memberId)
@@ -51,6 +51,8 @@ public class FocusTimeServiceImpl implements FocusTimeService {
 
         // unfocusedTime jdbcBulkInsert로 저장
         focusTimeRepository.bulkInsertUnfocusedTimes(focusTime.getId(), focusTimeDto.fragmentedUnFocusedTimeInsertDtos());
+
+        return focusTime.getFocusTime();
     }
 
     @Override

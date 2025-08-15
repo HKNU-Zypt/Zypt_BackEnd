@@ -12,7 +12,7 @@ public interface FocusTimeService {
      * @param memberId 유저 id
      * @param focusTimeDto
      */
-    void saveFocusTime(String memberId, FocusTimeDto focusTimeDto);
+    long saveFocusTime(String memberId, FocusTimeDto focusTimeDto);
 
 
     /**

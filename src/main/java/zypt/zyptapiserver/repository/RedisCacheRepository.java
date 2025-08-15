@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class RedisCacheRepository {
 
-    private static final String EXP_KEY = "exp_table";
+    private static final String EXP_KEY = "EXP_TABLE";
     private final ZSetOperations<String, String> zSetOperations;
     private final StringRedisTemplate template;
 
@@ -65,7 +65,7 @@ public class RedisCacheRepository {
         }
 
         double baseExp = 100;
-        double multiplier = 1.05;
+        double multiplier = 1.07;
         int maxLevel = 100;
 
         for (int level = 1; level <= maxLevel; level++) {

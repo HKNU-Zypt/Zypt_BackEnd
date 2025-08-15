@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import zypt.zyptapiserver.domain.dto.focustime.FocusTimeForStatisticsResponseDto;
+import zypt.zyptapiserver.service.exp.ExperienceService;
 import zypt.zyptapiserver.service.focustime.FocusTimeService;
 import zypt.zyptapiserver.service.focustime.FocusTimeStatisticsService;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
@@ -28,13 +29,16 @@ public class FocusTimeController {
 
     private final FocusTimeService focusTimeService;
     private final FocusTimeStatisticsService statisticsService;
+    private final ExperienceService experienceService;
 
     @PostMapping
     @Operation(summary = "focusTime 저장", description = "액세스토큰 해더 필수, \n\n focusTimeInsertDto는 작성할 필요 없음, \n\n startAt, endAt의 경우 \"HH-mm-ss\" 형태로 보내면 됨")
     public ResponseEntity<?> saveFocusTime(@AuthenticationPrincipal CustomUserDetails details,
                                            @Valid @RequestBody FocusTimeDto focusTimeDto) {
 
-        focusTimeService.saveFocusTime(details.getUsername(), focusTimeDto);
+        long totalFocusTime = focusTimeService.saveFocusTime(details.getUsername(), focusTimeDto);
+        experienceService.applyExperience(details.getUsername(), totalFocusTime);
+
         return ResponseEntity.ok("저장 성공");
     }
 
