@@ -11,8 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.FocusTimeResponseDto;
+import zypt.zyptapiserver.domain.dto.focustime.FocusTimeResponseDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
+import zypt.zyptapiserver.repository.Member.MemberRepository;
+import zypt.zyptapiserver.repository.focustime.FocusTimeJdbcRepository;
+import zypt.zyptapiserver.repository.focustime.FocusTimeJpaRepository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

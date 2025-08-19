@@ -6,10 +6,7 @@ import io.jsonwebtoken.security.SignatureException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import zypt.zyptapiserver.auth.exception.InvalidTokenException;
-import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
-import zypt.zyptapiserver.auth.service.oidc.OIDCService;
-import zypt.zyptapiserver.domain.enums.SocialType;
+import zypt.zyptapiserver.exception.InvalidTokenException;
 
 import java.security.Key;
 import java.security.PublicKey;

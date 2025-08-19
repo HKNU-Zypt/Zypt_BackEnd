@@ -5,13 +5,8 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import zypt.zyptapiserver.Service.ExpMultiplierManager;
 import zypt.zyptapiserver.domain.LevelExp;
-import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.domain.QLevelExp;
-import zypt.zyptapiserver.domain.exp.LevelExpInfo;
-
-import javax.swing.text.html.parser.Entity;
 
 @Repository
 @RequiredArgsConstructor
@@ -27,7 +22,6 @@ public class ExpRepository {
     }
 
 
-    @Transactional(readOnly = true)
     public LevelExp findById(String memberId) {
         return queryFactory
                 .selectFrom(qLevelExp)

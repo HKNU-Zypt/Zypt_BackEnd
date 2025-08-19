@@ -6,10 +6,11 @@ import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import zypt.zyptapiserver.annotation.SocialIdentifier;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
@@ -17,7 +18,7 @@ import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeysDto;
 import zypt.zyptapiserver.auth.service.oidc.OIDCService;
 import zypt.zyptapiserver.auth.user.KakaoUserInfo;
 import zypt.zyptapiserver.auth.user.UserInfo;
-import zypt.zyptapiserver.domain.dto.UnlinkDto;
+import zypt.zyptapiserver.domain.dto.member.UnlinkDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.util.JwtUtils;
 
@@ -26,12 +27,15 @@ import java.security.PublicKey;
 import java.util.Base64;
 
 @Slf4j
+@Service
 @SocialIdentifier(SocialType.KAKAO)
 @RequiredArgsConstructor
 public class KakaoService implements SocialService {
 
-    private final String kakaoAppKey;
-    private final String adminKey;
+    @Value("${kakao.APP_KEY}")
+    private String kakaoAppKey;
+    @Value("${kakao.ADMIN_KEY}")
+    private String adminKey;
 
     private final ObjectMapper objectMapper;
     private final OIDCService service;

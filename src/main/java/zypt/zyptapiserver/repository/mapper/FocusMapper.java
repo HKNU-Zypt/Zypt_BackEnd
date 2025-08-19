@@ -2,9 +2,9 @@ package zypt.zyptapiserver.repository.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import zypt.zyptapiserver.domain.FocusTime;
-import zypt.zyptapiserver.domain.dto.FocusTimeResponseDto;
-import zypt.zyptapiserver.domain.dto.FragmentedUnFocusedTimeDto;
-import zypt.zyptapiserver.domain.dto.FragmentedUnFocusedTimeInsertDto;
+import zypt.zyptapiserver.domain.dto.focustime.FocusTimeResponseDto;
+import zypt.zyptapiserver.domain.dto.focustime.FragmentedUnFocusedTimeDto;
+import zypt.zyptapiserver.domain.dto.focustime.FragmentedUnFocusedTimeInsertDto;
 
 import java.util.List;
 

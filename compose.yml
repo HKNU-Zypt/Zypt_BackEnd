@@ -30,6 +30,12 @@ services:
     image: redis
     ports:
       - 6380:6379
+    volumes:
+      # - ./redis-data:/data
+      - ./init-level-exp.lua:/init-level-exp.lua
+      - ./entrypoint.sh:/entrypoint.sh
+    entrypoint: ["/entrypoint.sh"]
+    restart: unless-stopped # 사용자가 원하면 종료, 아니라면 예기치않은 종료시 재시작
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -39,6 +45,7 @@ services:
     image: redis
     ports:
       - 6379:6379
+    restart: unless-stopped # 사용자가 원하면 종료, 아니라면 예기치않은 종료시 재시작
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s

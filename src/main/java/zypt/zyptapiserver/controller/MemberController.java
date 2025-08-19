@@ -7,9 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import zypt.zyptapiserver.Service.MemberService;
+import zypt.zyptapiserver.domain.dto.member.MemberAndLevelInfoDto;
+import zypt.zyptapiserver.service.member.MemberService;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
-import zypt.zyptapiserver.domain.dto.MemberInfoDto;
+import zypt.zyptapiserver.domain.dto.member.MemberInfoDto;
 
 @Slf4j
 @RestController
@@ -22,9 +23,16 @@ public class MemberController {
 
     @GetMapping("")
     @Operation(summary = "회원 정보 조회", description = "액세스토큰 해더 필수")
-    public ResponseEntity<MemberInfoDto> findMemberInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        MemberInfoDto infoDto = memberService.findMember(userDetails.getUsername());
-        return ResponseEntity.ok(infoDto);
+    public ResponseEntity<MemberInfoDto> findMember(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        MemberInfoDto member = memberService.findMember(userDetails.getUsername());
+        return ResponseEntity.ok(member);
+    }
+
+    @GetMapping("/levelExp")
+    @Operation(summary = "회원 정보(level, exp) 조회", description = "액세스토큰 해더 필수, 멤버 정보 + 레벨,exp 정보까지 조회")
+    public ResponseEntity<MemberAndLevelInfoDto> findMemberInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        MemberAndLevelInfoDto memberInfo = memberService.findMemberInfo(userDetails.getUsername());
+        return ResponseEntity.ok(memberInfo);
     }
 
     /**

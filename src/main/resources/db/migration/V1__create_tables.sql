@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS member (
     social_id VARCHAR(50) NOT NULL,
     create_at DATETIME(3) NOT NULL,
     last_modified_at DATETIME(3) NOT NULL
-
 );
 
 CREATE TABLE IF NOT EXISTS focus_time (
@@ -18,7 +17,8 @@ CREATE TABLE IF NOT EXISTS focus_time (
     focus_time BIGINT,
     total_time BIGINT,
 
-    FOREIGN KEY (member_id) REFERENCES member(id) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (member_id) REFERENCES member(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    UNIQUE(create_date, start_at, end_at)
 );
 
 

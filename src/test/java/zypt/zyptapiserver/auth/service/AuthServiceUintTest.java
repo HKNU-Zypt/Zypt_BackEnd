@@ -13,12 +13,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import zypt.zyptapiserver.auth.exception.InvalidTokenException;
-import zypt.zyptapiserver.auth.exception.MissingTokenException;
+import zypt.zyptapiserver.exception.InvalidTokenException;
+import zypt.zyptapiserver.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.user.KakaoUserInfo;
 import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.domain.enums.SocialType;
-import zypt.zyptapiserver.repository.MemberRepository;
+import zypt.zyptapiserver.repository.Member.MemberRepository;
 import zypt.zyptapiserver.repository.RedisRepository;
 import zypt.zyptapiserver.util.JwtUtils;
 
@@ -118,7 +118,7 @@ class AuthServiceUintTest {
         when(redisRepository.findRefreshToken("abc")).thenReturn("mock-refresh-token");
         when(jwtUtils.generateAccessToken("abc")).thenReturn("mock-newAccess-token");
         when(jwtUtils.validationToken("mock-refresh-token")).thenReturn(true);
-        when(memberRepository.findMemberById("abc")).thenReturn(Optional.of(member));
+//        when(memberRepository.findMemberById("abc")).thenReturn(Optional.of(member));
 
         // when
         authService.authenticateUserFromToken(response, refreshToken);
@@ -174,7 +174,7 @@ class AuthServiceUintTest {
 
         //given
         String memberId = "abc";
-        when(memberRepository.findMemberById(memberId)).thenReturn(Optional.of(new Member(memberId, "hh", null, null, null)));
+//        when(memberRepository.findMemberById(memberId)).thenReturn(Optional.of(new Member(memberId, "hh", null, null, null)));
 
         //when
         authService.registryAuthenticatedUser(memberId);

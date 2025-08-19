@@ -6,11 +6,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.FocusTimeResponseDto;
+import zypt.zyptapiserver.domain.dto.focustime.FocusTimeResponseDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
+import zypt.zyptapiserver.repository.Member.MemberJdbcRepository;
+import zypt.zyptapiserver.repository.Member.MemberRepository;
+import zypt.zyptapiserver.repository.focustime.FocusTimeJdbcRepository;
+import zypt.zyptapiserver.repository.focustime.FocusTimeJpaRepository;
+import zypt.zyptapiserver.repository.focustime.FocusTimeMyBatisRepository;
+import zypt.zyptapiserver.repository.focustime.FocusTimeRepository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -40,6 +46,7 @@ public class FocusRepositoryPerformanceTest {
     EntityManager em;
 
     @Test
+    @Transactional
     @DisplayName("insert 성능 테스트")
     void insertFocusJPATest() {
         Member member = memberJpaRepository.save(Member.builder().email("abc@naver.com").socialType(SocialType.KAKAO).socialId("123").nickName(UUID.randomUUID().toString()).build());
@@ -50,6 +57,7 @@ public class FocusRepositoryPerformanceTest {
 
 
     @Test
+    @Transactional
     @DisplayName("insert 성능 테스트")
     void insertFocusJDBCTest() {
         Member commitedMember = memberJdbcRepository.save(new Member("test1", UUID.randomUUID().toString(), "abc@google.com", SocialType.GOOGLE, "abc" ));
@@ -59,6 +67,7 @@ public class FocusRepositoryPerformanceTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("insert 성능 테스트")
     void insertFocusMybatisTest() {
         Member commitedMember = memberJdbcRepository.save(new Member(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "abc@google.com", SocialType.GOOGLE, "abc" ));

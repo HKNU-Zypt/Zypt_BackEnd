@@ -12,10 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import zypt.zyptapiserver.auth.exception.InvalidTokenException;
+import zypt.zyptapiserver.exception.InvalidTokenException;
 import zypt.zyptapiserver.domain.enums.SocialType;
-import zypt.zyptapiserver.auth.exception.InvalidOidcPublicKeyException;
-import zypt.zyptapiserver.auth.exception.OidcPublicKeyFetchException;
+import zypt.zyptapiserver.exception.InvalidOidcPublicKeyException;
+import zypt.zyptapiserver.exception.OidcPublicKeyFetchException;
 
 import java.math.BigInteger;
 import java.security.KeyFactory;

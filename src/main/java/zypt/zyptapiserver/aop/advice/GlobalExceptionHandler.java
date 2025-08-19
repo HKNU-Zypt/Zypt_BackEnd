@@ -14,10 +14,9 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-import zypt.zyptapiserver.auth.exception.*;
 import zypt.zyptapiserver.domain.dto.ApiErrorResponse;
 import zypt.zyptapiserver.domain.enums.ErrorCode;
-import zypt.zyptapiserver.exception.MemberNotFoundException;
+import zypt.zyptapiserver.exception.*;
 
 import java.util.NoSuchElementException;
 

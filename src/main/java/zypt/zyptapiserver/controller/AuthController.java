@@ -11,11 +11,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import zypt.zyptapiserver.Service.MemberService;
+import zypt.zyptapiserver.service.member.MemberService;
 import zypt.zyptapiserver.auth.service.AuthService;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
 import zypt.zyptapiserver.domain.dto.RefreshTokenRequestDto;
-import zypt.zyptapiserver.domain.dto.SocialLoginDto;
+import zypt.zyptapiserver.domain.dto.member.SocialLoginDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
 
 @Slf4j

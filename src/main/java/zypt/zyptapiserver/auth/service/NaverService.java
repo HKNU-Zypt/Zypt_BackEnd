@@ -4,40 +4,37 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import zypt.zyptapiserver.annotation.SocialIdentifier;
-import zypt.zyptapiserver.auth.exception.JsonCustomException;
-import zypt.zyptapiserver.auth.exception.MissingTokenException;
-import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
-import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeysDto;
-import zypt.zyptapiserver.auth.service.oidc.OIDCService;
+import zypt.zyptapiserver.exception.JsonCustomException;
+import zypt.zyptapiserver.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.user.NaverUserInfo;
 import zypt.zyptapiserver.auth.user.UserInfo;
-import zypt.zyptapiserver.domain.dto.NaverRefreshAccessTokenDto;
+import zypt.zyptapiserver.domain.dto.member.NaverRefreshAccessTokenDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
-import zypt.zyptapiserver.util.JwtUtils;
-
-import java.io.IOException;
-import java.security.PublicKey;
-import java.util.Base64;
-import java.util.Map;
 
 @Slf4j
+@Service
 @SocialIdentifier(SocialType.NAVER)
 @RequiredArgsConstructor
 public class NaverService implements SocialService {
-    private final String naverClientId;
-    private final String clientSecret;
+
+    @Value("${naver.CLIENT_ID}")
+    private String naverClientId;
+    @Value("${naver.CLIENT_SECRET}")
+    private String clientSecret;
+
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
 

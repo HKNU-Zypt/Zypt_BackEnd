@@ -13,13 +13,13 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import zypt.zyptapiserver.annotation.SocialIdentifier;
-import zypt.zyptapiserver.auth.exception.JsonCustomException;
+import zypt.zyptapiserver.exception.JsonCustomException;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeysDto;
 import zypt.zyptapiserver.auth.service.oidc.OIDCService;
 import zypt.zyptapiserver.auth.user.NaverUserInfo;
 import zypt.zyptapiserver.auth.user.UserInfo;
-import zypt.zyptapiserver.domain.dto.NaverRefreshAccessTokenDto;
+import zypt.zyptapiserver.domain.dto.member.NaverRefreshAccessTokenDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.util.JwtUtils;
 

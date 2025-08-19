@@ -1,6 +1,5 @@
 package zypt.zyptapiserver.config;
 
-import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
@@ -9,12 +8,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
-import zypt.zyptapiserver.Service.FocusTimeService;
-import zypt.zyptapiserver.Service.FocusTimeServiceImpl;
-import zypt.zyptapiserver.repository.FocusTimeJdbcRepository;
-import zypt.zyptapiserver.repository.FocusTimeJpaRepository;
-import zypt.zyptapiserver.repository.FocusTimeMyBatisRepository;
-import zypt.zyptapiserver.repository.MemberRepository;
+import zypt.zyptapiserver.repository.Member.MemberRepository;
+import zypt.zyptapiserver.repository.focustime.FocusTimeJdbcRepository;
+import zypt.zyptapiserver.repository.focustime.FocusTimeJpaRepository;
+import zypt.zyptapiserver.repository.focustime.FocusTimeMyBatisRepository;
+import zypt.zyptapiserver.repository.focustime.FocusTimeStatisticRepository;
+import zypt.zyptapiserver.service.focustime.FocusTimeService;
+import zypt.zyptapiserver.service.focustime.FocusTimeServiceImpl;
+import zypt.zyptapiserver.service.focustime.FocusTimeStatisticsServiceImpl;
+import zypt.zyptapiserver.service.focustime.FocusTimeStatisticsService;
 
 @Configuration
 @RequiredArgsConstructor
@@ -23,12 +25,21 @@ public class ZyptConfig {
     private final FocusTimeJdbcRepository focusTimeJdbcRepository;
     private final FocusTimeMyBatisRepository focusTimeMyBatisRepository;
     private final FocusTimeJpaRepository focusTimeJpaRepository;
+
+    private final FocusTimeStatisticRepository focusTimeStatisticRepository;
     private final MemberRepository memberRepository;
+
 
     @Bean
     public FocusTimeService focusTimeService() {
-        return new FocusTimeServiceImpl(focusTimeMyBatisRepository, memberRepository);
+        return new FocusTimeServiceImpl(focusTimeJpaRepository, memberRepository);
     }
+
+    @Bean
+    public FocusTimeStatisticsService focusTimeStatisticsService() {
+        return new FocusTimeStatisticsServiceImpl(focusTimeStatisticRepository);
+    }
+
 
     @Bean
     public RestTemplate restTemplate() {

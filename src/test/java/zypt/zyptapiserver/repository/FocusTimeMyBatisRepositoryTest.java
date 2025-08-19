@@ -9,11 +9,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.FocusTimeResponseDto;
-import zypt.zyptapiserver.domain.dto.FragmentedUnFocusedTimeDto;
-import zypt.zyptapiserver.domain.dto.FragmentedUnFocusedTimeInsertDto;
+import zypt.zyptapiserver.domain.dto.focustime.FocusTimeResponseDto;
+import zypt.zyptapiserver.domain.dto.focustime.FragmentedUnFocusedTimeDto;
+import zypt.zyptapiserver.domain.dto.focustime.FragmentedUnFocusedTimeInsertDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.domain.enums.UnFocusedType;
+import zypt.zyptapiserver.repository.Member.MemberJdbcRepository;
+import zypt.zyptapiserver.repository.focustime.FocusTimeMyBatisRepository;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -22,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @SpringBootTest
