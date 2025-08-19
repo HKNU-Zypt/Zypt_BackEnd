@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS member (
     social_id VARCHAR(50) NOT NULL,
     create_at DATETIME(3) NOT NULL,
     last_modified_at DATETIME(3) NOT NULL
-
 );
 
 CREATE TABLE IF NOT EXISTS focus_time (
