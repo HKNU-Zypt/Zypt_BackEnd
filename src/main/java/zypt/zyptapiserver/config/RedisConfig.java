@@ -43,7 +43,7 @@ public class RedisConfig {
     // 토큰 서버용 StringRedisTemplate
     @Bean(name = "redisTemplate")
     public StringRedisTemplate tokenRedisTemplate() {
-        return new StringRedisTemplate(cacheConnectionFactory());
+        return new StringRedisTemplate(tokenConnectionFactory());
     }
 
     // 캐시 서버용 StringRedisTemplate (CacheManager와는 별개로 필요할 때 사용)
