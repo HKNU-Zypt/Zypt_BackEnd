@@ -17,7 +17,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          
+
       - name: Give execute permission to gradlew
         run: chmod +x ./gradlew
 
@@ -32,7 +32,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/zypt
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/zyptapi
           VERSION=$(date +%Y%m%d%H%M%S)
           docker build -t $IMAGE_NAME:$VERSION -t $IMAGE_NAME:latest .
           docker push $IMAGE_NAME:$VERSION
