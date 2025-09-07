@@ -4,27 +4,11 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      mysql-db:
-        condition: service_healthy
       redis-cache-server:
         condition: service_healthy
       redis-token-server:
         condition: service_healthy
 
-
-  mysql-db:
-    image: mysql:8.4.5
-    environment:
-      MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_DATABASE: zypt
-    volumes:
-      - ./mysql_data:/var/lib/mysql
-    ports:
-      - 3307:3306
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping"]
-      interval: 5s
-      retries: 10
 
   redis-cache-server:
     image: redis
