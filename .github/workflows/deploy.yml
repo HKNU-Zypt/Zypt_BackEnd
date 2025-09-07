@@ -21,6 +21,7 @@ jobs:
       - name: Give execute permission to gradlew
         run: chmod +x ./gradlew
 
+
       - name: Build JAR with Gradle
         run: ./gradlew clean bootJar -x test
 

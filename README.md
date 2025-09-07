@@ -115,9 +115,9 @@ docker compose up -d --build
 컴포즈로 한번에 컨테이너 띄우기
 
 ```
-docker compose down
+docker compose down [-v]
 ```
-컴포즈로 묶은 컨테이너 전부 종료 및 삭제 
+컴포즈로 묶은 컨테이너 전부 종료 및 삭제  -v옵션은 볼륨 삭제 
 
 스웨거로 API 확인
 
