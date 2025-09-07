@@ -39,7 +39,6 @@ public class FocusTimeStatisticsServiceImpl implements FocusTimeStatisticsServic
 
             // end 시간이 00시를 넘어가는 경우 (내일로 넘어감)
             if (start > end) {
-
                 for (int j = start + 1; j < end + 24; j++) {
                     focusScoresPerHours[(j) % 24] += 60;
                 }
@@ -48,7 +47,6 @@ public class FocusTimeStatisticsServiceImpl implements FocusTimeStatisticsServic
                 for (int j = start + 1; j < end; j++) {
                     focusScoresPerHours[j] += 60;
                 }
-
             }
 
             // 시작과 끝 시간이 같다면
