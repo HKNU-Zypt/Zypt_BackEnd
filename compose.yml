@@ -1,6 +1,6 @@
 services:
   main-server:
-    build: .
+    image: heeeoh/zyptapi
     ports:
       - 8080:8080
     depends_on:
