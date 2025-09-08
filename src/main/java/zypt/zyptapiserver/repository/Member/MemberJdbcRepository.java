@@ -27,7 +27,6 @@ public class MemberJdbcRepository {
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-
         MapSqlParameterSource param = new MapSqlParameterSource();
         param.addValue("id", member.getId());
         param.addValue("nick_name", member.getNickName());
