@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.domain;
 
+import com.fasterxml.uuid.Generators;
 import com.querydsl.core.annotations.QueryProjection;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,7 +15,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class Member extends BaseTimeEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
     private String id;
     private String nickName;
     private String email;
@@ -32,6 +33,14 @@ public class Member extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FocusTime> focusTimes = new ArrayList<>();
+
+
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null) {
+            this.id = Generators.timeBasedEpochGenerator().generate().toString();
+        }
+    }
 
     @Builder
     @QueryProjection

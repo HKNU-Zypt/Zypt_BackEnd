@@ -2,7 +2,6 @@ package zypt.zyptapiserver.domain;
 
 import com.querydsl.core.annotations.QueryProjection;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import zypt.zyptapiserver.domain.enums.UnFocusedType;
