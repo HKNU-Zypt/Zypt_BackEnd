@@ -41,5 +41,6 @@ public interface FocusTimeService {
 
     void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day);
 
+    void deleteFocusTimeById(String memberId, Long focusId);
 
 }
