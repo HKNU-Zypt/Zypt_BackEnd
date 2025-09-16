@@ -67,6 +67,11 @@ public class FocusTimeMyBatisRepository implements FocusTimeRepository {
     }
 
     @Override
+    public void deleteFocusTimeById(String memberId, Long focusId) {
+
+    }
+
+    @Override
     public List<Long> findFocusTimeIdsByDate(String memberId, Integer year, Integer month, Integer day) {
         return focusMapper.findFocusTimeIdsByDate(memberId, year, month, day);
     }

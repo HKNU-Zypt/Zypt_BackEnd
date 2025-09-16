@@ -141,6 +141,14 @@ public class FocusTimeServiceImpl implements FocusTimeService {
 
     }
 
+    @Override
+    public void deleteFocusTimeById(String memberId, Long focusId) {
+        log.info("member = {}, id = {}", memberId, focusId);
+
+        focusTimeRepository.deleteFocusTimeById(memberId, focusId);
+
+    }
+
 
     private static boolean validateYearMonthDay(Integer year, Integer month, Integer day) {
         return year == null && month != null

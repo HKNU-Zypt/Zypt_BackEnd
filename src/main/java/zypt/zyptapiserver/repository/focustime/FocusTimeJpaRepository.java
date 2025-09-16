@@ -201,6 +201,19 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
                 .where(fragmentedUnfocusedTime.focusTime.id.in(ids));
     }
 
+    @Override
+    @Transactional
+    public void deleteFocusTimeById(String memberId, Long focusId) {
+        long result = queryFactory.delete(focusTime)
+                .where(focusTime.member.id.eq(memberId)
+                        .and(focusTime.id.eq(focusId)))
+                .execute();
+
+        if (result == 0) {
+            throw new FocusTimeNotFoundException("삭제 실패 Id 재확인");
+        }
+    }
+
 
     /**
      * 삭제할 focusTime의 id들을 모두 조회

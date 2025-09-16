@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.controller;
 
+import io.opencensus.metrics.export.Summary;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -33,7 +34,7 @@ public class FocusTimeController {
 
     @PostMapping
     @Operation(summary = "focusTime 저장", description = "액세스토큰 해더 필수, \n\n focusTimeInsertDto는 작성할 필요 없음, \n\n startAt, endAt의 경우 \"HH-mm-ss\" 형태로 보내면 됨")
-    public ResponseEntity<?> saveFocusTime(@AuthenticationPrincipal CustomUserDetails details,
+    public ResponseEntity<String> saveFocusTime(@AuthenticationPrincipal CustomUserDetails details,
                                            @Valid @RequestBody FocusTimeDto focusTimeDto) {
 
         long totalFocusTime = focusTimeService.saveFocusTime(details.getUsername(), focusTimeDto);
@@ -44,7 +45,7 @@ public class FocusTimeController {
 
     @GetMapping
     @Operation(summary = "focusTime 년-월-일 동적 조회", description = "액세스토큰 해더 필수, \n\n 연-월-일 조건 부여하여 조회, 월만 조회할 수 없고 항상 연-월 이렇게 순서대로 선행 조건이 있어야 후행조건 사용 가능")
-    public ResponseEntity<?> findFocusTime(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<List<FocusTimeResponseDto>> findFocusTime(@AuthenticationPrincipal CustomUserDetails userDetails,
                                            @RequestParam(value = "year", required = false)  Integer year,
                                            @RequestParam(value = "month", required = false) Integer month,
                                            @RequestParam(value = "day", required = false) Integer day) {
@@ -64,21 +65,29 @@ public class FocusTimeController {
 
     @GetMapping("/all")
     @Operation(summary = "focusTime 전체 조회", description = "액세스토큰 해더 필수, \n\n 멤버의 모든 집중 데이터 조회")
-    public ResponseEntity<?> findAllFocusTime(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<List<FocusTimeResponseDto>> findAllFocusTime(@AuthenticationPrincipal CustomUserDetails userDetails) {
         List<FocusTimeResponseDto> allFocusTimes = focusTimeService.findAllFocusTimes(userDetails.getUsername());
 
         return ResponseEntity.ok(allFocusTimes);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/date")
     @Operation(summary = "focusTime 년-월-일 동적 삭제", description = "액세스토큰 해더 필수, \n\n 연-월-일 조건 부여하여 삭제, 이것 또한 연-월-일 선행순서에 맞춰서 조건 걸어야함")
-    public ResponseEntity<?> deleteFocusTime(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<String> deleteFocusTime(@AuthenticationPrincipal CustomUserDetails userDetails,
                                            @RequestParam(value = "year", required = false)  Integer year,
                                            @RequestParam(value = "month", required = false) Integer month,
                                            @RequestParam(value = "day", required = false) Integer day) {
 
         focusTimeService.deleteFocusTimeByYearAndMonthAndDay(userDetails.getUsername(), year, month, day);
         return ResponseEntity.ok("집중 데이터 삭제 완료");
+    }
+
+    @DeleteMapping
+    @Operation(summary = "focusTime id값으로 삭제", description = "액세스토큰 해더 필수")
+    public ResponseEntity<String> deleteFocusTimeById(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                      @RequestParam Long focusId) {
+        focusTimeService.deleteFocusTimeById(userDetails.getUsername(), focusId);
+        return ResponseEntity.ok("집중 데이터 삭제 완료 " + focusId);
     }
 
 

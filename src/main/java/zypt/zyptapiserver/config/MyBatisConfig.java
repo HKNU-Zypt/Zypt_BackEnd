@@ -9,7 +9,7 @@ import zypt.zyptapiserver.repository.focustime.FocusTimeMyBatisRepository;
 
 @Configuration
 @RequiredArgsConstructor
-public class MyBatisConfig {
+public class  MyBatisConfig {
 
     private final FocusMapper focusMapper;
 

@@ -248,6 +248,11 @@ public class FocusTimeJdbcRepository implements FocusTimeRepository {
     }
 
     @Override
+    public void deleteFocusTimeById(String memberId, Long focusId) {
+
+    }
+
+    @Override
     public List<Long> findFocusTimeIdsByDate(String memberId, Integer year, Integer month, Integer day) {
         String sql = "SELECT id FROM focus_time WHERE member_id = :memberId";
         MapSqlParameterSource param = new MapSqlParameterSource();
