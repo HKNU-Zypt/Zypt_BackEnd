@@ -63,10 +63,12 @@ public class AuthService {
             throw new InvalidTokenException("소셜 AccessToken이 유효하지 않거나 형식이 잘못되었습니다");
         }
 
+        log.info("로그인 성공");
+
         // 회원가입 하지 않았다면 가입
         Member member = memberRepository.findBySocialId(socialType, userInfo.getId())
                 .orElseGet(() -> {
-
+                    log.info("존재하지 않은 회원, 회원가입 진행 socialType={}", socialType.getType().toString());
                     Member newMember = Member.builder()
                             .socialId(userInfo.getId())
                             .email(userInfo.getEmail())
@@ -76,14 +78,18 @@ public class AuthService {
 
                     // 회원 db에 저장 및 토큰 생성
                     memberService.saveMember(newMember);
+                    log.info("회원가입 성공");
                     return newMember;
                 });
 
+        log.info("액세스 토큰과 리프레시 토큰 생성");
         String newAccessToken = jwtUtils.generateAccessToken(member.getId());
         String newRefreshToken = findRefreshTokenInRedis(member);
 
+        log.info("Authenticated 생성");
         registryAuthenticatedUser(member.getId());
 
+        log.info("응답에 토큰 삽입");
         // 응답에 토큰 삽입
         CookieUtils.addCookie(response, newRefreshToken);
         response.addHeader(AUTHORIZATION_HEADER, BEARER_PREFIX + newAccessToken); // 헤더에 액세스 토큰 삽입
@@ -121,7 +127,6 @@ public class AuthService {
         }
     }
 
-    // TODO refresh 토큰을 검증하는 건 좋은데 만료시에만 재생성해야함. 따라서 jwtUtils에서 만료 예외만 던지고 여기서 catch해서 생성하게끔 처리
     // redis 메모리에서 리프레시토큰 찾고 없다면 생성해서 반환
     private String findRefreshTokenInRedis(Member member) {
         String refreshToken = redisRepository.findRefreshToken(member.getId());
@@ -141,7 +146,6 @@ public class AuthService {
     // Authentication 등록
     @Deprecated
     public void registryAuthenticatedUser(String memberId, String nickName) {
-
         CustomUserDetails userDetails = new CustomUserDetails(memberId, "ROLE_USER");
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -152,8 +156,6 @@ public class AuthService {
 
     // Authentication 등록 db 조회
     public void registryAuthenticatedUser(String memberId) {
-
-
         CustomUserDetails userDetails = new CustomUserDetails(memberId, "ROLE_USER");
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

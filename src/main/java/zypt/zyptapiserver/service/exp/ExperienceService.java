@@ -16,7 +16,6 @@ public class ExperienceService {
 
     private final ExpMultiplierManager expMultiplierManager;
     private final ExpRepository expRepository;
-
     private final RedisCacheRepository redisRepository;
 
 
@@ -39,6 +38,12 @@ public class ExperienceService {
         Double total_exp = redisRepository.getExpByLevel(levelExp.getLevel());
         log.info("현재레벨의 total_xp 조회 ={}", total_exp);
 
+
+
+        if (total_exp == null) {
+            log.error("경험치 테이블 존재 X, 빠른 조치 ");
+            throw new IllegalStateException("경험치 테이블 존재하지 않음");
+        }
 
         // 현 레벨의 total_xp + result
         // 이에 맞는 레벨을 레디스에서 탐색

@@ -75,7 +75,7 @@ public class OIDCService {
                 throw new OidcPublicKeyFetchException("OIDCPublicKeys 목록 획득 실패");
             }
 
-            log.info("body = {}", Arrays.toString(response.getBody().keys()));
+            log.info("OCIDPublicKey 획득 성공");
             return response.getBody();
 
         } catch (RestClientException e) {

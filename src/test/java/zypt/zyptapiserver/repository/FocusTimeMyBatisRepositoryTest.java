@@ -54,7 +54,6 @@ class FocusTimeMyBatisRepositoryTest {
         Assertions.assertThat(focusTime.getId()).isNotNull();
         repository.bulkInsertUnfocusedTimes(focusTime.getId(), dto);
 
-
         FocusTimeResponseDto focusTimeResponseDto = repository.findFocusTime(focusTime.getId()).orElseThrow(() -> new NoSuchElementException("존재하지 않음"));
 
         List<FragmentedUnFocusedTimeDto> unFocusTimes = repository.findAllFragmentedUnFocusTimes(List.of(focusTime.getId()));

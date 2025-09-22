@@ -34,7 +34,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(RedisConnectionFailureException.class)
     public ResponseEntity<ApiErrorResponse> redisConnectionFailure(Exception ex) {
-
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorCode.REDIS_CONNECTION_ERROR
@@ -51,7 +50,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(RestClientException.class)
     public ResponseEntity<ApiErrorResponse> restTemplateException(Exception ex) {
-
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorCode.EXTERNAL_API_ERROR
@@ -84,7 +82,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({DataAccessException.class, FocusTimeSaveFailedException.class})
     public ResponseEntity<ApiErrorResponse> dataAccessException(Exception ex) {
-
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorCode.INTERNAL_SERVER_ERROR

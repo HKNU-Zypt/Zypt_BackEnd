@@ -144,8 +144,7 @@ public class JwtUtils {
                     .parseClaimsJws(idToken);
 
             Claims claims = jws.getBody();
-            log.info("claims = {}", claims);
-
+            log.info("public key를 통한 OIDC 토큰 검증 성공");
             return claims;
 
         } catch (ExpiredJwtException e) {

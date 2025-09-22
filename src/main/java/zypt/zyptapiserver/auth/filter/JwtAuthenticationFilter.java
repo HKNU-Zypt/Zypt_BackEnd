@@ -48,14 +48,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
-        log.info("url = {}", request.getRequestURI());
         // 화이트 리스트의 경우 넘어감
         if (isWhiteListed(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             return;
         }
-
 
         String accessToken = resolveToken(request);
 
