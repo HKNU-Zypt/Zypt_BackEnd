@@ -35,7 +35,9 @@ public class LiveKitService {
      * userid는 AccessToken에서 꺼내서 사용
      */
     public LiveKitAccessTokenDTO getLiveKitAccessToken(String nickName, String memberId,  String roomName) {
+        log.info("룸 참여 액세스 토큰 획득 시도 roomName={}", roomName);
         AccessToken livekitAccessToken = new AccessToken(liveKitSource.getAPI_KEY(), liveKitSource.getSECRET_KEY());
+
         // 유저 이름
         livekitAccessToken.setName(nickName);
         livekitAccessToken.setIdentity(memberId);
@@ -48,6 +50,7 @@ public class LiveKitService {
 
         // RoomJoin은 효능이 있음, 다만 RoomCreate는 설정해도 방이 자동 생성되므로 따로 에러 처리 필요
         livekitAccessToken.addGrants(new RoomJoin(true), new RoomName(roomName), new RoomCreate(false));
+        log.info("룸 참여 액세스 토큰 획득 성공");
 
         return new LiveKitAccessTokenDTO(livekitAccessToken.toJwt(), new Date());
     }
@@ -62,13 +65,13 @@ public class LiveKitService {
      * @return
      */
     public LiveKitAccessTokenDTO createRoom(String nickName, String memberId, String roomName, int maxParticipant) {
-
+        log.info("룸 생성 시도, roomName={}, maxParticipant={}", roomName, maxParticipant);
         // 방이름, 빈 방 타임아웃, 최대 참여자 수 제한
         Response<LivekitModels.Room> response
                 = LiveKitTemplate.execute(() -> client.createRoom(roomName, 1000, maxParticipant).execute());
         LivekitModels.Room room = response.body();
 
-        log.info("createRoomInfo = {}", room);
+        log.info("룸 생성 성공 createRoomInfo = {}", room);
         return getLiveKitAccessToken(nickName, memberId, roomName);
 
     }
@@ -79,12 +82,16 @@ public class LiveKitService {
      * @return true
      */
     public void deleteRoom(String roomName) {
+        log.info("룸 삭제 roomName={}", roomName);
         boolean isDeletedRoom = LiveKitTemplate.execute(() -> client.deleteRoom(roomName).execute().isSuccessful());
+
 
         // 방 삭제 실패시 에러를 던짐
         if (!isDeletedRoom) {
             throw new DeleteFailException("방 삭제 실패 : " + roomName);
         }
+
+        log.info("룸 삭제 성공");
     }
 
     /**
@@ -92,13 +99,16 @@ public class LiveKitService {
      * @return 방 리스트
      */
     public List<LiveKitRoomDTO> findAllRooms() {
+        log.info("모든 룸 리스트 조회");
         List<LivekitModels.Room> roomList
                 = LiveKitTemplate.execute(() -> client.listRooms().execute().body());
 
         if (roomList == null || roomList.isEmpty()) {
+            log.info("현재 룸이 없음");
             return null; // 빈 JSON 배열 반환
         }
 
+        log.info("룸 조회 성공");
         return roomList.stream()
                 .map(room -> new LiveKitRoomDTO(
                         room.getName(),
@@ -117,7 +127,7 @@ public class LiveKitService {
      * @return 참가자 정보 DTO 리스트
      */
     public List<LiveKitParticipantDTO> getRoomParticipantsByRoomName(String roomName) {
-
+        log.info("룸 참가자 정보 조회");
         // 해당 룸의 참가자 정보를 가져오기
         List<LivekitModels.ParticipantInfo> participants
                 = LiveKitTemplate.execute(() -> client.listParticipants(roomName).execute().body());
@@ -127,6 +137,7 @@ public class LiveKitService {
             throw new RetrofitExecuteException("존재 하지 않는 방입니다. ");
         }
 
+        log.info("룸 참가자 정보 조회 성공");
         // participantDTO 객체로 변환하여 list로 반환
         return participants.stream()
                 .map(participantInfo -> new LiveKitParticipantDTO(

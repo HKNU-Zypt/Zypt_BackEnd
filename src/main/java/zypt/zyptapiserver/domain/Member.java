@@ -25,11 +25,11 @@ public class Member extends BaseTimeEntity {
     private String socialId;
 
 
-    @OneToOne(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private LevelExp levelExp;
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<LevelExp> levelExp = new ArrayList<>();
 
-    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private SocialRefreshToken socialRefreshToken;
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SocialRefreshToken> socialRefreshToken = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FocusTime> focusTimes = new ArrayList<>();
@@ -67,7 +67,7 @@ public class Member extends BaseTimeEntity {
     }
 
     public void addSocialRefreshToken(SocialRefreshToken token) {
-        this.socialRefreshToken = token;
+        socialRefreshToken.add(token);
         token.addMember(this);
     }
 
@@ -76,7 +76,7 @@ public class Member extends BaseTimeEntity {
     }
 
     public void addLevelExpInfo(LevelExp levelExp) {
-        this.levelExp = levelExp;
+        this.levelExp.add(levelExp);
         levelExp.updateMember(this);
     }
 }

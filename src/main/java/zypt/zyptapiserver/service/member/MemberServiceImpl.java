@@ -30,7 +30,7 @@ public class MemberServiceImpl implements MemberService {
     // 멤버 저장
     @Transactional
     public Member saveMember(Member member) {
-
+        log.info("멤버 생성");
         Member savedMember = repository.save(member);
 
         LevelExp levelExp = LevelExp.builder()
@@ -38,11 +38,11 @@ public class MemberServiceImpl implements MemberService {
                 .curExp(0L)
                 .build();
 
+        log.info("경험치 초기 데이터 저장");
         savedMember.addLevelExpInfo(levelExp);
-
         expRepository.save(levelExp);
 
-
+        log.info("멤버 생성 성공");
         return savedMember;
     }
 
@@ -65,7 +65,7 @@ public class MemberServiceImpl implements MemberService {
     public void updateNickName(String memberId, String nickName) {
         String memberNickName = repository.findMemberNickName(memberId);
 
-        log.info("nick = {} vs {}",memberNickName, nickName);
+        log.info("nick = {} -> {}",memberNickName, nickName);
         // 닉네임 설정을 안했다면 디폴트로 설정해준다.
         if (!StringUtils.hasText(nickName)) {
             nickName = "user+" + UUID.randomUUID().toString().substring(0, 16);
@@ -80,10 +80,10 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void updateEmail(String memberId, String email) {
+        log.info("이메일 업데이트 ");
         Member member = repository
                 .findMemberById(memberId)
                 .orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
-
 
         member.updateEmail(email);
 
@@ -91,6 +91,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void saveSocialRefreshToken(String memberId, String refreshToken, SocialType type) {
+        log.info("소셜 리프레시 토큰 저장");
         if (repository.findSocialRefreshTokenById(memberId).isEmpty()) {
             Member member = repository
                     .findMemberById(memberId)
@@ -114,6 +115,8 @@ public class MemberServiceImpl implements MemberService {
      */
     @Override
     public SocialRefreshToken findSocialRefreshToken(String memberId) {
+        log.info("멤버 소셜 리프레시 토큰 조회");
+
         SocialRefreshToken refreshToken = repository
                 .findSocialRefreshTokenById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("소셜 리프레시 토큰 조회 실패"));
@@ -127,6 +130,7 @@ public class MemberServiceImpl implements MemberService {
      */
     @Override
     public void deleteSocialRefreshToken(String memberId) {
+        log.info("멤버 소셜 리프레시 토큰 삭제");
         Member member = repository
                 .findMemberById(memberId)
                 .orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
@@ -136,12 +140,14 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public MemberAndLevelInfoDto findMemberInfo(String memberId) {
+        log.info("멤버 정보 조회");
         return repository.findMemberAndLevelInfo(memberId)
                 .orElseThrow(() -> new MemberNotFoundException("멤버 & 레벨 경험치 조회 실패"));
     }
 
     @Override
     public void deleteMember(String id) {
+        log.info("멤버 삭제");
         Member member = repository
                 .findMemberById(id)
                 .orElseThrow(() -> new MemberNotFoundException("이미 존재하지 않는 회원입니다. "));

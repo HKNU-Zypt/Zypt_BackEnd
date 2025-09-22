@@ -53,7 +53,6 @@ public class MemberRepository {
                         qMember.id,
                         qMember.nickName,
                         qMember.email
-
                 ))
                 .from(qMember)
                 .where(qMember.id.eq(memberId))

@@ -28,6 +28,7 @@ public class FocusTimeServiceImpl implements FocusTimeService {
 
     @Transactional
     public long saveFocusTime(String memberId, FocusTimeDto focusTimeDto) {
+        log.info("FocusTime 저장 ");
         // 멤버 엔티티 조회
         Member member = memberRepository
                 .findMemberById(memberId)
@@ -51,7 +52,7 @@ public class FocusTimeServiceImpl implements FocusTimeService {
 
         // unfocusedTime jdbcBulkInsert로 저장
         focusTimeRepository.bulkInsertUnfocusedTimes(focusTime.getId(), focusTimeDto.fragmentedUnFocusedTimeInsertDtos());
-
+        log.info("FocusTime 저장 성공");
         return focusTime.getFocusTime();
     }
 
@@ -98,7 +99,7 @@ public class FocusTimeServiceImpl implements FocusTimeService {
 
     @Override
     public List<FocusTimeResponseDto> findFocusTimesByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day) {
-
+        log.info("date로 focusTime 조회 : {}-{}-{}", year,month,day);
         if (validateYearMonthDay(year, month, day)) {
             throw new InvalidParamException("년-월-일 순서에 맞게 날짜를 입력");
         }
@@ -129,6 +130,7 @@ public class FocusTimeServiceImpl implements FocusTimeService {
 
     @Override
     public void deleteFocusTimeByYearAndMonthAndDay(String memberId, Integer year, Integer month, Integer day) {
+        log.info("date로 focusTime 삭제 : {}-{}-{}", year,month,day);
         if (validateYearMonthDay(year, month, day)) {
             throw new InvalidParamException("년-월-일 순서에 맞게 날짜를 입력");
         }
@@ -143,12 +145,9 @@ public class FocusTimeServiceImpl implements FocusTimeService {
 
     @Override
     public void deleteFocusTimeById(String memberId, Long focusId) {
-        log.info("member = {}, id = {}", memberId, focusId);
-
+        log.info("focusId로 focusTime 삭제 : {}",focusId);
         focusTimeRepository.deleteFocusTimeById(memberId, focusId);
-
     }
-
 
     private static boolean validateYearMonthDay(Integer year, Integer month, Integer day) {
         return year == null && month != null

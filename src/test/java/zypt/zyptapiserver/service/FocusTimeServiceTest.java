@@ -55,6 +55,7 @@ class FocusTimeServiceTest {
     List<Member> members = new ArrayList<>();
 
     @BeforeEach
+    @Transactional
     void init() {
         for (int i = 0; i < 5; i++) {
             // JPA로 저장하고 JDBC로 삽입시 JPA는 실제로 DB에 아직 반영하지 않았기에 jdbc로 focusTime을 insert 하면 db에 memberid에 맞는 레코드가 하나도 저장되지 않았기에 예외발생함
@@ -101,7 +102,7 @@ class FocusTimeServiceTest {
                 dto.add(insertDto);
             }
 
-            FocusTimeDto focusTimeDto = new FocusTimeDto(LocalTime.now().plus(Duration.ofMinutes(i)), LocalTime.now().plus(Duration.ofHours(2)), LocalDate.now(), dto);
+            FocusTimeDto focusTimeDto = new FocusTimeDto(LocalTime.now().plus(Duration.ofMinutes(i)), LocalTime.now().plus(Duration.ofHours(i)), LocalDate.now(), dto);
 
             service.saveFocusTime(member.getId(), focusTimeDto);
         }

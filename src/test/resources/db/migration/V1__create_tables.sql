@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS focus_time (
     focus_time BIGINT,
     total_time BIGINT,
 
-    FOREIGN KEY (member_id) REFERENCES member(id) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (member_id) REFERENCES member(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    UNIQUE(create_date, start_at, end_at)
 );
 
 

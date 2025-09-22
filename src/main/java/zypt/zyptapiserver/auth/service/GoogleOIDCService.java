@@ -48,7 +48,6 @@ public class GoogleOIDCService implements SocialService {
 
         try {
             JsonNode node = objectMapper.readTree(decode);
-            log.info("node = {}", node.toPrettyString());
             String kid = node.get("kid").asText();
 
 

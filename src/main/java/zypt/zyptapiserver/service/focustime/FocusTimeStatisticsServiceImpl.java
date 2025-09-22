@@ -2,6 +2,7 @@ package zypt.zyptapiserver.service.focustime;
 
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import zypt.zyptapiserver.domain.dto.focustime.FocusTimeForStatisticsDto;
 import zypt.zyptapiserver.domain.dto.focustime.FocusTimeForStatisticsResponseDto;
 import zypt.zyptapiserver.domain.dto.focustime.UnFocusTimeForStatisticsDto;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 public class FocusTimeStatisticsServiceImpl implements FocusTimeStatisticsService {
 
@@ -18,6 +20,8 @@ public class FocusTimeStatisticsServiceImpl implements FocusTimeStatisticsServic
 
     @Override
     public FocusTimeForStatisticsResponseDto findFocusTimesForStatisticsByDateRange(String memberId, LocalDate startDate, LocalDate endDate) {
+        log.info("{} ~ {} focusTime 분석 데이터 조회", startDate, endDate);
+
         int[] focusScoresPerHours = new int[24];
 
         List<FocusTimeForStatisticsDto> timeForStatistics = focusTimeStatisticRepository.findFocusTimeForStatistics(memberId, startDate, endDate);

@@ -27,8 +27,8 @@ public class  RedisRepository {
      * @param memberId
      */
     public void deleteRefreshToken(String memberId) {
+        log.info("refreshToken 삭제");
         template.delete("refresh:" + memberId);
-        log.info("refreshToken 삭제 = {}", memberId);
     }
 
     private ValueOperations<String, String> valueOperations() {
