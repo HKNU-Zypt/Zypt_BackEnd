@@ -125,7 +125,15 @@ http://localhost:8080/swagger-ui/index.html#/
 
 
 ### 3. dockerhub -> ec2
+```
 docker login
+```
+
+```
 docker pull 사용자이름/image\[:tag\]
+```
+
+```
 docker-compose up -d -build
+```
 
