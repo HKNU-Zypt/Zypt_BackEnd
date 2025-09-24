@@ -1,5 +1,6 @@
 package zypt.zyptapiserver.config;
 
+import zypt.zyptapiserver.auth.filter.CustomAccessDeniedHandler;
 import zypt.zyptapiserver.auth.filter.CustomAuthenticationEntryPoint;
 import zypt.zyptapiserver.auth.filter.JwtAuthenticationFilter;
 import zypt.zyptapiserver.auth.service.AuthService;
@@ -41,16 +42,21 @@ public class SecurityConfig {
                         auth.requestMatchers("/api/auth/login/**",
                                         "/api/auth/logout",
                                         "/api/auth/refresh",
-                                        "/swagger-ui/**", // Swagger UI 정적 리소스 허용
                                         "/v3/api-docs/**", // Swagger API 문서 정의 허용 (OpenAPI 3)
                                         "/favicon.ico",
-                                        "/api/admin/**"
+                                        "/swagger-ui/**"  // Swagger UI 정적 리소스 허용, 실 운영 서버에선 제거
                                 ).permitAll()
+                                // 관리자 권한
+                                .requestMatchers(
+                                        "/api/admin/**"
+                                ).hasRole("ADMIN")
                                 .requestMatchers("/api/**").authenticated()
                                 .anyRequest().permitAll()
                 )
-                .exceptionHandling(e ->
-                        e.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+                        .accessDeniedHandler(new CustomAccessDeniedHandler())
+                )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtils, authService)
                         , UsernamePasswordAuthenticationFilter.class);
 

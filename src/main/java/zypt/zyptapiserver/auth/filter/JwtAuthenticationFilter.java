@@ -30,8 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/v3/api-docs",
-            "/favicon.ico",
-            "/api/admin/**"
+            "/favicon.ico"
     );
 
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
@@ -48,6 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
         // 화이트 리스트의 경우 넘어감
         if (isWhiteListed(request.getRequestURI())) {
             filterChain.doFilter(request, response);
