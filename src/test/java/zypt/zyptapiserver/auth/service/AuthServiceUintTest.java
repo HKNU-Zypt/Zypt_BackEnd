@@ -185,4 +185,5 @@ class AuthServiceUintTest {
         org.junit.jupiter.api.Assertions.assertEquals(memberId, authentication.getName());
 
     }
+
 }

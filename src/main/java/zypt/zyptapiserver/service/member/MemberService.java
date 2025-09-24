@@ -4,6 +4,7 @@ import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.domain.SocialRefreshToken;
 import zypt.zyptapiserver.domain.dto.member.MemberAndLevelInfoDto;
 import zypt.zyptapiserver.domain.dto.member.MemberInfoDto;
+import zypt.zyptapiserver.domain.enums.RoleType;
 import zypt.zyptapiserver.domain.enums.SocialType;
 
 
@@ -33,4 +34,6 @@ public interface MemberService {
     void deleteSocialRefreshToken(String memberId);
 
     MemberAndLevelInfoDto findMemberInfo(String memberId);
+
+    RoleType findMemberRoleType(String memberId);
 }

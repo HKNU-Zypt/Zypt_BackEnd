@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.domain.dto.member.MemberAndLevelInfoDto;
+import zypt.zyptapiserver.domain.enums.RoleType;
 import zypt.zyptapiserver.repository.Member.MemberRepository;
 import zypt.zyptapiserver.service.member.MemberService;
 import zypt.zyptapiserver.domain.Member;
@@ -131,5 +132,17 @@ class MemberRepositoryTest {
 
         log.info("result = {}", memberAndLevelInfoDto);
 
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("Role 저장 확인")
+    void roleCheck() {
+        Member member = service.findMemberBySocialId(SocialType.NAVER, "123");
+        RoleType memberRoleType = service.findMemberRoleType(member.getId());
+
+        assertThat(member.getRoleType()).isEqualTo(RoleType.ROLE_USER);
+        assertThat(memberRoleType.name()).isEqualTo("ROLE_USER");
+        log.info(memberRoleType.name());
     }
 }

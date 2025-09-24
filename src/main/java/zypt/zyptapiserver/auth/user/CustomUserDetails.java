@@ -34,6 +34,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
 
     private Collection<GrantedAuthority> createAuthorities(String roles) {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
+        // 권한을 한 속성에 여러개 설정시 ','로 구분했을때를 위해 ','로 스플릿
         for (String role : roles.split(",")) {
             if (!StringUtils.hasText(role)) continue;
             authorities.add(new SimpleGrantedAuthority(role));

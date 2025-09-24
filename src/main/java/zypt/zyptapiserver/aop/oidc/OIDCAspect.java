@@ -25,25 +25,6 @@ import zypt.zyptapiserver.domain.enums.SocialType;
 public class OIDCAspect {
 
     private final CacheManager cacheManager;
-//    private final OIDCService service = new OIDCService();
-
-//    @Around("OIDCPointcut.oidc()")
-//    public OIDCPublicKeyDto cache(ProceedingJoinPoint joinPoint) throws Throwable {
-//        Object[] param = joinPoint.getArgs();
-//        SocialType socialType = (SocialType) param[0];
-//
-//        try {
-//            joinPoint.proceed();
-//
-//        } catch (IllegalArgumentException e) {
-//            cacheManager.getCache(socialType.name()).clear();
-//            cacheManager.getCache(socialType.name() + "_keys").clear();
-//            String jwksUrl = service.getJwksUrl(socialType);
-//            OIDCPublicKeysDto publicKeys = service.getOpenIdPublicKeys(socialType, jwksUrl);
-//
-//        }
-//        return null;
-//    }
 
     @Around("OIDCPointcut.getUserInfo()")
     public UserInfo oidcReCache(ProceedingJoinPoint joinPoint) throws Throwable {

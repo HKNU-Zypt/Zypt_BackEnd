@@ -2,6 +2,7 @@ package zypt.zyptapiserver.auth.service;
 
 import io.jsonwebtoken.Claims;
 import org.springframework.transaction.annotation.Transactional;
+import zypt.zyptapiserver.domain.enums.RoleType;
 import zypt.zyptapiserver.exception.InvalidParamException;
 import zypt.zyptapiserver.exception.InvalidTokenException;
 import zypt.zyptapiserver.exception.MissingTokenException;
@@ -120,7 +121,6 @@ public class AuthService {
 
             // Authentication 등록
             registryAuthenticatedUser(id);
-
             // 액세스, 리프레시 둘다 만료되었다면 에러를 던지고, 프론트에서 로그인 페이지로 이동
         } else {
             throw new MissingTokenException("Access,refresh 토큰이 만료되었습니다.");
@@ -156,10 +156,13 @@ public class AuthService {
 
     // Authentication 등록 db 조회
     public void registryAuthenticatedUser(String memberId) {
-        CustomUserDetails userDetails = new CustomUserDetails(memberId, "ROLE_USER");
+        log.info("memberId = {}", memberId);
+        RoleType memberRoleType = memberRepository.findMemberRoleType(memberId);
+
+        CustomUserDetails userDetails = new CustomUserDetails(memberId, memberRoleType.name());
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
+        log.info("auth = {}", userDetails.getAuthorities());
         //Authentication 저장
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }

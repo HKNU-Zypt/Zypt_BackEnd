@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import zypt.zyptapiserver.domain.dto.member.MemberAndLevelInfoDto;
+import zypt.zyptapiserver.domain.enums.RoleType;
 import zypt.zyptapiserver.exception.InvalidParamException;
 import zypt.zyptapiserver.domain.LevelExp;
 import zypt.zyptapiserver.domain.Member;
@@ -154,5 +155,8 @@ public class MemberServiceImpl implements MemberService {
         repository.deleteMember(member);
     }
 
-
+    @Override
+    public RoleType findMemberRoleType(String memberId) {
+        return repository.findMemberRoleType(memberId);
+    }
 }

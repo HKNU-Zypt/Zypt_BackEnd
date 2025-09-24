@@ -4,6 +4,7 @@ import com.fasterxml.uuid.Generators;
 import com.querydsl.core.annotations.QueryProjection;
 import jakarta.persistence.*;
 import lombok.*;
+import zypt.zyptapiserver.domain.enums.RoleType;
 import zypt.zyptapiserver.domain.enums.SocialType;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.List;
 @Getter
 @Entity
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = false) // baseEntity 동일성 판단에 제외
 public class Member extends BaseTimeEntity {
 
     @Id
@@ -24,6 +25,9 @@ public class Member extends BaseTimeEntity {
     private SocialType socialType;
     private String socialId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private RoleType roleType;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<LevelExp> levelExp = new ArrayList<>();
@@ -50,6 +54,7 @@ public class Member extends BaseTimeEntity {
         this.email = email;
         this.socialType = socialType;
         this.socialId = socialId;
+        this.roleType = RoleType.ROLE_USER;
     }
 
 

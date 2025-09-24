@@ -16,6 +16,7 @@ import zypt.zyptapiserver.domain.SocialRefreshToken;
 import zypt.zyptapiserver.domain.dto.member.MemberAndLevelInfoDto;
 import zypt.zyptapiserver.domain.dto.member.MemberInfoDto;
 import zypt.zyptapiserver.domain.dto.member.QMemberAndLevelInfoDto;
+import zypt.zyptapiserver.domain.enums.RoleType;
 import zypt.zyptapiserver.domain.enums.SocialType;
 
 import java.util.List;
@@ -135,6 +136,13 @@ public class MemberRepository {
 
     public String findMemberNickName(String memberId) {
         return queryFactory.select(qMember.nickName)
+                .from(qMember)
+                .where(qMember.id.eq(memberId))
+                .fetchOne();
+    }
+
+    public RoleType findMemberRoleType(String memberId) {
+        return queryFactory.select(qMember.roleType)
                 .from(qMember)
                 .where(qMember.id.eq(memberId))
                 .fetchOne();
