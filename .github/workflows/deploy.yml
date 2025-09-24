@@ -57,6 +57,6 @@ jobs:
           script: |
             
             cd /home/${{ secrets.EC2_USER }}/zypt   # docker-compose.yml 있는 위치
-            docker login
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/zyptapi:latest
             docker-compose up -d --build
