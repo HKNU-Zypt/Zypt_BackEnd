@@ -10,22 +10,22 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.domain.dto.member.MemberAndLevelInfoDto;
 import zypt.zyptapiserver.domain.enums.RoleType;
 import zypt.zyptapiserver.repository.Member.MemberRepository;
 import zypt.zyptapiserver.service.member.MemberService;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.SocialRefreshToken;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.exception.MemberNotFoundException;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
 @Slf4j
+@Profile("test")
 @SpringBootTest
 class MemberRepositoryTest {
 
@@ -46,9 +46,7 @@ class MemberRepositoryTest {
                 .socialType(SocialType.NAVER)
                 .email("aaa@gmail.com")
                 .socialId("123").build();
-        Member member1 = service.saveMember(member);
-
-        service.saveSocialRefreshToken(member1.getId(), "abc", SocialType.NAVER);
+        service.saveMember(member);
     }
 
     @Test
@@ -78,13 +76,8 @@ class MemberRepositoryTest {
     void persistTest() {
         Member member = service.findMemberBySocialId(SocialType.NAVER, "123");
 
-        SocialRefreshToken refreshToken = service.findSocialRefreshToken(member.getId());
-
-        // 빈값 확인
-        assertThat(refreshToken.getToken()).isNotNull();
-
         // 영속화 확인
-        assertThat(em.contains(refreshToken)).isTrue();
+        assertThat(em.contains(member)).isTrue();
     }
 
 

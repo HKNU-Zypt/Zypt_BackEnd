@@ -66,6 +66,7 @@ public class GoogleOIDCService implements SocialService {
     public void disconnectSocialAccount(String accessToken) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        log.info("disconnect SocialToken = {}", accessToken);
         MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>();
         multiValueMap.add("token", accessToken);
 

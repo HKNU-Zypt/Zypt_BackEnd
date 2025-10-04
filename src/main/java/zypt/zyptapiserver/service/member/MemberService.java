@@ -1,7 +1,6 @@
 package zypt.zyptapiserver.service.member;
 
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.SocialRefreshToken;
 import zypt.zyptapiserver.domain.dto.member.MemberAndLevelInfoDto;
 import zypt.zyptapiserver.domain.dto.member.MemberInfoDto;
 import zypt.zyptapiserver.domain.enums.RoleType;
@@ -26,12 +25,6 @@ public interface MemberService {
     void deleteMember(String memberId);
 
     void updateEmail(String memberId, String email);
-
-    void saveSocialRefreshToken(String memberId, String refreshToken, SocialType type);
-
-    SocialRefreshToken findSocialRefreshToken(String memberId);
-
-    void deleteSocialRefreshToken(String memberId);
 
     MemberAndLevelInfoDto findMemberInfo(String memberId);
 

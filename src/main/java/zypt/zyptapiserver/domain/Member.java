@@ -33,9 +33,6 @@ public class Member extends BaseTimeEntity {
     private List<LevelExp> levelExp = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SocialRefreshToken> socialRefreshToken = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FocusTime> focusTimes = new ArrayList<>();
 
 
@@ -69,15 +66,6 @@ public class Member extends BaseTimeEntity {
     public void addFocusTimes(FocusTime focusTime) {
         focusTimes.add(focusTime);
         focusTime.setMember(this);
-    }
-
-    public void addSocialRefreshToken(SocialRefreshToken token) {
-        socialRefreshToken.add(token);
-        token.addMember(this);
-    }
-
-    public void removeSocialRefreshToken() {
-        this.socialRefreshToken = null;
     }
 
     public void addLevelExpInfo(LevelExp levelExp) {

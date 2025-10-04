@@ -33,11 +33,3 @@ CREATE TABLE IF NOT EXISTS fragmented_unfocused_time (
     FOREIGN KEY (focus_id) REFERENCES focus_time(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-
-CREATE TABLE IF NOT EXISTS social_refresh_token (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    member_id varchar(36),
-    token varchar(255),
-    social_type ENUM('GOOGLE', 'NAVER'),
-    FOREIGN KEY (member_id) REFERENCES member (id) ON DELETE CASCADE
-);

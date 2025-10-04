@@ -89,7 +89,7 @@ public class FocusRepositoryPerformanceTest {
             long start = System.currentTimeMillis();
 
             for (int j = 0; j < 1000; j++) {
-                repository.saveFocusTime(member, date.plusDays(i), time, time, 1L);
+                repository.saveFocusTime(member, date.plusDays(i), time.minusMinutes(i), time.plusMinutes(i), 1L);
 
             }
             long end = System.currentTimeMillis();
@@ -105,13 +105,13 @@ public class FocusRepositoryPerformanceTest {
 
         // 예열
         for (int j = 0; j < 1000; j++) {
-            repository.saveFocusTime(member, date, time, time, 1L);
+            repository.saveFocusTime(member, date, time.minusMinutes(j), time.plusMinutes(j), 1L);
         }
 
         for (int i = 0; i < 5; i++) {
             long start = System.currentTimeMillis();
             for (int j = 0; j < 2000; j++) {
-                repository.saveFocusTime(member, date, time, time, 1L);
+                repository.saveFocusTime(member, date, time.minusMinutes(i), time.plusMinutes(i), 1L);
 
             }
             long end = System.currentTimeMillis();
