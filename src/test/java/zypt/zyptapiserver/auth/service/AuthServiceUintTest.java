@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import zypt.zyptapiserver.domain.enums.RoleType;
 import zypt.zyptapiserver.exception.InvalidTokenException;
 import zypt.zyptapiserver.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.user.KakaoUserInfo;
@@ -64,6 +65,7 @@ class AuthServiceUintTest {
         when(memberRepository.findBySocialId(socialType, kakaoUserInfo.getId())).thenReturn(Optional.of(member));
         when(jwtUtils.generateAccessToken(member.getId())).thenReturn("mock-access-token");
         when(jwtUtils.generateRefreshToken(member.getId())).thenReturn("mock-refresh-token");
+        when(memberRepository.findMemberRoleType(member.getId())).thenReturn(RoleType.ROLE_USER);
 
         // when
         authService.handleAuthenticationFromSocialToken(response, socialType, accessToken);
@@ -91,13 +93,13 @@ class AuthServiceUintTest {
 
         when(factory.getService(socialType)).thenReturn(socialService);
         when(socialService.getUserInfo(accessToken)).thenReturn(null);
-        // when
-
 
         //when & then
         Assertions.assertThatThrownBy(()
                         -> authService.handleAuthenticationFromSocialToken(response, socialType, accessToken))
                 .isInstanceOf(InvalidTokenException.class);
+
+
 
         verify(factory).getService(socialType);
         verify(socialService).getUserInfo(accessToken);
@@ -119,6 +121,7 @@ class AuthServiceUintTest {
         when(jwtUtils.generateAccessToken("abc")).thenReturn("mock-newAccess-token");
         when(jwtUtils.validationToken("mock-refresh-token")).thenReturn(true);
 //        when(memberRepository.findMemberById("abc")).thenReturn(Optional.of(member));
+        when(memberRepository.findMemberRoleType(member.getId())).thenReturn(RoleType.ROLE_USER);
 
         // when
         authService.authenticateUserFromToken(response, refreshToken);
@@ -176,6 +179,7 @@ class AuthServiceUintTest {
         String memberId = "abc";
 //        when(memberRepository.findMemberById(memberId)).thenReturn(Optional.of(new Member(memberId, "hh", null, null, null)));
 
+        when(memberRepository.findMemberRoleType(memberId)).thenReturn(RoleType.ROLE_USER);
         //when
         authService.registryAuthenticatedUser(memberId);
 

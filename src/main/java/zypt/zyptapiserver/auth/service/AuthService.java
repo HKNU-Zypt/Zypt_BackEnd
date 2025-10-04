@@ -9,7 +9,6 @@ import zypt.zyptapiserver.exception.MissingTokenException;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
 import zypt.zyptapiserver.auth.user.UserInfo;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.SocialRefreshToken;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.exception.MemberNotFoundException;
 import zypt.zyptapiserver.repository.Member.MemberRepository;
@@ -187,23 +186,13 @@ public class AuthService {
      * @param memberId
      */
     @Transactional
-    public void disconnect(String memberId, String token) {
+    public void disconnect(String memberId) {
         Member member = memberRepository.findMemberById(memberId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
         SocialService service = socialServiceFactory.getService(member.getSocialType());
 
         if (member.getSocialType() == SocialType.KAKAO) {
             service.disconnectSocialAccount(member.getSocialId());
 
-        } else if (member.getSocialType() == SocialType.NAVER){
-            SocialRefreshToken refreshToken = memberRepository.findSocialRefreshTokenById(memberId)
-                    .orElseThrow(() -> new NoSuchElementException("토큰 없음"));
-
-            service.disconnectSocialAccount(refreshToken.getToken());
-            memberRepository.deleteRefreshTokenById(memberId);
-
-            // 구글
-        } else {
-            service.disconnectSocialAccount(token);
         }
 
         redisRepository.deleteRefreshToken(memberId); // 리프레시 토큰삭제

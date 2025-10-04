@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.domain.QLevelExp;
 import zypt.zyptapiserver.domain.QMember;
-import zypt.zyptapiserver.domain.SocialRefreshToken;
 import zypt.zyptapiserver.domain.dto.member.MemberAndLevelInfoDto;
 import zypt.zyptapiserver.domain.dto.member.MemberInfoDto;
 import zypt.zyptapiserver.domain.dto.member.QMemberAndLevelInfoDto;
@@ -73,20 +72,6 @@ public class MemberRepository {
         return member.stream().findFirst();
     }
 
-    @Transactional
-    public void saveSocialRefreshToken(SocialRefreshToken refreshToken) {
-        em.persist(refreshToken);
-    }
-
-    @Transactional
-    public Optional<SocialRefreshToken> findSocialRefreshTokenById(String memberId) {
-        String sql = "select sr from SocialRefreshToken sr where sr.member.id = :memberId";
-        List<SocialRefreshToken> refreshTokens = em.createQuery(sql, SocialRefreshToken.class)
-                .setParameter("memberId", memberId)
-                .getResultList();
-
-        return refreshTokens.stream().findFirst();
-    }
 
 
     public Optional<MemberAndLevelInfoDto> findMemberAndLevelInfo(String memberId) {
@@ -117,15 +102,6 @@ public class MemberRepository {
         }
     }
 
-    @Transactional
-    public void deleteRefreshTokenById(String memberId) {
-        SocialRefreshToken refreshToken = findSocialRefreshTokenById(memberId).get();
-        em.remove(refreshToken);
-
-//        em.createQuery("DELETE FROM SocialRefreshToken s WHERE s.member.id = :id")
-//                .setParameter("id", memberId)
-//                .executeUpdate();
-    }
 
 
     @Transactional

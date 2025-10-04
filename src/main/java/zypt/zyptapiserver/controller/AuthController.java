@@ -29,16 +29,9 @@ public class AuthController {
     private final MemberService memberService;
 
     @PostMapping("/login")
-    @Operation(summary = "로그인(회원가입)", description = "네이버의 경우 소셜 리프레시 토큰 필요 나머지는 X")
+    @Operation(summary = "로그인(회원가입)", description = "리프레시 토큰을 보낼 필요 X")
     public ResponseEntity<String> socialLogin(@RequestBody SocialLoginDto socialLoginDto, HttpServletResponse response) {
         authService.handleAuthenticationFromSocialToken(response, socialLoginDto.type(), socialLoginDto.token());
-
-        if (socialLoginDto.type() == SocialType.NAVER) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String memberId = authentication.getName();
-
-            memberService.saveSocialRefreshToken(memberId, socialLoginDto.refreshToken(), socialLoginDto.type());
-        }
 
         return ResponseEntity.ok("로그인 성공");
     }
@@ -81,8 +74,8 @@ public class AuthController {
     //TODO String 말고 객체로 바꿀 것
     @DeleteMapping("")
     @Operation(summary = "회원탈퇴", description = "Authorization 헤더에 액세스토큰 필요, 구글의 경우 액세스 토큰 필요(현재는 재로그인 방법으로 획득할 것)")
-    public ResponseEntity<String> deleteMember(@AuthenticationPrincipal CustomUserDetails details, @RequestBody(required = false) RefreshTokenRequestDto requestDto) {
-        authService.disconnect(details.getUsername(), requestDto.refreshToken());
+    public ResponseEntity<String> deleteMember(@AuthenticationPrincipal CustomUserDetails details) {
+        authService.disconnect(details.getUsername());
         return ResponseEntity.ok("회원 탈퇴 완료");
     }
 }
