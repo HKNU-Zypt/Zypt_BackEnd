@@ -39,12 +39,16 @@ dependencies {
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-mysql'
 
+    // 프로메테우스
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
     // uuidv7 사용
     implementation 'com.fasterxml.uuid:java-uuid-generator:5.1.0'
     //Querydsl 추가
     implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
     annotationProcessor "com.querydsl:querydsl-apt:5.1.0:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
