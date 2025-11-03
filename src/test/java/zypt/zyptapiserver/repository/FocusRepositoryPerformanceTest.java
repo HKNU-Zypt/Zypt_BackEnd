@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-@ActiveProfiles("test")
 @SpringBootTest
 public class FocusRepositoryPerformanceTest {
 

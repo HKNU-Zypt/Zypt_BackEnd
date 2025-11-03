@@ -9,6 +9,7 @@ import zypt.zyptapiserver.domain.dto.focustime.FocusTimeForStatisticsDto;
 import zypt.zyptapiserver.domain.dto.focustime.QFocusTimeForStatisticsDto;
 import zypt.zyptapiserver.domain.dto.focustime.QUnFocusTimeForStatisticsDto;
 import zypt.zyptapiserver.domain.dto.focustime.UnFocusTimeForStatisticsDto;
+import zypt.zyptapiserver.domain.enums.UnFocusedType;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -37,16 +38,20 @@ public class FocusTimeStatisticsRepositoryImpl implements FocusTimeStatisticRepo
                 .fetch();
     }
 
+
+
     @Override
-    public List<UnFocusTimeForStatisticsDto> findUnFocusTimeForStatistics(List<Long> ids) {
+    public List<UnFocusTimeForStatisticsDto> findUnFocusTimeForStatistics(List<Long> ids, UnFocusedType unFocusedType) {
         return queryFactory.select(new QUnFocusTimeForStatisticsDto(
                         fragmentedUnfocusedTime.startAt,
                         fragmentedUnfocusedTime.endAt,
                         fragmentedUnfocusedTime.unfocusedTime
                 ))
                 .from(fragmentedUnfocusedTime)
-                .where(fragmentedUnfocusedTime.focusTime.id.in(ids)
-                        .and(fragmentedUnfocusedTime.unfocusedTime.goe(60)))
+                .where(fragmentedUnfocusedTime.focusTime.id.in(ids),
+                        unFocusedType != null
+                                ? fragmentedUnfocusedTime.type.eq(unFocusedType) : null,
+                        fragmentedUnfocusedTime.unfocusedTime.goe(60))
                 .fetch();
     }
 }

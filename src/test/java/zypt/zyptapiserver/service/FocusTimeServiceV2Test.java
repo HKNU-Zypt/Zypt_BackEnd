@@ -25,7 +25,6 @@ import java.util.List;
 
 @SpringBootTest
 @Slf4j
-@ActiveProfiles("test")
 @RequiredArgsConstructor
 public class FocusTimeServiceV2Test {
 

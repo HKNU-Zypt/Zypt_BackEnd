@@ -12,7 +12,6 @@ import zypt.zyptapiserver.service.exp.ExperienceService;
 import zypt.zyptapiserver.service.member.MemberService;
 
 @SpringBootTest
-@ActiveProfiles("test")
 class ExperienceServiceTest {
 
     @Autowired
