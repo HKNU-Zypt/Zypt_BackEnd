@@ -137,3 +137,9 @@ docker pull 사용자이름/image\[:tag\]
 docker-compose up -d -build
 ```
 
+## Infra OSS Notice
+- Prometheus — Apache License 2.0
+- Grafana — AGPL-3.0
+- Redis — BSD 3-Clause
+- Docker — Apache License 2.0 
+

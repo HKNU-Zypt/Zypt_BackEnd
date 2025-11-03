@@ -25,6 +25,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 
 @Slf4j
+@Profile("test")
 @SpringBootTest
 class MemberRepositoryTest {
 
