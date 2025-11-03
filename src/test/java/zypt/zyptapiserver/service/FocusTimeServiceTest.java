@@ -30,7 +30,6 @@ import java.time.LocalTime;
 import java.util.*;
 
 @SpringBootTest
-@ActiveProfiles("test")
 @Slf4j
 class FocusTimeServiceTest {
 

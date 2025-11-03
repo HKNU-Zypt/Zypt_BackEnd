@@ -43,7 +43,6 @@ public class FocusTimeJpaRepository implements FocusTimeRepository{
     public Optional<FocusTime> saveFocusTime(Member member, LocalDate date, LocalTime startAt, LocalTime endAt, Long sumUnFocusedTimes) {
         FocusTime newFocusTime
                 = new FocusTime(member, startAt, endAt, date, sumUnFocusedTimes);
-
         em.persist(newFocusTime);
 
         // 연관관계 설정

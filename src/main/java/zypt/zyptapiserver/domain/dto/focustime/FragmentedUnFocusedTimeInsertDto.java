@@ -17,6 +17,13 @@ public record FragmentedUnFocusedTimeInsertDto(
 
     // 집중하지 않은 시간 계산후 반환
     public long calculateUnfocusedDuration() {
-        return ChronoUnit.SECONDS.between(startAt(), endAt());
+        if (endAt.isBefore(startAt)) {
+            int endSecond = endAt.getSecond() + (24 * 3600); // 24시간을 더한 값
+            int startSecond = startAt.getSecond();
+            int result = endSecond - startSecond;
+            return result;
+        }
+
+        return ChronoUnit.SECONDS.between(startAt, endAt);
     }
 }
