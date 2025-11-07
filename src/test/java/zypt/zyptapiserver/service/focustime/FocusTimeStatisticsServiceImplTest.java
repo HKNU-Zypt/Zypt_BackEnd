@@ -47,27 +47,26 @@ class FocusTimeStatisticsServiceImplTest {
         String id = member.getId();
 
         // ------------------------
-        // [1] 어제 (23:30 → 다음날 11:05) - DISTRACTED + SLEEP 혼합
+        // [1] 어제 (23:30 → 다음날 06:55) - DISTRACTED + SLEEP 혼합
         // ------------------------
         List<FragmentedUnFocusedTimeInsertDto> dto1 = new ArrayList<>();
-        dto1.add(new FragmentedUnFocusedTimeInsertDto(LocalTime.of(23, 40), LocalTime.of(15, 50), UnFocusedType.DISTRACTED));
-        dto1.add(new FragmentedUnFocusedTimeInsertDto(LocalTime.of(23, 51), LocalTime.of(11, 59, 59), UnFocusedType.SLEEP));
+        dto1.add(new FragmentedUnFocusedTimeInsertDto(LocalTime.of(23, 40), LocalTime.of(3, 50), UnFocusedType.DISTRACTED));
+        dto1.add(new FragmentedUnFocusedTimeInsertDto(LocalTime.of(4, 0), LocalTime.of(5, 59, 59), UnFocusedType.SLEEP));
 
         focusTimeService.saveFocusTime(
                 id,
                 new FocusTimeDto(
                         LocalTime.of(23, 30),
-                        LocalTime.of(15, 55), // 다음날 아침까지 이어짐
+                        LocalTime.of(6, 55), // 다음날 아침까지 이어짐
                         LocalDate.now().minusDays(1),
                         dto1
                 )
         );
 
         // ------------------------
-        // [2] 오늘 (08:00 → 16:30) - 다양한 구간
+        // [2] 오늘 (10:00 → 16:30) - 다양한 구간
         // ------------------------
         List<FragmentedUnFocusedTimeInsertDto> dto2 = new ArrayList<>();
-        dto2.add(new FragmentedUnFocusedTimeInsertDto(LocalTime.of(8, 15), LocalTime.of(8, 30), UnFocusedType.DISTRACTED));
         dto2.add(new FragmentedUnFocusedTimeInsertDto(LocalTime.of(10, 45), LocalTime.of(11, 0), UnFocusedType.SLEEP));
         dto2.add(new FragmentedUnFocusedTimeInsertDto(LocalTime.of(12, 0), LocalTime.of(12, 30), UnFocusedType.DISTRACTED));
         dto2.add(new FragmentedUnFocusedTimeInsertDto(LocalTime.of(14, 20), LocalTime.of(14, 50), UnFocusedType.SLEEP));
@@ -76,7 +75,7 @@ class FocusTimeStatisticsServiceImplTest {
         focusTimeService.saveFocusTime(
                 id,
                 new FocusTimeDto(
-                        LocalTime.of(8, 0),
+                        LocalTime.of(10, 0),
                         LocalTime.of(16, 30),
                         LocalDate.now(),
                         dto2
@@ -102,10 +101,9 @@ class FocusTimeStatisticsServiceImplTest {
         );
 
         // ------------------------
-        // [4] 내일 (09:00 → 18:00) - 긴 세션, 중간중간 짧은 DISTRACTED
+        // [4] 내일 (10:00 → 18:00) - 긴 세션, 중간중간 짧은 DISTRACTED
         // ------------------------
         List<FragmentedUnFocusedTimeInsertDto> dto4 = new ArrayList<>();
-        dto4.add(new FragmentedUnFocusedTimeInsertDto(LocalTime.of(9, 50), LocalTime.of(10, 5), UnFocusedType.DISTRACTED));
         dto4.add(new FragmentedUnFocusedTimeInsertDto(LocalTime.of(11, 40), LocalTime.of(12, 0), UnFocusedType.SLEEP));
         dto4.add(new FragmentedUnFocusedTimeInsertDto(LocalTime.of(14, 0), LocalTime.of(14, 10), UnFocusedType.DISTRACTED));
         dto4.add(new FragmentedUnFocusedTimeInsertDto(LocalTime.of(15, 45), LocalTime.of(16, 0), UnFocusedType.SLEEP));
@@ -114,10 +112,49 @@ class FocusTimeStatisticsServiceImplTest {
         focusTimeService.saveFocusTime(
                 id,
                 new FocusTimeDto(
-                        LocalTime.of(9, 0),
+                        LocalTime.of(10, 0),
                         LocalTime.of(18, 0),
                         LocalDate.now().plusDays(1),
                         dto4
+                )
+        );
+
+
+        // ------------------------
+        // [5] 오늘 (09:00 → 09:30) - 짜잘한 많은 집중하지 않음 데이터
+        // ------------------------
+        List<FragmentedUnFocusedTimeInsertDto> dto5 = new ArrayList<>();
+
+        for (int i = 0; i <= 900; i += 3) {
+            int m = i / 60;
+            int s = i % 60;
+
+            int nm = (i + 3) / 60;
+            int ns = (i + 3) % 60;
+            dto5.add(new FragmentedUnFocusedTimeInsertDto(LocalTime.of(9, m, s), LocalTime.of(9, nm,ns), UnFocusedType.DISTRACTED));
+        }
+
+
+        focusTimeService.saveFocusTime(
+                id,
+                new FocusTimeDto(
+                        LocalTime.of(9, 0),
+                        LocalTime.of(9, 30),
+                        LocalDate.now().plusDays(1),
+                        dto5
+                )
+        );
+
+        // ------------------------
+        // [5] 오늘 (07:00 → 08:59) - 풀 집중
+        // ------------------------
+        focusTimeService.saveFocusTime(
+                id,
+                new FocusTimeDto(
+                        LocalTime.of(7, 0),
+                        LocalTime.of(8, 59),
+                        LocalDate.now().plusDays(1),
+                        List.of()
                 )
         );
     }

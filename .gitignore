@@ -43,3 +43,5 @@ application.yml
 ./mysql_data
 /mysql_data
 
+
+./.github
