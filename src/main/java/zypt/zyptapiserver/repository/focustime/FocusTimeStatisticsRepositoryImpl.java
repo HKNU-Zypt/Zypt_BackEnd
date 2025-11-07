@@ -51,7 +51,7 @@ public class FocusTimeStatisticsRepositoryImpl implements FocusTimeStatisticRepo
                 .where(fragmentedUnfocusedTime.focusTime.id.in(ids),
                         unFocusedType != null
                                 ? fragmentedUnfocusedTime.type.eq(unFocusedType) : null,
-                        fragmentedUnfocusedTime.unfocusedTime.goe(60))
+                        fragmentedUnfocusedTime.unfocusedTime.gt(1))
                 .fetch();
     }
 }
