@@ -44,6 +44,14 @@ spring:
         host: localhost
         port: 6380
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health, info, prometheus"
+  metrics:
+    tags:
+      application: Zypt
 
 
 livekit:
