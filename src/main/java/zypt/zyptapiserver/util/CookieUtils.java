@@ -1,12 +1,14 @@
 package zypt.zyptapiserver.util;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseCookie;
 
 import java.time.Duration;
 
 public class CookieUtils {
 
+    @Profile("product")
     public static void addCookie(HttpServletResponse response, String refreshToken) {
         ResponseCookie cookie = ResponseCookie.from("refreshToken")
                 .path("/")
@@ -19,4 +21,7 @@ public class CookieUtils {
 
         response.addHeader("Set-Cookie", cookie.toString());
     }
+
+
+
 }
