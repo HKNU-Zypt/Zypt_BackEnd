@@ -21,6 +21,8 @@ public class SocialServiceConfig {
     private final GoogleOIDCService googleOIDCService;
     private final NaverService naverService;
     private final KakaoService kakaoService;
+    private final TestService testService;
+
 
     // 소셜 타입 , 소셜 서비스를 맵에 등록
     public Map<SocialType, SocialService> socialTypeSocialServiceMap() {
@@ -28,6 +30,7 @@ public class SocialServiceConfig {
         map.put(SocialType.KAKAO, kakaoService);
         map.put(SocialType.GOOGLE, googleOIDCService);
         map.put(SocialType.NAVER, naverService);
+        map.put(SocialType.TEST, testService);
         return map;
     }
 

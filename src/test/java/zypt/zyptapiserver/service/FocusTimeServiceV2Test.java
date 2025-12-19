@@ -36,19 +36,15 @@ public class FocusTimeServiceV2Test {
     @Autowired
     MemberService memberService;
 
-
-
     @BeforeEach
     void init() {
         Member member = memberService.saveMember(Member.builder().nickName("abc").email("abc@gmail.com").socialId("123").socialType(SocialType.KAKAO).build());
-
         String id = member.getId();
 
         List<FragmentedUnFocusedTimeInsertDto> dto = new ArrayList<>();
         dto.add(new FragmentedUnFocusedTimeInsertDto(LocalTime.of(11,59,59), LocalTime.of(12,5), UnFocusedType.DISTRACTED));
         dto.add(new FragmentedUnFocusedTimeInsertDto(LocalTime.of(12,30), LocalTime.of(13, 22,11), UnFocusedType.DISTRACTED));
         dto.add(new FragmentedUnFocusedTimeInsertDto(LocalTime.of(13,59,59), LocalTime.of(14,1), UnFocusedType.DISTRACTED));
-
 
         focusTimeService.saveFocusTime(id, new FocusTimeDto(LocalTime.of(11,32,55), LocalTime.of(14,1,0), LocalDate.now(), dto));
 

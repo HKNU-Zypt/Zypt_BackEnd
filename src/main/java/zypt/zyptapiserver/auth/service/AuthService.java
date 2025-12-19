@@ -82,6 +82,7 @@ public class AuthService {
                     return newMember;
                 });
 
+
         log.info("액세스 토큰과 리프레시 토큰 생성");
         String newAccessToken = jwtUtils.generateAccessToken(member.getId());
         String newRefreshToken = findRefreshTokenInRedis(member);

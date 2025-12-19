@@ -33,9 +33,9 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable) // 기본 로그인 폼 비활성화
                 .logout(AbstractHttpConfigurer::disable) // 기본 로그아웃 비활성화
                 .csrf(AbstractHttpConfigurer::disable) // JWT 헤더기반 인증이므로 CSRF 비활성화
-                .requiresChannel(channel -> channel // HTTPS만 허용
-                        .anyRequest()
-                        .requiresSecure())
+//                .requiresChannel(channel -> channel // HTTPS만 허용
+//                        .anyRequest()
+//                        .requiresSecure())
                 .headers(c ->
                         c.frameOptions(
                                 HeadersConfigurer.FrameOptionsConfig::disable).disable()) // x Frame-Option 비활성화
