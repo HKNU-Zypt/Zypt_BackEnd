@@ -7,16 +7,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import zypt.zyptapiserver.service.member.MemberService;
 import zypt.zyptapiserver.auth.service.AuthService;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
-import zypt.zyptapiserver.domain.dto.RefreshTokenRequestDto;
-import zypt.zyptapiserver.domain.dto.member.SocialLoginDto;
-import zypt.zyptapiserver.domain.enums.SocialType;
+import zypt.zyptapiserver.dto.RefreshTokenRequestDto;
+import zypt.zyptapiserver.dto.member.SocialLoginDto;
 
 @Slf4j
 @RestController
@@ -28,7 +25,7 @@ public class AuthController {
     private final AuthService authService;
     private final MemberService memberService;
 
-    @PostMapping("/login")
+    @PostMapping("/new")
     @Operation(summary = "로그인(회원가입)", description = "리프레시 토큰을 보낼 필요 X")
     public ResponseEntity<String> socialLogin(@RequestBody SocialLoginDto socialLoginDto, HttpServletResponse response) {
         authService.handleAuthenticationFromSocialToken(response, socialLoginDto.type(), socialLoginDto.token());
@@ -42,7 +39,7 @@ public class AuthController {
     // 3. 성공 응답 반환
     // 4. 클라이언트는 액세스토큰을 삭제
 
-    @PostMapping("/logout")
+    @DeleteMapping("/tokens")
     @Operation(summary = "로그아웃", description = "Authorization 헤더에 액세스토큰 필요, 서버 내 JWT 리프레시 토큰을 삭제함")
     public ResponseEntity<String> logout(@AuthenticationPrincipal CustomUserDetails details) {
         authService.logout(details.getUsername());
@@ -71,8 +68,7 @@ public class AuthController {
      * @return
      */
 
-    //TODO String 말고 객체로 바꿀 것
-    @DeleteMapping("")
+    @DeleteMapping
     @Operation(summary = "회원탈퇴", description = "Authorization 헤더에 액세스토큰 필요, 구글의 경우 액세스 토큰 필요(현재는 재로그인 방법으로 획득할 것)")
     public ResponseEntity<String> deleteMember(@AuthenticationPrincipal CustomUserDetails details) {
         authService.disconnect(details.getUsername());

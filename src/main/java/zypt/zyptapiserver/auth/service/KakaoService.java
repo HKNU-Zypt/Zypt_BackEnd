@@ -16,9 +16,8 @@ import zypt.zyptapiserver.annotation.SocialIdentifier;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeysDto;
 import zypt.zyptapiserver.auth.service.oidc.OIDCService;
-import zypt.zyptapiserver.auth.user.KakaoUserInfo;
 import zypt.zyptapiserver.auth.user.UserInfo;
-import zypt.zyptapiserver.domain.dto.member.UnlinkDto;
+import zypt.zyptapiserver.dto.member.UnlinkDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.util.JwtUtils;
 
@@ -63,7 +62,7 @@ public class KakaoService implements SocialService {
             // 검증
             Claims claims = jwtUtils.validationIdToken(token, kakaoAppKey, SocialType.KAKAO.getIss(), key);
 
-            return new KakaoUserInfo(claims.getSubject(),
+            return new UserInfo(claims.getSubject(),
                     claims.get("email", String.class));
 
         } catch (IOException e) {

@@ -47,7 +47,7 @@ public class ExpAdminController {
         return ResponseEntity.ok("Admin event 스케줄링 됨 " + multiplier + "배 적용 " + startTime + " 부터  " + endTime + " 까지 적용");
     }
 
-    @PostMapping("/exp_table_init")
+    @PostMapping("/exp_table")
     public ResponseEntity<String> init() {
         redisCacheRepository.initializeLevelExpTable();
         return ResponseEntity.ok("초기화 완료");

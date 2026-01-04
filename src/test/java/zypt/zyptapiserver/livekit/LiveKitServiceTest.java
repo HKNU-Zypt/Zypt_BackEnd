@@ -1,14 +1,12 @@
 package zypt.zyptapiserver.livekit;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
-import zypt.zyptapiserver.livekit.dto.LiveKitAccessTokenDTO;
+import zypt.zyptapiserver.dto.livekit.LiveKitAccessTokenDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import zypt.zyptapiserver.livekit.dto.LiveKitParticipantDTO;
-import zypt.zyptapiserver.livekit.dto.LiveKitRoomDTO;
+import zypt.zyptapiserver.dto.livekit.LiveKitRoomDTO;
 
 import java.io.IOException;
 import java.util.List;

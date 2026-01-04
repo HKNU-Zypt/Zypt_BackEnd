@@ -10,12 +10,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import zypt.zyptapiserver.domain.dto.focustime.QFocusTimeResponseDto;
+import zypt.zyptapiserver.dto.focustime.QFocusTimeResponseDto;
 import zypt.zyptapiserver.exception.FocusTimeNotFoundException;
 import zypt.zyptapiserver.domain.*;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeResponseDto;
-import zypt.zyptapiserver.domain.dto.focustime.FragmentedUnFocusedTimeDto;
-import zypt.zyptapiserver.domain.dto.focustime.FragmentedUnFocusedTimeInsertDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeResponseDto;
+import zypt.zyptapiserver.dto.focustime.FragmentedUnFocusedTimeDto;
+import zypt.zyptapiserver.dto.focustime.FragmentedUnFocusedTimeInsertDto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

@@ -6,14 +6,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeResponseDto;
-import zypt.zyptapiserver.domain.dto.focustime.FragmentedUnFocusedTimeDto;
-import zypt.zyptapiserver.domain.dto.focustime.FragmentedUnFocusedTimeInsertDto;
-import zypt.zyptapiserver.domain.enums.SocialType;
+import zypt.zyptapiserver.dto.focustime.FocusTimeResponseDto;
+import zypt.zyptapiserver.dto.focustime.FragmentedUnFocusedTimeDto;
+import zypt.zyptapiserver.dto.focustime.FragmentedUnFocusedTimeInsertDto;
 import zypt.zyptapiserver.domain.enums.UnFocusedType;
 import zypt.zyptapiserver.repository.Member.MemberJdbcRepository;
 import zypt.zyptapiserver.repository.focustime.FocusTimeMyBatisRepository;
@@ -40,7 +38,7 @@ class FocusTimeMyBatisRepositoryTest {
     @Transactional
     @DisplayName("mybatis focusTime 저장, id값 조회 확인 테스트")
     void saveOneFocusTimeTest() {
-        Member member = Member.builder().id(UUID.randomUUID().toString()).socialType(SocialType.NAVER).nickName("abc").socialId("123").email("abc@gmail.com").build();
+        Member member = Member.builder().id(UUID.randomUUID().toString()).nickName("abc").email("abc@gmail.com").build();
         memberRepository.save(member);
 
         FocusTime focusTime = repository.saveFocusTime(member, LocalDate.now(), LocalTime.now(), LocalTime.now(), 1000L).get();

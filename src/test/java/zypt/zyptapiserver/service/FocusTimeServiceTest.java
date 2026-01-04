@@ -8,19 +8,19 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
+import zypt.zyptapiserver.domain.SocialAuth;
 import zypt.zyptapiserver.exception.FocusTimeNotFoundException;
 import zypt.zyptapiserver.exception.InvalidParamException;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeDto;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeResponseDto;
-import zypt.zyptapiserver.domain.dto.focustime.FragmentedUnFocusedTimeInsertDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeResponseDto;
+import zypt.zyptapiserver.dto.focustime.FragmentedUnFocusedTimeInsertDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.domain.enums.UnFocusedType;
 import zypt.zyptapiserver.repository.Member.MemberJdbcRepository;
-import zypt.zyptapiserver.repository.Member.MemberRepository;
+import zypt.zyptapiserver.repository.Member.MemberRepositoryImpl;
 import zypt.zyptapiserver.service.focustime.FocusTimeService;
 import zypt.zyptapiserver.service.member.MemberService;
 
@@ -37,7 +37,7 @@ class FocusTimeServiceTest {
     FocusTimeService service;
 
     @Autowired
-    MemberRepository memberRepository;
+    MemberRepositoryImpl memberRepositoryImpl;
 
 
     @Autowired
@@ -62,7 +62,7 @@ class FocusTimeServiceTest {
 
 //            Member member = memberRepository.save(Member.builder().email("abc@gmail.com").socialId("abc" + i).socialType(SocialType.GOOGLE).nickName(UUID.randomUUID().toString()).build());
 //            Member member = memberRepository.save(new Member(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "abc@google.com", SocialType.GOOGLE, "abc" + i));
-            Member member1 = memberService.saveMember(Member.builder().email("abc@gmail.com").socialId("abc" + i).socialType(SocialType.GOOGLE).nickName(UUID.randomUUID().toString()).build());
+            Member member1 = memberService.saveMember(Member.builder().email("abc@gmail.com").nickName(UUID.randomUUID().toString()).build(), new SocialAuth(SocialType.GOOGLE, "abc" + i));
             members.add(member1);
         }
 
@@ -142,7 +142,7 @@ class FocusTimeServiceTest {
     @Transactional
     @DisplayName("조건에 맞는 focus 데이터 하나 조회 테스트")
     void findOneFocusTimeTest() {
-        Member member = memberRepository.findBySocialId(SocialType.GOOGLE, "abc1").get();
+        Member member = memberRepositoryImpl.findBySocialId(SocialType.GOOGLE, "abc1").get();
         // given when
         Long id = service.findAllFocusTimes(member.getId()).get(0).getId();
         FocusTimeResponseDto focusTime = service.findFocusTime(id);

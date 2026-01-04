@@ -15,10 +15,12 @@ public class LevelExp {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Version
+    private Long version;
 
     @Column(name = "cur_level")
     private int level;
@@ -33,12 +35,17 @@ public class LevelExp {
         this.curExp = curExp;
     }
 
-    public void updateMember(Member member) {
+    public void addMember(Member member) {
         this.member = member;
     }
 
-    public void updateExpAndLevel(LevelExpInfo info) {
+    public void applyLevelInfo(LevelExpInfo info) {
         level = info.level();
         curExp = (long) info.exp();
+    }
+
+    public void applyLevelInfo(int level, long exp) {
+        this.level = level;
+        curExp = exp;
     }
 }

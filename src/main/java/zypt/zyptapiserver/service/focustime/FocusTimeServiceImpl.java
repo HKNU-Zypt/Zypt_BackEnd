@@ -3,15 +3,15 @@ package zypt.zyptapiserver.service.focustime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
+import zypt.zyptapiserver.dto.focustime.*;
 import zypt.zyptapiserver.exception.FocusTimeNotFoundException;
 import zypt.zyptapiserver.exception.FocusTimeSaveFailedException;
 import zypt.zyptapiserver.exception.InvalidParamException;
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.focustime.*;
 import zypt.zyptapiserver.exception.MemberNotFoundException;
 import zypt.zyptapiserver.repository.focustime.FocusTimeRepository;
-import zypt.zyptapiserver.repository.Member.MemberRepository;
+import zypt.zyptapiserver.repository.Member.MemberRepositoryImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,13 +24,13 @@ import java.util.stream.Collectors;
 public class FocusTimeServiceImpl implements FocusTimeService {
 
     private final FocusTimeRepository focusTimeRepository;
-    private final MemberRepository memberRepository;
+    private final MemberRepositoryImpl memberRepositoryImpl;
 
     @Transactional
     public long saveFocusTime(String memberId, FocusTimeDto focusTimeDto) {
         log.info("FocusTime 저장 ");
         // 멤버 엔티티 조회
-        Member member = memberRepository
+        Member member = memberRepositoryImpl
                 .findMemberById(memberId)
                 .orElseThrow(() ->
                         new MemberNotFoundException("유저를 찾을 수 없습니다. "));

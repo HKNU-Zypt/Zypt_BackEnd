@@ -1,17 +1,16 @@
 package zypt.zyptapiserver.livekit;
 
 import lombok.extern.slf4j.Slf4j;
-import zypt.zyptapiserver.livekit.dto.LiveKitAccessTokenDTO;
+import zypt.zyptapiserver.dto.livekit.LiveKitAccessTokenDTO;
 import io.livekit.server.*;
 import livekit.LivekitModels;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
-import zypt.zyptapiserver.livekit.dto.LiveKitParticipantDTO;
-import zypt.zyptapiserver.livekit.dto.LiveKitRoomDTO;
-import zypt.zyptapiserver.livekit.exception.DeleteFailException;
-import zypt.zyptapiserver.livekit.exception.RetrofitExecuteException;
+import zypt.zyptapiserver.dto.livekit.LiveKitParticipantDTO;
+import zypt.zyptapiserver.dto.livekit.LiveKitRoomDTO;
+import zypt.zyptapiserver.exception.livekit.DeleteFailException;
+import zypt.zyptapiserver.exception.livekit.RetrofitExecuteException;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 

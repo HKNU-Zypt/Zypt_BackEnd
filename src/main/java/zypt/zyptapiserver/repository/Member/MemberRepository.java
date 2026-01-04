@@ -1,126 +1,30 @@
 package zypt.zyptapiserver.repository.Member;
 
-
-import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import zypt.zyptapiserver.domain.Member;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-import zypt.zyptapiserver.domain.QLevelExp;
-import zypt.zyptapiserver.domain.QMember;
-import zypt.zyptapiserver.domain.dto.member.MemberAndLevelInfoDto;
-import zypt.zyptapiserver.domain.dto.member.MemberInfoDto;
-import zypt.zyptapiserver.domain.dto.member.QMemberAndLevelInfoDto;
+import zypt.zyptapiserver.dto.member.MemberAndLevelInfoDto2;
+import zypt.zyptapiserver.dto.member.MemberInfoDto;
 import zypt.zyptapiserver.domain.enums.RoleType;
-import zypt.zyptapiserver.domain.enums.SocialType;
 
-import java.util.List;
 import java.util.Optional;
 
-@Slf4j
-@Repository
-@RequiredArgsConstructor
-public class MemberRepository {
-
-    @PersistenceContext
-    private final EntityManager em;
-
-    private final JPAQueryFactory queryFactory;
-
-    private final QMember qMember = QMember.member;
-    private final QLevelExp qLevelExp = QLevelExp.levelExp;
+public interface MemberRepository extends JpaRepository<Member, String> {
 
 
-    @Transactional
-    public Member save(Member member) {
-        em.persist(member);
-        return member;
-    }
+    @Query("SELECT m.roleType FROM Member m WHERE m.id = :id")
+    Optional<RoleType> findRoleTypeById(@Param("id") String id);
 
-    @Transactional
-    public Optional<Member> findMemberById(String memberId) {
-        return Optional.ofNullable(em.find(Member.class, memberId));
-    }
+    @Query("SELECT m.id AS memberId, m.nickName AS nickName, m.email AS email FROM Member m WHERE m.id = :id")
+    Optional<MemberInfoDto> findMemberInfoById(@Param("id") String id);
 
+    @Query("SELECT m FROM Member m JOIN m.socialAuths s " +
+            "WHERE s.provider = :provider AND s.providerId = :providerId")
+    Optional<Member> findMemberBySocialInfo(@Param("provider") String provider, @Param("providerId") String providerId);
 
-    public Optional<MemberInfoDto> findMemberInfoById(String memberId) {
-        return Optional.ofNullable(queryFactory.select(Projections.constructor(
-                        MemberInfoDto.class,
-                        qMember.id,
-                        qMember.nickName,
-                        qMember.email
-                ))
-                .from(qMember)
-                .where(qMember.id.eq(memberId))
-                .fetchOne()
-        );
-    }
-
-    // socialId로 멤버 조회
-    @Transactional(readOnly = true)
-    public Optional<Member> findBySocialId(SocialType socialType, String socialId) {
-        String sql = "select m from Member m where socialType = :socialType and socialId = :socialId";
-        List<Member> member = em.createQuery(sql, Member.class)
-                .setParameter("socialType", socialType)
-                .setParameter("socialId", socialId)
-                .getResultList();
-
-        return member.stream().findFirst();
-    }
+    @Query("SELECT m.nickName AS nickName, m.email AS email, l.level AS level, l.curExp AS exp FROM Member m JOIN m.levelExp l WHERE m.id = :id")
+    Optional<MemberAndLevelInfoDto2> findMemberAndLevelInfoById(@Param("id") String id);
 
 
-
-    public Optional<MemberAndLevelInfoDto> findMemberAndLevelInfo(String memberId) {
-        return Optional.ofNullable(
-                queryFactory.select(new QMemberAndLevelInfoDto(
-                        qMember.nickName,
-                        qMember.email,
-                        qLevelExp.level,
-                        qLevelExp.curExp
-                ))
-                .from(qMember)
-                .innerJoin(qMember.levelExp, qLevelExp)
-                .where(qMember.id.eq(memberId))
-                .fetchOne()
-        );
-    }
-
-
-    @Transactional
-    public void updateNickName(String memberId, String nickName) {
-        long execute = queryFactory.update(qMember)
-                .set(qMember.nickName, nickName)
-                .where(qMember.id.eq(memberId))
-                .execute();
-
-        if (execute != 1) {
-            throw new IllegalStateException("업데이트 실패");
-        }
-    }
-
-
-
-    @Transactional
-    public void deleteMember(Member member) {
-        em.remove(member);
-    }
-
-
-    public String findMemberNickName(String memberId) {
-        return queryFactory.select(qMember.nickName)
-                .from(qMember)
-                .where(qMember.id.eq(memberId))
-                .fetchOne();
-    }
-
-    public RoleType findMemberRoleType(String memberId) {
-        return queryFactory.select(qMember.roleType)
-                .from(qMember)
-                .where(qMember.id.eq(memberId))
-                .fetchOne();
-    }
 }

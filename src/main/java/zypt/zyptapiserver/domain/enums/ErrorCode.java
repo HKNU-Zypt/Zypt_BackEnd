@@ -1,7 +1,9 @@
 package zypt.zyptapiserver.domain.enums;
 
-import zypt.zyptapiserver.domain.dto.ApiErrorResponse;
+import lombok.extern.slf4j.Slf4j;
+import zypt.zyptapiserver.dto.ApiErrorResponse;
 
+@Slf4j
 public enum ErrorCode {
 
     // 일반적인 에러
@@ -43,6 +45,7 @@ public enum ErrorCode {
     }
 
     public ApiErrorResponse getApiErrorResponse(String detail) {
+        log.info("error code = {} \n message = {} \n detail = {}" , this.code, this.message, detail);
         return new ApiErrorResponse(this.code, this.message, detail);
     }
 

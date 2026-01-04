@@ -5,10 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import zypt.zyptapiserver.domain.QFocusTime;
 import zypt.zyptapiserver.domain.QFragmentedUnfocusedTime;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeForStatisticsDto;
-import zypt.zyptapiserver.domain.dto.focustime.QFocusTimeForStatisticsDto;
-import zypt.zyptapiserver.domain.dto.focustime.QUnFocusTimeForStatisticsDto;
-import zypt.zyptapiserver.domain.dto.focustime.UnFocusTimeForStatisticsDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeForStatisticsDto;
+import zypt.zyptapiserver.dto.focustime.QFocusTimeForStatisticsDto;
+import zypt.zyptapiserver.dto.focustime.QUnFocusTimeForStatisticsDto;
+import zypt.zyptapiserver.dto.focustime.UnFocusTimeForStatisticsDto;
 import zypt.zyptapiserver.domain.enums.UnFocusedType;
 
 import java.time.LocalDate;

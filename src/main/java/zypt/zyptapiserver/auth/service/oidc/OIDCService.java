@@ -43,6 +43,7 @@ public class OIDCService {
             case KAKAO -> "https://kauth.kakao.com/.well-known/openid-configuration";
             case GOOGLE -> "https://accounts.google.com/.well-known/openid-configuration";
             case NAVER -> "https://nid.naver.com/.well-known/openid-configuration";
+            case TEST -> "TEST.com";
         };
 
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);

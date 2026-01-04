@@ -19,9 +19,8 @@ import org.springframework.web.client.RestTemplate;
 import zypt.zyptapiserver.annotation.SocialIdentifier;
 import zypt.zyptapiserver.exception.JsonCustomException;
 import zypt.zyptapiserver.exception.MissingTokenException;
-import zypt.zyptapiserver.auth.user.NaverUserInfo;
 import zypt.zyptapiserver.auth.user.UserInfo;
-import zypt.zyptapiserver.domain.dto.member.NaverRefreshAccessTokenDto;
+import zypt.zyptapiserver.dto.member.NaverRefreshAccessTokenDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
 
 @Slf4j
@@ -65,7 +64,7 @@ public class NaverService implements SocialService {
             String email = profile.get("response").get("email").asText();
 
 
-            return new NaverUserInfo(socialId, email);
+            return new UserInfo(socialId, email);
 
         } catch (JsonProcessingException e) {
             throw new JsonCustomException(e);

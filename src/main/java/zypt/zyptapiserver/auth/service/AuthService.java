@@ -11,7 +11,7 @@ import zypt.zyptapiserver.auth.user.UserInfo;
 import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.exception.MemberNotFoundException;
-import zypt.zyptapiserver.repository.Member.MemberRepository;
+import zypt.zyptapiserver.repository.Member.MemberRepositoryImpl;
 import zypt.zyptapiserver.repository.RedisRepository;
 import zypt.zyptapiserver.service.member.MemberService;
 import zypt.zyptapiserver.util.CookieUtils;
@@ -22,15 +22,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.NoSuchElementException;
-import java.util.UUID;
-
 @Slf4j
 @Service
 public class AuthService {
 
     private final RedisRepository redisRepository;
-    private final MemberRepository memberRepository;
+    private final MemberRepositoryImpl memberRepositoryImpl;
     private final MemberService memberService;
     private final SocialServiceFactory socialServiceFactory;
     private final JwtUtils jwtUtils;
@@ -38,9 +35,9 @@ public class AuthService {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
-    public AuthService(RedisRepository redisRepository, MemberRepository memberRepository, MemberService memberService, SocialServiceFactory socialServiceFactory, JwtUtils jwtUtils) {
+    public AuthService(RedisRepository redisRepository, MemberRepositoryImpl memberRepositoryImpl, MemberService memberService, SocialServiceFactory socialServiceFactory, JwtUtils jwtUtils) {
         this.redisRepository = redisRepository;
-        this.memberRepository = memberRepository;
+        this.memberRepositoryImpl = memberRepositoryImpl;
         this.memberService = memberService;
         this.socialServiceFactory = socialServiceFactory;
         this.jwtUtils = jwtUtils;
@@ -66,21 +63,9 @@ public class AuthService {
         log.info("로그인 성공");
 
         // 회원가입 하지 않았다면 가입
-        Member member = memberRepository.findBySocialId(socialType, userInfo.getId())
-                .orElseGet(() -> {
-                    log.info("존재하지 않은 회원, 회원가입 진행 socialType={}", socialType.getType().toString());
-                    Member newMember = Member.builder()
-                            .socialId(userInfo.getId())
-                            .email(userInfo.getEmail())
-                            .nickName(UUID.randomUUID().toString())
-                            .socialType(socialType)
-                            .build();
+        Member member = memberService.findOptionalMemberBySocialId(socialType, userInfo.getId())
+                .orElseGet(() -> memberService.saveMember(userInfo, socialType));
 
-                    // 회원 db에 저장 및 토큰 생성
-                    memberService.saveMember(newMember);
-                    log.info("회원가입 성공");
-                    return newMember;
-                });
 
         log.info("액세스 토큰과 리프레시 토큰 생성");
         String newAccessToken = jwtUtils.generateAccessToken(member.getId());
@@ -135,11 +120,8 @@ public class AuthService {
             refreshToken = jwtUtils.generateRefreshToken(member.getId());
             redisRepository.saveRefreshToken(member.getId(), refreshToken); // redis에 리프레시 토큰 저장
         }
-
-
         return refreshToken;
     }
-
 
 
     // Authentication 등록
@@ -156,12 +138,13 @@ public class AuthService {
     // Authentication 등록 db 조회
     public void registryAuthenticatedUser(String memberId) {
         log.info("memberId = {}", memberId);
-        RoleType memberRoleType = memberRepository.findMemberRoleType(memberId);
+        RoleType memberRoleType = memberService.findMemberRoleType(memberId);
 
         CustomUserDetails userDetails = new CustomUserDetails(memberId, memberRoleType.name());
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         log.info("auth = {}", userDetails.getAuthorities());
+
         //Authentication 저장
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
@@ -187,16 +170,10 @@ public class AuthService {
      */
     @Transactional
     public void disconnect(String memberId) {
-        Member member = memberRepository.findMemberById(memberId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
-        SocialService service = socialServiceFactory.getService(member.getSocialType());
-
-        if (member.getSocialType() == SocialType.KAKAO) {
-            service.disconnectSocialAccount(member.getSocialId());
-
-        }
+        Member member = memberRepositoryImpl.findMemberById(memberId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
 
         redisRepository.deleteRefreshToken(memberId); // 리프레시 토큰삭제
-        memberRepository.deleteMember(member); // 멤버 삭제
+        memberRepositoryImpl.deleteMember(member); // 멤버 삭제
     }
 
 }

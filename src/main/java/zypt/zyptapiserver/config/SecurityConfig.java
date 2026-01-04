@@ -3,6 +3,7 @@ package zypt.zyptapiserver.config;
 import zypt.zyptapiserver.auth.filter.CustomAccessDeniedHandler;
 import zypt.zyptapiserver.auth.filter.CustomAuthenticationEntryPoint;
 import zypt.zyptapiserver.auth.filter.JwtAuthenticationFilter;
+import zypt.zyptapiserver.auth.filter.MDCFilter;
 import zypt.zyptapiserver.auth.service.AuthService;
 import zypt.zyptapiserver.util.JwtUtils;
 import lombok.RequiredArgsConstructor;
@@ -33,17 +34,13 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable) // 기본 로그인 폼 비활성화
                 .logout(AbstractHttpConfigurer::disable) // 기본 로그아웃 비활성화
                 .csrf(AbstractHttpConfigurer::disable) // JWT 헤더기반 인증이므로 CSRF 비활성화
-                .requiresChannel(channel -> channel // HTTPS만 허용
-                        .anyRequest()
-                        .requiresSecure())
                 .headers(c ->
                         c.frameOptions(
                                 HeadersConfigurer.FrameOptionsConfig::disable).disable()) // x Frame-Option 비활성화
                 .sessionManagement(c ->
                         c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))   // 세션 사용 X
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/api/auth/login/**",
-                                        "/api/auth/logout",
+                        auth.requestMatchers("/api/auth/new",
                                         "/api/auth/refresh",
                                         "/v3/api-docs/**", // Swagger API 문서 정의 허용 (OpenAPI 3)
                                         "/favicon.ico",
@@ -61,7 +58,9 @@ public class SecurityConfig {
                         .accessDeniedHandler(new CustomAccessDeniedHandler())
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtils, authService)
-                        , UsernamePasswordAuthenticationFilter.class);
+                        , UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new MDCFilter(), JwtAuthenticationFilter.class);
+
 
 
         return httpSecurity.build();

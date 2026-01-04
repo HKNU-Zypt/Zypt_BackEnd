@@ -3,9 +3,9 @@ package zypt.zyptapiserver.service.focustime;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeForStatisticsDto;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeForStatisticsResponseDto;
-import zypt.zyptapiserver.domain.dto.focustime.UnFocusTimeForStatisticsDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeForStatisticsDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeForStatisticsResponseDto;
+import zypt.zyptapiserver.dto.focustime.UnFocusTimeForStatisticsDto;
 import zypt.zyptapiserver.domain.enums.UnFocusedType;
 import zypt.zyptapiserver.repository.focustime.FocusTimeStatisticRepository;
 

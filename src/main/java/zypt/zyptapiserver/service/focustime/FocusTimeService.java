@@ -1,7 +1,7 @@
 package zypt.zyptapiserver.service.focustime;
 
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeDto;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeResponseDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeResponseDto;
 
 import java.util.List;
 

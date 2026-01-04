@@ -1,9 +1,12 @@
 package zypt.zyptapiserver.auth.user;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-public interface UserInfo {
-    String getId();
-    String getName();
-    String getNickName();
-    String getEmail();
+@Getter
+@AllArgsConstructor
+public class UserInfo {
+    private final String id;
+    private final String email;
+
 }

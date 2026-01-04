@@ -11,9 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeResponseDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeResponseDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
-import zypt.zyptapiserver.repository.Member.MemberRepository;
+import zypt.zyptapiserver.repository.Member.MemberRepositoryImpl;
 import zypt.zyptapiserver.repository.focustime.FocusTimeJdbcRepository;
 import zypt.zyptapiserver.repository.focustime.FocusTimeJpaRepository;
 
@@ -33,7 +33,7 @@ class FocusTimeJdbcRepositoryTest {
     FocusTimeJpaRepository jpaRepository;
 
     @Autowired
-    MemberRepository memberRepository;
+    MemberRepositoryImpl memberRepositoryImpl;
 
     @Autowired
     TransactionTemplate transactionTemplate;
@@ -45,8 +45,8 @@ class FocusTimeJdbcRepositoryTest {
     void init() {
 
         log.info("초기화 ");
-        Member member = Member.builder().email("abc@aa.cc").nickName(UUID.randomUUID().toString()).socialType(SocialType.KAKAO).socialId("2gjdkl12333").build();
-        memberRepository.save(member);
+        Member member = Member.builder().email("abc@aa.cc").nickName(UUID.randomUUID().toString()).build();
+        memberRepositoryImpl.save(member);
 
         log.info("member 영속화 ? = {}", em.contains(member));
         log.info("중간 초기화 ");
@@ -66,7 +66,7 @@ class FocusTimeJdbcRepositoryTest {
     @DisplayName("집중 데이터 멤버 ID로 전부 조회 성공 테스트")
     void findAllFocusTime() {
 
-        Member member = memberRepository.findBySocialId(SocialType.KAKAO, "2gjdkl12333").get();
+        Member member = memberRepositoryImpl.findBySocialId(SocialType.KAKAO, "2gjdkl12333").get();
 
         // given when
         List<FocusTimeResponseDto> allFocusTimes = repository.findAllFocusTimes(member.getId());
@@ -81,7 +81,7 @@ class FocusTimeJdbcRepositoryTest {
     @DisplayName("집중 데이터 조회 특정 날짜 테스트")
     void findFocusTime() {
 
-        Member member = memberRepository.findBySocialId(SocialType.KAKAO, "2gjdkl12333").get();
+        Member member = memberRepositoryImpl.findBySocialId(SocialType.KAKAO, "2gjdkl12333").get();
         // given when
         List<FocusTimeResponseDto> focusByYear = repository.findFocusTimesByYearAndMonthAndDay(member.getId(), 2025, null, null);
         List<FocusTimeResponseDto> focusByYearAndMonth = repository.findFocusTimesByYearAndMonthAndDay(member.getId(), 2025, 6, null);
@@ -104,7 +104,7 @@ class FocusTimeJdbcRepositoryTest {
     void deleteByDate() {
 
         // given
-        Member member = memberRepository.findBySocialId(SocialType.KAKAO, "2gjdkl12333").get();
+        Member member = memberRepositoryImpl.findBySocialId(SocialType.KAKAO, "2gjdkl12333").get();
 
         //when
 //        repository.deleteFocusTimeByYearAndMonthAndDay(member.getId(), 2025, null, null);

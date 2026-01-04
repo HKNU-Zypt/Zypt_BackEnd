@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
-import zypt.zyptapiserver.repository.Member.MemberRepository;
+import zypt.zyptapiserver.repository.Member.MemberRepositoryImpl;
 import zypt.zyptapiserver.repository.focustime.FocusTimeJdbcRepository;
 import zypt.zyptapiserver.repository.focustime.FocusTimeJpaRepository;
 import zypt.zyptapiserver.repository.focustime.FocusTimeMyBatisRepository;
@@ -27,12 +27,12 @@ public class ZyptConfig {
     private final FocusTimeJpaRepository focusTimeJpaRepository;
 
     private final FocusTimeStatisticRepository focusTimeStatisticRepository;
-    private final MemberRepository memberRepository;
+    private final MemberRepositoryImpl memberRepositoryImpl;
 
 
     @Bean
     public FocusTimeService focusTimeService() {
-        return new FocusTimeServiceImpl(focusTimeJpaRepository, memberRepository);
+        return new FocusTimeServiceImpl(focusTimeJpaRepository, memberRepositoryImpl);
     }
 
     @Bean

@@ -84,7 +84,7 @@ public class FocusTime {
         this.focusTime = this.totalTime - unFocusedTime;
     }
 
-    public void setMember(Member member) {
+    public void addMember(Member member) {
         this.member = member;
     }
 

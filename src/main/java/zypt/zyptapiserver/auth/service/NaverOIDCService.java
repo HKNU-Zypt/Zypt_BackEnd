@@ -17,9 +17,8 @@ import zypt.zyptapiserver.exception.JsonCustomException;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeysDto;
 import zypt.zyptapiserver.auth.service.oidc.OIDCService;
-import zypt.zyptapiserver.auth.user.NaverUserInfo;
 import zypt.zyptapiserver.auth.user.UserInfo;
-import zypt.zyptapiserver.domain.dto.member.NaverRefreshAccessTokenDto;
+import zypt.zyptapiserver.dto.member.NaverRefreshAccessTokenDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.util.JwtUtils;
 
@@ -62,7 +61,7 @@ public class NaverOIDCService implements SocialService {
             // 검증
             Claims claims = jwtUtils.validationIdToken(token, naverClientId, SocialType.NAVER.getIss(), key);
 
-            return new NaverUserInfo(claims.getSubject(), "tmp");
+            return new UserInfo(claims.getSubject(), "tmp");
 
         } catch (IOException e) {
             throw new IllegalStateException("ID 토큰 헤더 파싱에 실패했습니다. " , e);

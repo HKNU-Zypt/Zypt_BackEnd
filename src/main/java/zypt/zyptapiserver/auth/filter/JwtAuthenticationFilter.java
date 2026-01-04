@@ -1,5 +1,7 @@
 package zypt.zyptapiserver.auth.filter;
 
+import com.fasterxml.uuid.Generators;
+import org.slf4j.MDC;
 import org.springframework.util.AntPathMatcher;
 import zypt.zyptapiserver.auth.service.AuthService;
 import zypt.zyptapiserver.util.JwtUtils;
@@ -10,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.filter.OncePerRequestFilter;
+import zypt.zyptapiserver.util.MDCUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -25,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final List<String> whiteList = Arrays.asList(
-            "/api/auth/login/**",
+            "/api/auth/new",
             "/api/auth/refresh",
             "/swagger-ui/**",
             "/v3/api-docs/**",
@@ -47,7 +50,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
         // 화이트 리스트의 경우 넘어감
         if (isWhiteListed(request.getRequestURI())) {
             filterChain.doFilter(request, response);
