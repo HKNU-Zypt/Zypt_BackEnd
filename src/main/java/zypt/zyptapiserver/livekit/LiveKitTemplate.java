@@ -1,6 +1,6 @@
 package zypt.zyptapiserver.livekit;
 
-import zypt.zyptapiserver.livekit.exception.RetrofitExecuteException;
+import zypt.zyptapiserver.exception.livekit.RetrofitExecuteException;
 
 import java.io.IOException;
 

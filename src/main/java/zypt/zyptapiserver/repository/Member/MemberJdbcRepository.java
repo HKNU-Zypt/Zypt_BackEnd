@@ -23,7 +23,7 @@ public class MemberJdbcRepository {
 
     @Transactional
     public Member save(Member member) {
-        String sql = "INSERT INTO member(id, nick_name, email, social_type, social_id, create_at, last_modified_at) values(:id, :nick_name, :email, :social_type, :social_id, :create_at, :last_modified_at)";
+        String sql = "INSERT INTO member(id, nick_name, email, create_at, last_modified_at) values(:id, :nick_name, :email, :create_at, :last_modified_at)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -31,8 +31,6 @@ public class MemberJdbcRepository {
         param.addValue("id", member.getId());
         param.addValue("nick_name", member.getNickName());
         param.addValue("email", member.getEmail());
-        param.addValue("social_type", member.getSocialType().name());
-        param.addValue("social_id", member.getSocialId());
         param.addValue("create_at", LocalDateTime.now());
         param.addValue("last_modified_at", LocalDateTime.now());
 

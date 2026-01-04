@@ -5,17 +5,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import zypt.zyptapiserver.domain.dto.member.MemberAndLevelInfoDto;
+import zypt.zyptapiserver.auth.user.UserInfo;
+import zypt.zyptapiserver.domain.SocialAuth;
+import zypt.zyptapiserver.dto.member.MemberAndLevelInfoDto;
 import zypt.zyptapiserver.domain.enums.RoleType;
 import zypt.zyptapiserver.exception.InvalidParamException;
 import zypt.zyptapiserver.domain.LevelExp;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.member.MemberInfoDto;
+import zypt.zyptapiserver.dto.member.MemberInfoDtoImpl;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.exception.MemberNotFoundException;
 import zypt.zyptapiserver.repository.ExpRepository;
-import zypt.zyptapiserver.repository.Member.MemberRepository;
+import zypt.zyptapiserver.repository.Member.MemberRepositoryImpl;
+import zypt.zyptapiserver.repository.SocialAuthRepository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -24,13 +28,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
 
-    private final MemberRepository repository;
+    private final MemberRepositoryImpl repository;
     private final ExpRepository expRepository;
+    private final SocialAuthRepository socialAuthRepository;
 
-    // 멤버 저장
-    @Transactional
-    public Member saveMember(Member member) {
-        log.info("멤버 생성");
+
+    @Override
+    public Member saveMember(Member member, SocialAuth socialAuth) {
         Member savedMember = repository.save(member);
 
         LevelExp levelExp = LevelExp.builder()
@@ -40,6 +44,41 @@ public class MemberServiceImpl implements MemberService {
 
         log.info("경험치 초기 데이터 저장");
         savedMember.addLevelExpInfo(levelExp);
+        savedMember.addSocialAuth(socialAuth);
+
+        socialAuthRepository.save(socialAuth);
+        expRepository.save(levelExp);
+
+        log.info("멤버 생성 성공");
+        return savedMember;
+    }
+
+    // 멤버 저장
+    @Transactional
+    public Member saveMember(UserInfo userInfo, SocialType type) {
+        log.info("멤버 생성");
+        Member member = Member.builder()
+                .email(userInfo.getEmail())
+                .nickName(UUID.randomUUID().toString())
+
+                .build();
+
+        SocialAuth socialAuth = new SocialAuth(type, userInfo.getId());
+
+
+        LevelExp levelExp = LevelExp.builder()
+                .level(1)
+                .curExp(0L)
+                .build();
+
+
+        Member savedMember = repository.save(member);
+
+        log.info("경험치 초기 데이터 저장");
+        savedMember.addLevelExpInfo(levelExp);
+        savedMember.addSocialAuth(socialAuth);
+
+        socialAuthRepository.save(socialAuth);
         expRepository.save(levelExp);
 
         log.info("멤버 생성 성공");
@@ -47,35 +86,39 @@ public class MemberServiceImpl implements MemberService {
     }
 
     // id로 멤버 조회
-    public MemberInfoDto findMember(String memberId) {
+    public MemberInfoDtoImpl findMember(String memberId) {
         return repository.findMemberInfoById(memberId)
                 .orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
     }
 
     // social id로 멤버 조회
     @Transactional(readOnly = true)
-    public Member findMemberBySocialId(SocialType type, String socialId) {
+    public Optional<Member> findOptionalMemberBySocialId(SocialType type, String socialId) {
+        return repository.findBySocialId(type, socialId);
+    }
 
-        return repository.findBySocialId(type, socialId)
-                .orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
+    @Transactional(readOnly = true)
+    public Member findMemberBySocialId(SocialType type, String socialId) {
+        return repository.findBySocialId(type, socialId).orElseThrow(() -> new MemberNotFoundException("멤버 조회 실패"));
     }
 
     // 닉네임 업데이트
     @Transactional
     public void updateNickName(String memberId, String nickName) {
-        String memberNickName = repository.findMemberNickName(memberId);
+        Member member = repository.findMemberById(memberId).orElseThrow(() -> new MemberNotFoundException("멤버가 존재하지 않음"));
 
-        log.info("nick = {} -> {}",memberNickName, nickName);
+        log.info("nick = {} -> {}",member.getNickName(), nickName);
         // 닉네임 설정을 안했다면 디폴트로 설정해준다.
         if (!StringUtils.hasText(nickName)) {
             nickName = "user+" + UUID.randomUUID().toString().substring(0, 16);
 
             // 이전과 같은 닉네임시 예외를 던짐
-        } else if (memberNickName.equals(nickName)) {
+        } else if (member.getNickName().equals(nickName)) {
             throw new InvalidParamException("이전 닉네임 불가");
         }
 
-        repository.updateNickName(memberId, nickName);
+        // 더티 체킹으로 업데이트
+        member.updateNickName(nickName);
     }
 
     @Override

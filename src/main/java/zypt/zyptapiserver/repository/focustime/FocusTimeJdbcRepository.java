@@ -9,11 +9,11 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeResponseDto;
-import zypt.zyptapiserver.domain.dto.focustime.FragmentedUnFocusedTimeDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeResponseDto;
+import zypt.zyptapiserver.dto.focustime.FragmentedUnFocusedTimeDto;
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.focustime.FragmentedUnFocusedTimeInsertDto;
+import zypt.zyptapiserver.dto.focustime.FragmentedUnFocusedTimeInsertDto;
 import zypt.zyptapiserver.domain.enums.UnFocusedType;
 
 import java.time.LocalDate;

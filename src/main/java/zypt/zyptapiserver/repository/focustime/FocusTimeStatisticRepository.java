@@ -1,7 +1,7 @@
 package zypt.zyptapiserver.repository.focustime;
 
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeForStatisticsDto;
-import zypt.zyptapiserver.domain.dto.focustime.UnFocusTimeForStatisticsDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeForStatisticsDto;
+import zypt.zyptapiserver.dto.focustime.UnFocusTimeForStatisticsDto;
 import zypt.zyptapiserver.domain.enums.UnFocusedType;
 
 import java.time.LocalDate;

@@ -13,13 +13,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import zypt.zyptapiserver.auth.user.UserInfo;
 import zypt.zyptapiserver.domain.enums.RoleType;
 import zypt.zyptapiserver.exception.InvalidTokenException;
 import zypt.zyptapiserver.exception.MissingTokenException;
-import zypt.zyptapiserver.auth.user.KakaoUserInfo;
 import zypt.zyptapiserver.domain.Member;
 import zypt.zyptapiserver.domain.enums.SocialType;
-import zypt.zyptapiserver.repository.Member.MemberRepository;
+import zypt.zyptapiserver.repository.Member.MemberRepositoryImpl;
 import zypt.zyptapiserver.repository.RedisRepository;
 import zypt.zyptapiserver.util.JwtUtils;
 
@@ -37,7 +37,7 @@ class AuthServiceUintTest {
     private RedisRepository redisRepository;
 
     @Mock
-    private MemberRepository memberRepository;
+    private MemberRepositoryImpl memberRepositoryImpl;
 
     @Mock
     private JwtUtils jwtUtils;
@@ -56,16 +56,16 @@ class AuthServiceUintTest {
         SocialType socialType = SocialType.KAKAO;
         String accessToken = "mock-kakao-token";
         SocialService socialService = mock(SocialService.class);
-        KakaoUserInfo kakaoUserInfo = new KakaoUserInfo("abc", "abc@google.com");
+        UserInfo kakaoUserInfo = new UserInfo("abc", "abc@google.com");
         UsernamePasswordAuthenticationToken authenticationToken = mock(UsernamePasswordAuthenticationToken.class);
-        Member member = new Member("abc", "he", "abc@google.com", socialType, kakaoUserInfo.getId());
+        Member member = new Member("abc", "he", "abc@google.com");
 
         when(factory.getService(socialType)).thenReturn(socialService);
         when(socialService.getUserInfo(accessToken)).thenReturn(kakaoUserInfo);
-        when(memberRepository.findBySocialId(socialType, kakaoUserInfo.getId())).thenReturn(Optional.of(member));
+        when(memberRepositoryImpl.findBySocialId(socialType, kakaoUserInfo.getId())).thenReturn(Optional.of(member));
         when(jwtUtils.generateAccessToken(member.getId())).thenReturn("mock-access-token");
         when(jwtUtils.generateRefreshToken(member.getId())).thenReturn("mock-refresh-token");
-        when(memberRepository.findMemberRoleType(member.getId())).thenReturn(RoleType.ROLE_USER);
+        when(memberRepositoryImpl.findMemberRoleType(member.getId())).thenReturn(RoleType.ROLE_USER);
 
         // when
         authService.handleAuthenticationFromSocialToken(response, socialType, accessToken);
@@ -73,7 +73,7 @@ class AuthServiceUintTest {
         //then
         verify(factory).getService(socialType);
         verify(socialService).getUserInfo(accessToken);
-        verify(memberRepository).findBySocialId(socialType, kakaoUserInfo.getId());
+        verify(memberRepositoryImpl).findBySocialId(socialType, kakaoUserInfo.getId());
         verify(jwtUtils).generateAccessToken(member.getId());
         verify(jwtUtils).generateRefreshToken(member.getId());
 
@@ -112,7 +112,7 @@ class AuthServiceUintTest {
         // given
         String refreshToken = "mock-refresh-token";
         Claims claims = mock(Claims.class);
-        Member member = new Member("abc", "gg", "fdas", SocialType.KAKAO, "dddd");
+        Member member = new Member("abc", "gg", "fdas");
 
 
         when(jwtUtils.getSubjectEvenIfExpired(refreshToken)).thenReturn(claims);
@@ -121,7 +121,7 @@ class AuthServiceUintTest {
         when(jwtUtils.generateAccessToken("abc")).thenReturn("mock-newAccess-token");
         when(jwtUtils.validationToken("mock-refresh-token")).thenReturn(true);
 //        when(memberRepository.findMemberById("abc")).thenReturn(Optional.of(member));
-        when(memberRepository.findMemberRoleType(member.getId())).thenReturn(RoleType.ROLE_USER);
+        when(memberRepositoryImpl.findMemberRoleType(member.getId())).thenReturn(RoleType.ROLE_USER);
 
         // when
         authService.authenticateUserFromToken(response, refreshToken);
@@ -179,7 +179,7 @@ class AuthServiceUintTest {
         String memberId = "abc";
 //        when(memberRepository.findMemberById(memberId)).thenReturn(Optional.of(new Member(memberId, "hh", null, null, null)));
 
-        when(memberRepository.findMemberRoleType(memberId)).thenReturn(RoleType.ROLE_USER);
+        when(memberRepositoryImpl.findMemberRoleType(memberId)).thenReturn(RoleType.ROLE_USER);
         //when
         authService.registryAuthenticatedUser(memberId);
 

@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import zypt.zyptapiserver.annotation.SocialIdentifier;
-import zypt.zyptapiserver.auth.user.TestUserInfo;
 import zypt.zyptapiserver.auth.user.UserInfo;
 import zypt.zyptapiserver.domain.enums.SocialType;
 
@@ -28,7 +28,7 @@ public class TestService implements SocialService {
             String socialId = jsonNode.get("id").asText();
             String email = jsonNode.get("email").asText();
 
-            return new TestUserInfo(socialId, email);
+            return new UserInfo(socialId, email);
 
         } catch (JsonMappingException e) {
             throw new RuntimeException(e);
@@ -42,3 +42,5 @@ public class TestService implements SocialService {
 
     }
 }
+
+

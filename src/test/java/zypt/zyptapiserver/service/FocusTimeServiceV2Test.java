@@ -6,12 +6,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeDto;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeForStatisticsResponseDto;
-import zypt.zyptapiserver.domain.dto.focustime.FragmentedUnFocusedTimeInsertDto;
+import zypt.zyptapiserver.domain.SocialAuth;
+import zypt.zyptapiserver.dto.focustime.FocusTimeDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeForStatisticsResponseDto;
+import zypt.zyptapiserver.dto.focustime.FragmentedUnFocusedTimeInsertDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.domain.enums.UnFocusedType;
 import zypt.zyptapiserver.service.focustime.FocusTimeService;
@@ -38,7 +38,7 @@ public class FocusTimeServiceV2Test {
 
     @BeforeEach
     void init() {
-        Member member = memberService.saveMember(Member.builder().nickName("abc").email("abc@gmail.com").socialId("123").socialType(SocialType.KAKAO).build());
+        Member member = memberService.saveMember(Member.builder().nickName("abc").email("abc@gmail.com").build(), new SocialAuth(SocialType.KAKAO, "123"));
         String id = member.getId();
 
         List<FragmentedUnFocusedTimeInsertDto> dto = new ArrayList<>();
@@ -58,7 +58,7 @@ public class FocusTimeServiceV2Test {
     @Test
     @Transactional
     void run() {
-        Member member = memberService.findMemberBySocialId(SocialType.KAKAO, "123");
+        Member member = memberService.findOptionalMemberBySocialId(SocialType.KAKAO, "123").get();
 
         for (int i = 0; i < 2; i++) {
             FocusTimeForStatisticsResponseDto times = focusTimeStatisticsServiceImpl.findFocusTimesForStatisticsByDateRange(member.getId(), LocalDate.now().minusDays(i), LocalDate.now());

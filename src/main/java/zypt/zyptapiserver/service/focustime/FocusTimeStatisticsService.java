@@ -1,6 +1,6 @@
 package zypt.zyptapiserver.service.focustime;
 
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeForStatisticsResponseDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeForStatisticsResponseDto;
 
 import java.time.LocalDate;
 

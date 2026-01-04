@@ -2,9 +2,9 @@ package zypt.zyptapiserver.repository.focustime;
 
 import zypt.zyptapiserver.domain.FocusTime;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeResponseDto;
-import zypt.zyptapiserver.domain.dto.focustime.FragmentedUnFocusedTimeDto;
-import zypt.zyptapiserver.domain.dto.focustime.FragmentedUnFocusedTimeInsertDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeResponseDto;
+import zypt.zyptapiserver.dto.focustime.FragmentedUnFocusedTimeDto;
+import zypt.zyptapiserver.dto.focustime.FragmentedUnFocusedTimeInsertDto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

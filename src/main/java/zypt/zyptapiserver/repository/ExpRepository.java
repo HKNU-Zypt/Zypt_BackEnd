@@ -29,14 +29,6 @@ public class ExpRepository {
                 .fetchOne();
     }
 
-    @Transactional
-    public void updateLevelAndExp(int level, long exp) {
-        long cnt = queryFactory.update(qLevelExp)
-                .set(qLevelExp.level, level)
-                .set(qLevelExp.curExp, exp)
-                .execute();
-    }
-
 
 
 }

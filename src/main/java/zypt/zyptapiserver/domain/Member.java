@@ -5,7 +5,6 @@ import com.querydsl.core.annotations.QueryProjection;
 import jakarta.persistence.*;
 import lombok.*;
 import zypt.zyptapiserver.domain.enums.RoleType;
-import zypt.zyptapiserver.domain.enums.SocialType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,19 +21,17 @@ public class Member extends BaseTimeEntity {
     private String email;
 
     @Enumerated(EnumType.STRING)
-    private SocialType socialType;
-    private String socialId;
-
-    @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private RoleType roleType;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<LevelExp> levelExp = new ArrayList<>();
+    @OneToOne(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true, optional = false)
+    private LevelExp levelExp;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FocusTime> focusTimes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SocialAuth> socialAuths = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {
@@ -45,12 +42,10 @@ public class Member extends BaseTimeEntity {
 
     @Builder
     @QueryProjection
-    public Member(String id, String nickName, String email, SocialType socialType, String socialId) {
+    public Member(String id, String nickName, String email) {
         this.id = id;
         this.nickName = nickName;
         this.email = email;
-        this.socialType = socialType;
-        this.socialId = socialId;
         this.roleType = RoleType.ROLE_USER;
     }
 
@@ -65,11 +60,16 @@ public class Member extends BaseTimeEntity {
     // 연관관계 편의 메서드
     public void addFocusTimes(FocusTime focusTime) {
         focusTimes.add(focusTime);
-        focusTime.setMember(this);
+        focusTime.addMember(this);
     }
 
     public void addLevelExpInfo(LevelExp levelExp) {
-        this.levelExp.add(levelExp);
-        levelExp.updateMember(this);
+        this.levelExp = levelExp;
+        levelExp.addMember(this);
+    }
+
+    public void addSocialAuth(SocialAuth socialAuth) {
+        this.socialAuths.add(socialAuth);
+        socialAuth.addMember(this);
     }
 }

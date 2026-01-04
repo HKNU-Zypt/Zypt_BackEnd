@@ -1,6 +1,5 @@
 package zypt.zyptapiserver.controller;
 
-import io.opencensus.metrics.export.Summary;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -9,13 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeForStatisticsResponseDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeForStatisticsResponseDto;
 import zypt.zyptapiserver.service.exp.ExperienceService;
 import zypt.zyptapiserver.service.focustime.FocusTimeService;
 import zypt.zyptapiserver.service.focustime.FocusTimeStatisticsService;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeDto;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeResponseDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeResponseDto;
 
 import java.time.LocalDate;
 import java.util.List;

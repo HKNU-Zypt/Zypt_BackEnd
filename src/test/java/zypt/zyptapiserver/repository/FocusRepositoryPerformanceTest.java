@@ -2,17 +2,16 @@ package zypt.zyptapiserver.repository;
 
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeResponseDto;
-import zypt.zyptapiserver.domain.enums.SocialType;
+import zypt.zyptapiserver.dto.focustime.FocusTimeResponseDto;
 import zypt.zyptapiserver.repository.Member.MemberJdbcRepository;
-import zypt.zyptapiserver.repository.Member.MemberRepository;
+import zypt.zyptapiserver.repository.Member.MemberRepositoryImpl;
 import zypt.zyptapiserver.repository.focustime.FocusTimeJdbcRepository;
 import zypt.zyptapiserver.repository.focustime.FocusTimeJpaRepository;
 import zypt.zyptapiserver.repository.focustime.FocusTimeMyBatisRepository;
@@ -37,19 +36,29 @@ public class FocusRepositoryPerformanceTest {
     FocusTimeMyBatisRepository myBatisRepository;
 
     @Autowired
-    MemberRepository memberJpaRepository;
+    MemberRepositoryImpl memberJpaRepository;
     @Autowired
     private MemberJdbcRepository memberJdbcRepository;
 
     @Autowired
     EntityManager em;
 
+    Member member;
+
+
+    @BeforeEach
+    void init() {
+        member = memberJpaRepository.save(Member.builder().email("abc@naver.com").nickName(UUID.randomUUID().toString()).build());
+        em.flush();
+    }
+
     @Test
     @Transactional
-    @DisplayName("insert 성능 테스트")
+    @DisplayName("jpa insert 성능 테스트")
     void insertFocusJPATest() {
-        Member member = memberJpaRepository.save(Member.builder().email("abc@naver.com").socialType(SocialType.KAKAO).socialId("123").nickName(UUID.randomUUID().toString()).build());
+
         double jpaAVG = getJpaAvg(jpaRepository, member,0);
+
 
         log.info("jpa = {} ms", jpaAVG);
     }
@@ -57,20 +66,19 @@ public class FocusRepositoryPerformanceTest {
 
     @Test
     @Transactional
-    @DisplayName("insert 성능 테스트")
+    @DisplayName("jdbc insert 성능 테스트")
     void insertFocusJDBCTest() {
-        Member commitedMember = memberJdbcRepository.save(new Member("test1", UUID.randomUUID().toString(), "abc@google.com", SocialType.GOOGLE, "abc" ));
-        double jdbcAVG = getAvg(jdbcRepository, commitedMember,0);
+
+        double jdbcAVG = getAvg(jdbcRepository, member,0);
 
         log.info("jdbc = {} ms", jdbcAVG);
     }
 
     @Test
     @Transactional
-    @DisplayName("insert 성능 테스트")
+    @DisplayName("mybais insert 성능 테스트")
     void insertFocusMybatisTest() {
-        Member commitedMember = memberJdbcRepository.save(new Member(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "abc@google.com", SocialType.GOOGLE, "abc" ));
-        double mybatisAVG = getAvg(myBatisRepository, commitedMember,0);
+        double mybatisAVG = getAvg(myBatisRepository, member,0);
 
         log.info("mybatis = {} ms", mybatisAVG);
     }
@@ -78,17 +86,17 @@ public class FocusRepositoryPerformanceTest {
     private double getAvg(FocusTimeRepository repository, Member member, long avg) {
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
-//
-//        // 예열
-//        for (int j = 0; j < 1000; j++) {
-//            repository.saveFocusTime(member, date, time, time, 1L);
-//        }
+
+        // 예열
+        for (int j = 0; j < 1000; j++) {
+            repository.saveFocusTime(member, date, time, time, 1L);
+        }
 
         for (int i = 0; i < 5; i++) {
             long start = System.currentTimeMillis();
 
-            for (int j = 0; j < 1000; j++) {
-                repository.saveFocusTime(member, date.plusDays(i), time.minusMinutes(i), time.plusMinutes(i), 1L);
+            for (int j = 0; j < 10000; j++) {
+                repository.saveFocusTime(member, date.plusDays(j), time.plusSeconds(j), time.plusSeconds(j + 1), 1L);
 
             }
             long end = System.currentTimeMillis();
@@ -109,8 +117,8 @@ public class FocusRepositoryPerformanceTest {
 
         for (int i = 0; i < 5; i++) {
             long start = System.currentTimeMillis();
-            for (int j = 0; j < 2000; j++) {
-                repository.saveFocusTime(member, date, time.minusMinutes(i), time.plusMinutes(i), 1L);
+            for (int j = 0; j < 10000; j++) {
+                repository.saveFocusTime(member, date, time.minusMinutes(j), time.plusMinutes(j), 1L);
 
             }
             long end = System.currentTimeMillis();
@@ -127,8 +135,6 @@ public class FocusRepositoryPerformanceTest {
         log.info("jpa select = {} ms", findAll(jpaRepository));
         log.info("jdbc select = {} ms", findAll(jdbcRepository));
         log.info("myBatis select = {} ms", findAll(myBatisRepository));
-
-
     }
 
     private double findAll(FocusTimeRepository repository) {
@@ -150,9 +156,5 @@ public class FocusRepositoryPerformanceTest {
         return avg / 5.0;
     }
 
-    @Test
-    @DisplayName("집중 시간 전부 조회 성능 테스트")
-    void findAllTest() {
 
-    }
 }

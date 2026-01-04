@@ -5,14 +5,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 import zypt.zyptapiserver.service.member.MemberService;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
-import zypt.zyptapiserver.domain.dto.member.MemberInfoDto;
+import zypt.zyptapiserver.dto.member.MemberInfoDtoImpl;
 import zypt.zyptapiserver.livekit.LiveKitService;
-import zypt.zyptapiserver.livekit.dto.LiveKitAccessTokenDTO;
+import zypt.zyptapiserver.dto.livekit.LiveKitAccessTokenDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import zypt.zyptapiserver.livekit.dto.LiveKitParticipantDTO;
-import zypt.zyptapiserver.livekit.dto.LiveKitRoomDTO;
+import zypt.zyptapiserver.dto.livekit.LiveKitParticipantDTO;
+import zypt.zyptapiserver.dto.livekit.LiveKitRoomDTO;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,13 +26,13 @@ public class LiveKitController {
     private final LiveKitService service;
     private final MemberService memberService;
 
-    @PostMapping("/create")
+    @PostMapping
     @Operation(summary = "룸 생성", description = "액세스토큰 해더 필수, \n\n 방이름을 통해 새로운 룸 생성 응답은 방 액세스 토큰")
     public ResponseEntity<LiveKitAccessTokenDTO> createRoom(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                             @RequestParam("roomName") String roomName,
                                                             @RequestParam(name = "maxParticipant", required = false, defaultValue = "10") int maxParticipant) throws IOException {
 
-        MemberInfoDto infoDto = memberService.findMember(userDetails.getUsername());
+        MemberInfoDtoImpl infoDto = memberService.findMember(userDetails.getUsername());
 
         LiveKitAccessTokenDTO liveKitAccessTokenDTO = service.createRoom(infoDto.nickName(), userDetails.getUsername(), roomName, maxParticipant);
         return ResponseEntity.ok(liveKitAccessTokenDTO);
@@ -43,7 +43,7 @@ public class LiveKitController {
     public ResponseEntity<LiveKitAccessTokenDTO> joinRoom(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                           @PathVariable("roomName") String roomName) {
 
-        MemberInfoDto infoDto = memberService.findMember(userDetails.getUsername());
+        MemberInfoDtoImpl infoDto = memberService.findMember(userDetails.getUsername());
 
         LiveKitAccessTokenDTO liveKitAccessTokenDTO = service.getLiveKitAccessToken(infoDto.nickName(), userDetails.getUsername(), roomName);
         return ResponseEntity.ok(liveKitAccessTokenDTO);
@@ -56,7 +56,7 @@ public class LiveKitController {
         return ResponseEntity.ok(participantsDto);
     }
 
-    @GetMapping("")
+    @GetMapping
     @Operation(summary = "전체 룸 정보 조회", description = "액세스토큰 해더 필수, \n\n 모든 룸 조회")
     public ResponseEntity<List<LiveKitRoomDTO>> findAllRooms() {
         List<LiveKitRoomDTO> allRooms = service.findAllRooms();

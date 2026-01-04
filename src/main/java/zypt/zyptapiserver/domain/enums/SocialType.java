@@ -9,7 +9,7 @@ public enum SocialType {
     KAKAO("kakao", "https://kauth.kakao.com", "https://kapi.kakao.com/v1/user/unlink"),
     GOOGLE("google", "https://accounts.google.com" , null),
     NAVER("naver", "https://nid.naver.com", null),
-    TEST("TEST", "https://TEST.com", null);
+    TEST("test", "https://TEST.com", null);
 
     private final String type;
     private final String iss;

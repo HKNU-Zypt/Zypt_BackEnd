@@ -6,12 +6,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import zypt.zyptapiserver.domain.Member;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeDto;
-import zypt.zyptapiserver.domain.dto.focustime.FocusTimeForStatisticsResponseDto;
-import zypt.zyptapiserver.domain.dto.focustime.FragmentedUnFocusedTimeInsertDto;
+import zypt.zyptapiserver.domain.SocialAuth;
+import zypt.zyptapiserver.dto.focustime.FocusTimeDto;
+import zypt.zyptapiserver.dto.focustime.FocusTimeForStatisticsResponseDto;
+import zypt.zyptapiserver.dto.focustime.FragmentedUnFocusedTimeInsertDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
 import zypt.zyptapiserver.domain.enums.UnFocusedType;
 import zypt.zyptapiserver.service.member.MemberService;
@@ -39,9 +39,8 @@ class FocusTimeStatisticsServiceImplTest {
                 Member.builder()
                         .nickName("abc")
                         .email("abc@gmail.com")
-                        .socialId("123")
-                        .socialType(SocialType.KAKAO)
-                        .build()
+                        .build(),
+                new SocialAuth(SocialType.KAKAO, "123")
         );
 
         String id = member.getId();

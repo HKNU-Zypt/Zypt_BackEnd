@@ -2,6 +2,7 @@ package zypt.zyptapiserver.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.client.RestTemplate;
 import zypt.zyptapiserver.auth.service.*;
 import zypt.zyptapiserver.auth.service.oidc.OIDCService;
@@ -35,8 +36,18 @@ public class SocialServiceConfig {
     }
 
     @Bean
-    public SocialServiceFactory socialServiceFactory() {
+    @Profile("dev")
+    public SocialServiceFactory socialServiceFactoryDev() {
         return new SocialServiceFactory(socialTypeSocialServiceMap());
+    }
+
+    @Bean
+    @Profile("prod")
+    public SocialServiceFactory socialServiceFactoryProd() {
+        Map<SocialType, SocialService> serviceMap = socialTypeSocialServiceMap();
+        serviceMap.remove(SocialType.TEST);
+
+        return new SocialServiceFactory(serviceMap);
     }
 
 }
