@@ -68,7 +68,7 @@ class AuthServiceUintTest {
         when(memberRepositoryImpl.findMemberRoleType(member.getId())).thenReturn(RoleType.ROLE_USER);
 
         // when
-        authService.handleAuthenticationFromSocialToken(response, socialType, accessToken);
+        authService.handleAuthenticationFromSocialToken(socialType, accessToken);
 
         //then
         verify(factory).getService(socialType);
@@ -96,7 +96,7 @@ class AuthServiceUintTest {
 
         //when & then
         Assertions.assertThatThrownBy(()
-                        -> authService.handleAuthenticationFromSocialToken(response, socialType, accessToken))
+                        -> authService.handleAuthenticationFromSocialToken(socialType, accessToken))
                 .isInstanceOf(InvalidTokenException.class);
 
 

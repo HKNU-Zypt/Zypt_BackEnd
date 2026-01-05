@@ -39,7 +39,7 @@ public class LoggingAspect {
         } catch (Exception e) {
             Boolean alreadyEx = isException.get();
             if (!alreadyEx) {
-                log.error("{}|--> {} |--> X   EX : {}", indent(depth), joinPoint.getSignature().toShortString(), e.getMessage(), e);
+                log.warn("{}|--> {} |--> X   EX : {}", indent(depth), joinPoint.getSignature().toShortString(), e.getMessage(), e);
                 isException.set(true);
             }
             throw e;

@@ -56,11 +56,11 @@ public class MemberServiceImpl implements MemberService {
     // 멤버 저장
     @Transactional
     public Member saveMember(UserInfo userInfo, SocialType type) {
+
         log.info("멤버 생성");
         Member member = Member.builder()
                 .email(userInfo.getEmail())
                 .nickName(UUID.randomUUID().toString())
-
                 .build();
 
         SocialAuth socialAuth = new SocialAuth(type, userInfo.getId());
@@ -94,6 +94,7 @@ public class MemberServiceImpl implements MemberService {
     // social id로 멤버 조회
     @Transactional(readOnly = true)
     public Optional<Member> findOptionalMemberBySocialId(SocialType type, String socialId) {
+
         return repository.findBySocialId(type, socialId);
     }
 
@@ -103,7 +104,6 @@ public class MemberServiceImpl implements MemberService {
     }
 
     // 닉네임 업데이트
-    @Transactional
     public void updateNickName(String memberId, String nickName) {
         Member member = repository.findMemberById(memberId).orElseThrow(() -> new MemberNotFoundException("멤버가 존재하지 않음"));
 
@@ -151,5 +151,15 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public RoleType findMemberRoleType(String memberId) {
         return repository.findMemberRoleType(memberId);
+    }
+
+    @Override
+    public Optional<Member> findMemberByEmail(String email) {
+        return repository.findMemberByEmail(email);
+    }
+
+    @Override
+    public void linkSocialAuth(Member member, SocialAuth socialAuth) {
+        member.addSocialAuth(socialAuth);
     }
 }

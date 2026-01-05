@@ -37,4 +37,8 @@ public interface MemberService {
     MemberAndLevelInfoDto findMemberInfo(String memberId);
 
     RoleType findMemberRoleType(String memberId);
+
+    Optional<Member> findMemberByEmail(String email);
+
+    void linkSocialAuth(Member member, SocialAuth socialAuth);
 }
