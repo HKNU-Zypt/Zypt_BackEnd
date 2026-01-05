@@ -2,7 +2,9 @@ package zypt.zyptapiserver.auth.service;
 
 import io.jsonwebtoken.Claims;
 import org.springframework.transaction.annotation.Transactional;
+import zypt.zyptapiserver.domain.SocialAuth;
 import zypt.zyptapiserver.domain.enums.RoleType;
+import zypt.zyptapiserver.dto.Token;
 import zypt.zyptapiserver.exception.InvalidParamException;
 import zypt.zyptapiserver.exception.InvalidTokenException;
 import zypt.zyptapiserver.exception.MissingTokenException;
@@ -21,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -43,12 +47,8 @@ public class AuthService {
         this.jwtUtils = jwtUtils;
     }
 
-    /**
-     * redis 예외시에도 DB에 멤버가 저장됨, 따라서 트랜잭션을 적용해 회원가입 로직 도중 예외 발생시 저장을 방지
-     */
-    @Transactional
-    public void handleAuthenticationFromSocialToken(HttpServletResponse response, SocialType socialType, String token) {
 
+    public UserInfo handleAuthenticationFromSocialToken(SocialType socialType, String token) {
         if (socialType == null || token == null) {
             throw new InvalidParamException("토큰 혹은 소셜타입이 없음");
         }
@@ -60,13 +60,23 @@ public class AuthService {
             throw new InvalidTokenException("소셜 AccessToken이 유효하지 않거나 형식이 잘못되었습니다");
         }
 
-        log.info("로그인 성공");
+        log.info("소셜 계정 정보 획득");
+        return userInfo;
+    }
 
-        // 회원가입 하지 않았다면 가입
-        Member member = memberService.findOptionalMemberBySocialId(socialType, userInfo.getId())
-                .orElseGet(() -> memberService.saveMember(userInfo, socialType));
+    @Transactional
+    public Member findOrCreateMemberBySocial(SocialType socialType, UserInfo userInfo) {
+        return memberService.findOptionalMemberBySocialId(socialType, userInfo.getId()) // 소셜 계정으로 멤버 조회
+                .orElseGet(() -> memberService.findMemberByEmail(userInfo.getEmail()) // Email로 조회
+                        .map(member -> {
+                            memberService.linkSocialAuth(member, new SocialAuth(socialType, userInfo.getId())); // 같은 멤버가 있다면 소셜 통합
+                            return member;
+                        })
+                        .orElseGet(() -> memberService.saveMember(userInfo, socialType)) // 없다면 새롭게 가입
+                );
+    }
 
-
+    public Token generateTokenAndAuthenticated(Member member) {
         log.info("액세스 토큰과 리프레시 토큰 생성");
         String newAccessToken = jwtUtils.generateAccessToken(member.getId());
         String newRefreshToken = findRefreshTokenInRedis(member);
@@ -74,10 +84,7 @@ public class AuthService {
         log.info("Authenticated 생성");
         registryAuthenticatedUser(member.getId());
 
-        log.info("응답에 토큰 삽입");
-        // 응답에 토큰 삽입
-        CookieUtils.addCookie(response, newRefreshToken);
-        response.addHeader(AUTHORIZATION_HEADER, BEARER_PREFIX + newAccessToken); // 헤더에 액세스 토큰 삽입
+        return new Token(newAccessToken, newRefreshToken);
     }
 
 

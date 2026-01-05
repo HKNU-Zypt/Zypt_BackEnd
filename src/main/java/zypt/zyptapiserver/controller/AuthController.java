@@ -9,11 +9,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import zypt.zyptapiserver.auth.user.UserInfo;
+import zypt.zyptapiserver.domain.Member;
+import zypt.zyptapiserver.dto.Token;
 import zypt.zyptapiserver.service.member.MemberService;
 import zypt.zyptapiserver.auth.service.AuthService;
 import zypt.zyptapiserver.auth.user.CustomUserDetails;
 import zypt.zyptapiserver.dto.RefreshTokenRequestDto;
 import zypt.zyptapiserver.dto.member.SocialLoginDto;
+import zypt.zyptapiserver.util.CookieUtils;
 
 @Slf4j
 @RestController
@@ -25,10 +29,20 @@ public class AuthController {
     private final AuthService authService;
     private final MemberService memberService;
 
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
+
     @PostMapping("/new")
     @Operation(summary = "로그인(회원가입)", description = "리프레시 토큰을 보낼 필요 X")
     public ResponseEntity<String> socialLogin(@RequestBody SocialLoginDto socialLoginDto, HttpServletResponse response) {
-        authService.handleAuthenticationFromSocialToken(response, socialLoginDto.type(), socialLoginDto.token());
+        UserInfo userInfo = authService.handleAuthenticationFromSocialToken(socialLoginDto.type(), socialLoginDto.token());
+        Member member = authService.findOrCreateMemberBySocial(socialLoginDto.type(), userInfo);
+        Token token = authService.generateTokenAndAuthenticated(member);
+
+        // 응답에 토큰 삽입
+        log.info("응답에 토큰 삽입");
+        CookieUtils.addCookie(response, token.refreshToken());
+        response.addHeader(AUTHORIZATION_HEADER, BEARER_PREFIX + token.accessToken()); // 헤더에 액세스 토큰 삽입
 
         return ResponseEntity.ok("로그인 성공");
     }

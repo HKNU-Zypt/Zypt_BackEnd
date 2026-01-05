@@ -23,112 +23,139 @@ import java.util.NoSuchElementException;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
-
     @ExceptionHandler(MemberNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> memberNotFoundException(Exception ex) {
+        ApiErrorResponse response = ErrorCode.MEMBER_NOT_FOUND_ERROR.getApiErrorResponse(ex.getMessage());
+        logError(response);
+
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(ErrorCode.MEMBER_NOT_FOUND_ERROR
-                        .getApiErrorResponse(ex.getMessage()));
+                .body(response);
     }
 
     @ExceptionHandler(RedisConnectionFailureException.class)
     public ResponseEntity<ApiErrorResponse> redisConnectionFailure(Exception ex) {
+        ApiErrorResponse response = ErrorCode.REDIS_CONNECTION_ERROR.getApiErrorResponse(ex.getMessage());
+        logError(response);
+
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ErrorCode.REDIS_CONNECTION_ERROR
-                        .getApiErrorResponse(ex.getMessage()));
+                .body(response);
     }
 
     @ExceptionHandler({MissingTokenException.class, InvalidTokenException.class})
     public ResponseEntity<ApiErrorResponse> reLogin(Exception ex) {
+        ApiErrorResponse response = ErrorCode.TOKEN_ERROR.getApiErrorResponse(ex.getMessage());
+        logError(response);
+
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(ErrorCode.TOKEN_ERROR
-                        .getApiErrorResponse(ex.getMessage()));
+                .body(response);
     }
 
     @ExceptionHandler(RestClientException.class)
     public ResponseEntity<ApiErrorResponse> restTemplateException(Exception ex) {
+        ApiErrorResponse response = ErrorCode.EXTERNAL_API_ERROR.getApiErrorResponse(ex.getMessage());
+        logError(response);
+
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ErrorCode.EXTERNAL_API_ERROR
-                        .getApiErrorResponse(ex.getMessage()));
+                .body(response);
     }
 
     @ExceptionHandler(OidcPublicKeyFetchException.class)
     public ResponseEntity<ApiErrorResponse> oidcPublicKeyFetchException(Exception ex) {
+        ApiErrorResponse response = ErrorCode.SOCIAL_SERVER_ERROR.getApiErrorResponse(ex.getMessage());
+        logError(response);
+
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ErrorCode.SOCIAL_SERVER_ERROR
-                        .getApiErrorResponse(ex.getMessage()));
+                .body(response);
     }
 
     @ExceptionHandler(InvalidOidcPublicKeyException.class)
     public ResponseEntity<ApiErrorResponse> invalidOidcPublicKeyException(Exception ex) {
+        ApiErrorResponse response = ErrorCode.TOKEN_ERROR.getApiErrorResponse(ex.getMessage());
+        logError(response);
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorCode.TOKEN_ERROR
-                        .getApiErrorResponse(ex.getMessage()));
+                .body(response);
     }
 
     @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
     public ResponseEntity<ApiErrorResponse> serverException(Exception ex) {
+        ApiErrorResponse response = ErrorCode.INTERNAL_SERVER_ERROR.getApiErrorResponse(ex.getMessage());
+        logError(response);
+
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ErrorCode.INTERNAL_SERVER_ERROR
-                        .getApiErrorResponse(ex.getMessage()));
+                .body(response);
     }
 
     @ExceptionHandler({DataAccessException.class, FocusTimeSaveFailedException.class})
     public ResponseEntity<ApiErrorResponse> dataAccessException(Exception ex) {
+        ApiErrorResponse response = ErrorCode.INTERNAL_SERVER_ERROR.getApiErrorResponse(ex.getMessage());
+        logError(response);
+
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ErrorCode.INTERNAL_SERVER_ERROR
-                        .getApiErrorResponse(ex.getMessage()));
+                .body(response);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleDuplicateEntry(Exception ex) {
+        ApiErrorResponse response = ErrorCode.DATA_INTEGRITY_VIOLATION_ERROR.getApiErrorResponse(ex.getMessage());
+        logError(response);
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorCode.DATA_INTEGRITY_VIOLATION_ERROR
-                        .getApiErrorResponse(ex.getMessage()));
+                .body(response);
     }
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<ApiErrorResponse> noSuchElementException(Exception ex) {
+        ApiErrorResponse response = ErrorCode.NOT_FOUND_ERROR.getApiErrorResponse(ex.getMessage());
+        logError(response);
+
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(ErrorCode.NOT_FOUND_ERROR
-                        .getApiErrorResponse(ex.getMessage()));
+                .body(response);
     }
 
     @ExceptionHandler(FocusTimeNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> focusTimeNotFoundException(Exception ex) {
+        ApiErrorResponse response = ErrorCode.FOCUS_TIME_NOT_FOUND_ERROR.getApiErrorResponse(ex.getMessage());
+        logError(response);
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorCode.FOCUS_TIME_NOT_FOUND_ERROR
-                        .getApiErrorResponse(ex.getMessage()));
+                .body(response);
     }
 
     @ExceptionHandler(InvalidParamException.class)
     public ResponseEntity<ApiErrorResponse> invalidParamException(Exception ex) {
+        ApiErrorResponse response = ErrorCode.BAD_REQUEST_PARAMETER_ERROR.getApiErrorResponse(ex.getMessage());
+        logError(response);
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorCode.BAD_REQUEST_PARAMETER_ERROR
-                        .getApiErrorResponse(ex.getMessage()));
+                .body(response);
     }
 
-    // 기존 스프링 404 예외
     @Override
     protected ResponseEntity<Object> handleNoResourceFoundException(NoResourceFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ApiErrorResponse response = ErrorCode.NOT_FOUND_ERROR.getApiErrorResponse(ex.getMessage());
+        logError(response);
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ErrorCode.NOT_FOUND_ERROR
-                        .getApiErrorResponse(ex.getMessage()));
+                .status(status)
+                .body(response);
     }
 
+    private void logError(ApiErrorResponse response) {
+        log.info("error code = {} \n message = {} \n detail = {}",
+                response.getCode(), response.getMessage(), response.getDetail());
+    }
 
 
 }

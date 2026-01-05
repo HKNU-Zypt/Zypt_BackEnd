@@ -45,7 +45,6 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
         return Optional.ofNullable(em.find(Member.class, memberId));
     }
 
-
     public Optional<MemberInfoDtoImpl> findMemberInfoById(String memberId) {
         return Optional.ofNullable(queryFactory.select(Projections.constructor(
                         MemberInfoDtoImpl.class,
@@ -71,8 +70,6 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 .findFirst();
     }
 
-
-
     public Optional<MemberAndLevelInfoDto> findMemberAndLevelInfo(String memberId) {
         return Optional.ofNullable(
                 queryFactory.select(new QMemberAndLevelInfoDto(
@@ -93,11 +90,17 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
         em.remove(member);
     }
 
-
+    @Transactional(readOnly = true)
     public RoleType findMemberRoleType(String memberId) {
         return queryFactory.select(qMember.roleType)
                 .from(qMember)
                 .where(qMember.id.eq(memberId))
                 .fetchOne();
+    }
+
+    public Optional<Member> findMemberByEmail(String email) {
+        return Optional.ofNullable(queryFactory.selectFrom(qMember)
+                .where(qMember.email.eq(email))
+                .fetchOne());
     }
 }

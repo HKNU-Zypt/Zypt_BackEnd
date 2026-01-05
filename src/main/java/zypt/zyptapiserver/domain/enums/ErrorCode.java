@@ -45,7 +45,6 @@ public enum ErrorCode {
     }
 
     public ApiErrorResponse getApiErrorResponse(String detail) {
-        log.info("error code = {} \n message = {} \n detail = {}" , this.code, this.message, detail);
         return new ApiErrorResponse(this.code, this.message, detail);
     }
 
