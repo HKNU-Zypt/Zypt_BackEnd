@@ -1,6 +1,8 @@
 package zypt.zyptapiserver.repository;
 
-
+import org.springframework.data.domain.Range;
+import org.springframework.data.redis.connection.Limit;
+import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import zypt.zyptapiserver.domain.exp.LevelExpInfo;
@@ -29,8 +31,10 @@ public class RedisCacheRepository {
      * @return
      */
     public LevelExpInfo getLevelExpInfoByExp(double curExp) {
+
+        // 현재 경험치에 맞는 적절한 레벨을 찾음
         Set<ZSetOperations.TypedTuple<String>> result
-                = zSetOperations.reverseRangeByScoreWithScores(EXP_KEY, 0, curExp);
+                = zSetOperations.reverseRangeByScoreWithScores(EXP_KEY, 0, curExp, 0, 1);
 
         if (result == null || result.isEmpty()) {
             return null;
@@ -65,12 +69,17 @@ public class RedisCacheRepository {
         }
 
         double baseExp = 100;
-        double multiplier = 1.07;
+        double multiplier = 1.09;
         int maxLevel = 100;
+        double pSum = 0;
 
-        for (int level = 1; level <= maxLevel; level++) {
-            double requiredExp = Math.ceil(baseExp * Math.pow(multiplier, level - 1));
-            zSetOperations.add(EXP_KEY, String.valueOf(level), requiredExp);
+        zSetOperations.add(EXP_KEY, "1", 0);
+
+        for (int level = 2; level <= maxLevel; level++) {
+            double requiredExp = Math.ceil(baseExp * Math.pow(multiplier, level - 2));
+            pSum += requiredExp;
+
+            zSetOperations.add(EXP_KEY, String.valueOf(level), pSum);
         }
     }
 }

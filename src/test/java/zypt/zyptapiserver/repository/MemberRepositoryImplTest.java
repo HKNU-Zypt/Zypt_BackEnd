@@ -27,7 +27,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 
 @Slf4j
-@Profile("test")
 @SpringBootTest
 class MemberRepositoryImplTest {
 
@@ -93,18 +92,18 @@ class MemberRepositoryImplTest {
         assertThatThrownBy(() -> service.findMember("44444"))
                 .isInstanceOf(MemberNotFoundException.class);
 
-        assertThatThrownBy(() -> service.findOptionalMemberBySocialId(null, "a"))
+
+        assertThatThrownBy(() -> service.findMemberBySocialId(SocialType.KAKAO, "a"))
                 .isInstanceOf(MemberNotFoundException.class);
 
-        assertThatThrownBy(() -> service.findOptionalMemberBySocialId(SocialType.KAKAO, "a"))
+        assertThatThrownBy(() -> service.findMemberBySocialId(null, "a"))
                 .isInstanceOf(MemberNotFoundException.class);
-
     }
 
     @Test
     @Transactional
     @DisplayName("멤버 삭제 테스트")
-    public void deleteMemberSuccessTest() throws Exception {
+    public void deleteMemberSuccessTest() {
         //given
         Member member = service.findMemberBySocialId(SocialType.NAVER, "123");
 
@@ -112,7 +111,7 @@ class MemberRepositoryImplTest {
         service.deleteMember(member.getId());
 
         //then
-        assertThatThrownBy(() -> service.findOptionalMemberBySocialId(SocialType.NAVER, "123"))
+        assertThatThrownBy(() -> service.findMemberBySocialId(SocialType.NAVER, "123"))
                 .isInstanceOf(MemberNotFoundException.class);
     }
 
