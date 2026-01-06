@@ -36,7 +36,7 @@ public class SocialServiceConfig {
     }
 
     @Bean
-    @Profile("dev")
+    @Profile({"dev", "test"})
     public SocialServiceFactory socialServiceFactoryDev() {
         return new SocialServiceFactory(socialTypeSocialServiceMap());
     }
