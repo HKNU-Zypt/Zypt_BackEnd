@@ -19,6 +19,8 @@ import zypt.zyptapiserver.auth.service.oidc.OIDCService;
 import zypt.zyptapiserver.auth.user.UserInfo;
 import zypt.zyptapiserver.dto.member.UnlinkDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
+import zypt.zyptapiserver.exception.InvalidOidcPublicKeyException;
+import zypt.zyptapiserver.exception.InvalidTokenException;
 import zypt.zyptapiserver.util.JwtUtils;
 
 import java.io.IOException;
@@ -57,7 +59,7 @@ public class KakaoService implements SocialService {
             String jwksUrl = service.getJwksUrl(SocialType.KAKAO);
             OIDCPublicKeysDto publicKeysDto = service.getOpenIdPublicKeys(SocialType.KAKAO, jwksUrl);
             OIDCPublicKeyDto keyDto = service.getPublicKeyByKid(kid, publicKeysDto.keys()); // kid에 맞는 공개키 탐색
-            PublicKey key = OIDCService.createRsaPublicKey(keyDto);
+            PublicKey key = service.createRsaPublicKey(keyDto);
 
             // 검증
             Claims claims = jwtUtils.validationIdToken(token, kakaoAppKey, SocialType.KAKAO.getIss(), key);
@@ -66,7 +68,7 @@ public class KakaoService implements SocialService {
                     claims.get("email", String.class));
 
         } catch (IOException e) {
-            throw new IllegalStateException("ID 토큰 헤더 파싱에 실패했습니다. ",e);
+            throw new InvalidOidcPublicKeyException("ID 토큰 헤더 파싱에 실패했습니다. ", e);
         }
 
     }

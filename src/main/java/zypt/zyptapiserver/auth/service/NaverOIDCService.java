@@ -13,6 +13,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import zypt.zyptapiserver.annotation.SocialIdentifier;
+import zypt.zyptapiserver.exception.InvalidOidcPublicKeyException;
+import zypt.zyptapiserver.exception.InvalidTokenException;
 import zypt.zyptapiserver.exception.JsonCustomException;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeyDto;
 import zypt.zyptapiserver.auth.service.oidc.OIDCPublicKeysDto;
@@ -56,7 +58,7 @@ public class NaverOIDCService implements SocialService {
             OIDCPublicKeysDto publicKeysDto = service.getOpenIdPublicKeys(SocialType.NAVER, jwksUrl);
 
             OIDCPublicKeyDto keyDto = service.getPublicKeyByKid(kid, publicKeysDto.keys()); // kid에 맞는 공개키 탐색
-            PublicKey key = OIDCService.createRsaPublicKey(keyDto);
+            PublicKey key = service.createRsaPublicKey(keyDto);
 
             // 검증
             Claims claims = jwtUtils.validationIdToken(token, naverClientId, SocialType.NAVER.getIss(), key);
@@ -64,7 +66,7 @@ public class NaverOIDCService implements SocialService {
             return new UserInfo(claims.getSubject(), "tmp");
 
         } catch (IOException e) {
-            throw new IllegalStateException("ID 토큰 헤더 파싱에 실패했습니다. " , e);
+            throw new InvalidOidcPublicKeyException("ID 토큰 헤더 파싱에 실패했습니다. " , e);
         }
 
     }

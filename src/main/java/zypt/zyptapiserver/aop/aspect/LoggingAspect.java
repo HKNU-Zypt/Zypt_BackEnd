@@ -32,7 +32,10 @@ public class LoggingAspect {
 
         try {
             Object result = joinPoint.proceed();
-            long time = System.currentTimeMillis() - start;
+
+            long end = System.currentTimeMillis();
+            long time = end - start;
+
             log.debug("{}|<-- {} {}ms", indent(depth), joinPoint.getSignature().toShortString(), time);
 
             return result;
