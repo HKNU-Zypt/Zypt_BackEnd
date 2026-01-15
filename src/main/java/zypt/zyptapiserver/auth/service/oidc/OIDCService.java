@@ -7,8 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -36,7 +35,7 @@ public class OIDCService {
 
     // OIDC 문서 정보 가져오기
     // SpringEL언어 사용
-    @Cacheable(value = "OIDC_JWKS", key = "#socialType")
+    @Cacheable(value = "OIDC_JWKS", key = "#socialType.name()")
     public String getJwksUrl(SocialType socialType)  {
 
         String url = switch (socialType) {
@@ -63,7 +62,7 @@ public class OIDCService {
      * 공개키를 획득
      * @return
      */
-    @Cacheable(value = "OCIDPublicKeys", key = "#socialType + '_keys'")
+    @Cacheable(value = "OIDCPublicKeys", key = "#socialType.name() + '_keys'")
     public OIDCPublicKeysDto getOpenIdPublicKeys(SocialType socialType, String jwksUrl){
 
         try {
@@ -94,7 +93,7 @@ public class OIDCService {
         return Arrays.stream(keys)
                 .filter(k -> k.kid().equals(kid))
                 .findFirst()
-                .orElseThrow(() -> new InvalidTokenException("일치하는 공개키가 없습니다."));
+                .orElseThrow(() -> new InvalidOidcPublicKeyException("일치하는 공개키가 없습니다."));
     }
 
     /**
@@ -102,7 +101,7 @@ public class OIDCService {
      * @param dto
      * @return
      */
-    public static PublicKey createRsaPublicKey(OIDCPublicKeyDto dto) {
+    public PublicKey createRsaPublicKey(OIDCPublicKeyDto dto) {
         BigInteger moduls = new BigInteger(1, Base64.getUrlDecoder().decode(dto.n()));
         BigInteger exponent = new BigInteger(1, Base64.getUrlDecoder().decode(dto.e()));
         RSAPublicKeySpec spec = new RSAPublicKeySpec(moduls, exponent); // RSA 공개키 스펙(형태) 객체

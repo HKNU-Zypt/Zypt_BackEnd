@@ -6,6 +6,7 @@ import io.jsonwebtoken.security.SignatureException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import zypt.zyptapiserver.exception.InvalidOidcPublicKeyException;
 import zypt.zyptapiserver.exception.InvalidTokenException;
 
 import java.security.Key;
@@ -133,8 +134,6 @@ public class JwtUtils {
      * @param key
      */
     public Claims validationIdToken(String idToken, String aud, String iss, PublicKey key) {
-
-
         try {
             Jws<Claims> jws = Jwts.parserBuilder()
                     .requireIssuer(iss)
@@ -148,9 +147,9 @@ public class JwtUtils {
             return claims;
 
         } catch (ExpiredJwtException e) {
-            throw new InvalidTokenException("만료된 토큰 : " + e);
+            throw new InvalidOidcPublicKeyException("만료된 토큰 ", e);
         } catch (JwtException e) {
-            throw new RuntimeException("검증 실패 :", e);
+            throw new InvalidOidcPublicKeyException("검증 실패 ", e);
         }
     }
 }

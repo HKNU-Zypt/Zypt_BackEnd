@@ -62,12 +62,48 @@ class RedisCacheRepositoryTest {
 
         Assertions.assertThat(expTable.size()).isEqualTo(1);
 
-
-        //
         Set<ZSetOperations.TypedTuple<String>> expTable1 = zSetOperations.reverseRangeByScoreWithScores("EXP_TABLE", 0, 1523);
         log.info("limit 안걸고 조회시 개수 = {}", expTable1.size());
         Assertions.assertThat(expTable1).isNotEqualTo(1);
-
     }
 
+    // used memory 94MB
+    // time 4128 ms
+    @Test
+    void performanceTest() {
+        long s = System.currentTimeMillis();
+
+        for (int i = 0; i < 10000; i++) {
+            Set<ZSetOperations.TypedTuple<String>> expTable = zSetOperations.reverseRangeByScoreWithScores("EXP_TABLE", 0, 100000);
+        }
+        long e = System.currentTimeMillis();
+        checkMemory();
+
+        log.info("time = {}", e - s);
+    }
+
+    // used memory 62 MB
+    // time 3329 ms
+    @Test
+    void performance2Test() {
+        long s = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++) {
+            Set<ZSetOperations.TypedTuple<String>> expTable = zSetOperations.reverseRangeByScoreWithScores("EXP_TABLE", 0, 100000, 0, 1);
+        }
+        long e = System.currentTimeMillis();
+        checkMemory();
+
+        log.info("time = {}", e - s);
+    }
+
+    public void checkMemory() {
+        Runtime runtime = Runtime.getRuntime();
+
+        long maxMemory = runtime.maxMemory();     // JVM이 사용할 수 있는 최대 메모리
+        long totalMemory = runtime.totalMemory(); // 현재 JVM에 할당된 총 메모리
+        long freeMemory = runtime.freeMemory();   // 할당된 메모리 중 여유 공간
+        long usedMemory = totalMemory - freeMemory; // 실제 사용 중인 메모리
+
+        log.info("Used Memory: {} MB", usedMemory / (1024 * 1024));
+    }
 }
