@@ -19,6 +19,7 @@ import zypt.zyptapiserver.auth.service.oidc.OIDCService;
 import zypt.zyptapiserver.auth.user.UserInfo;
 import zypt.zyptapiserver.dto.member.UnlinkDto;
 import zypt.zyptapiserver.domain.enums.SocialType;
+import zypt.zyptapiserver.exception.ExpiredIdTokenException;
 import zypt.zyptapiserver.exception.InvalidOidcPublicKeyException;
 import zypt.zyptapiserver.exception.InvalidTokenException;
 import zypt.zyptapiserver.util.JwtUtils;
@@ -46,7 +47,7 @@ public class KakaoService implements SocialService {
 
     // 유저 정보 가져오기
     @Override
-    public UserInfo getUserInfo(String token)  {
+    public UserInfo getUserInfo(String token) {
         // 토큰에서 kid를 공개키 목록에 있는지 확인 후 공개키 정보를 가져옴
         String header = token.split("\\.")[0];
         // ID 토큰 헤더 디코딩
@@ -67,8 +68,11 @@ public class KakaoService implements SocialService {
             return new UserInfo(claims.getSubject(),
                     claims.get("email", String.class));
 
-        } catch (IOException e) {
-            throw new InvalidOidcPublicKeyException("ID 토큰 헤더 파싱에 실패했습니다. ", e);
+        } catch (ExpiredIdTokenException e) {
+            throw e;
+
+        } catch (IllegalArgumentException | IOException e) {
+            throw new InvalidTokenException("ID 토큰 헤더 파싱에 실패했습니다. ", e);
         }
 
     }

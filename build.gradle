@@ -48,6 +48,8 @@ dependencies {
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-mysql'
 
+    //redission
+    implementation 'org.redisson:redisson-spring-boot-starter:3.24.3'
     // 프로메테우스
     implementation 'io.micrometer:micrometer-registry-prometheus'
 

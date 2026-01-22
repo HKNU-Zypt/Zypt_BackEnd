@@ -6,6 +6,7 @@ import io.jsonwebtoken.security.SignatureException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import zypt.zyptapiserver.exception.ExpiredIdTokenException;
 import zypt.zyptapiserver.exception.InvalidOidcPublicKeyException;
 import zypt.zyptapiserver.exception.InvalidTokenException;
 
@@ -147,7 +148,7 @@ public class JwtUtils {
             return claims;
 
         } catch (ExpiredJwtException e) {
-            throw new InvalidOidcPublicKeyException("만료된 토큰 ", e);
+            throw new ExpiredIdTokenException("ID 토큰 만료 ", e);
         } catch (JwtException e) {
             throw new InvalidOidcPublicKeyException("검증 실패 ", e);
         }

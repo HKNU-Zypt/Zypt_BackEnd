@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -24,12 +25,14 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class OIDCService {
 
+    private final StringRedisTemplate cacheRedisTemplate;
     private final RestTemplate restTemplate;
     private final ObjectMapper mapper;
 
@@ -62,7 +65,7 @@ public class OIDCService {
      * 공개키를 획득
      * @return
      */
-    @Cacheable(value = "OIDCPublicKeys", key = "#socialType.name() + '_keys'")
+    @Cacheable(value = "OIDCPublicKeys", key = "#socialType.name()")
     public OIDCPublicKeysDto getOpenIdPublicKeys(SocialType socialType, String jwksUrl){
 
         try {
@@ -71,16 +74,30 @@ public class OIDCService {
                     OIDCPublicKeysDto.class
             );
 
-            if (response.getStatusCode() != HttpStatus.OK) {
+            if (response.getStatusCode() != HttpStatus.OK ) {
                 throw new OidcPublicKeyFetchException("OIDCPublicKeys 목록 획득 실패");
+            }
+            if (response.getBody() == null) {
+                throw new OidcPublicKeyFetchException("OIDCpublicKeys 응답 바디 비어있음");
             }
 
             log.info("OCIDPublicKey 획득 성공");
+
+            markCacheRefreshed(socialType);
             return response.getBody();
 
         } catch (RestClientException e) {
             throw new OidcPublicKeyFetchException("OIDCPublicKeys 목록 획득 실패 ", e);
         }
+    }
+
+    private void markCacheRefreshed(SocialType socialType) {
+        cacheRedisTemplate
+                .opsForValue()
+                .set("oidc:public-keys:refreshed:" + socialType.name(),
+                        "1",
+                        60,
+                        TimeUnit.SECONDS);
     }
 
     /**

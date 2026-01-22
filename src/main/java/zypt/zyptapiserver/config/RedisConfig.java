@@ -1,5 +1,8 @@
 package zypt.zyptapiserver.config;
 
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -60,6 +63,17 @@ public class RedisConfig {
                 .disableCachingNullValues();
     }
 
+    // redisson 설정
+    @Bean
+    public RedissonClient redissonClient() {
+        Config config = new Config();
+        config.useSingleServer()
+                .setAddress("redis://" + cacheHost + ":" + cachePort)
+                .setConnectTimeout(3000) // 연결 타임아웃
+                .setTimeout(3000); // 명령 실행 타임아웃
+
+        return Redisson.create(config);
+    }
     /**
      * Redis 캐시 설정
      * 캐시 서버를 사용하도록 명시
